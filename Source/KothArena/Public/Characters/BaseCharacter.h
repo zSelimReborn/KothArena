@@ -9,6 +9,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
+class UHealthComponent;
 
 UCLASS()
 class KOTHARENA_API ABaseCharacter : public ACharacter
@@ -24,6 +25,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	void UpdateSprintStatus() const;
+
+	void OnDeath();
 	
 public:	
 	// Called every frame
@@ -32,12 +35,20 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	void RequestMove(const FVector2d& AxisValue);
 	void RequestLook(const FVector2d& AxisValue);
 	void RequestToggleSprint() const;
 	void RequestJump();
 	void RequestStopJumping();
 
+	UFUNCTION(BlueprintPure)
+	float GetMaxHealth() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetCurrentHealth() const;
+	
 // Components
 protected:
 	UPROPERTY(VisibleAnywhere, NoClear)
@@ -45,6 +56,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, NoClear)
 	TObjectPtr<UCameraComponent> CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, NoClear)
+	TObjectPtr<UHealthComponent> HealthComponent;
 
 // Properties
 protected:

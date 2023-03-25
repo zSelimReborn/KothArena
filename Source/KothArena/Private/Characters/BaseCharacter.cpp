@@ -5,6 +5,7 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
+#include "Components/HealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -19,6 +20,8 @@ ABaseCharacter::ABaseCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
 	CameraComponent->SetupAttachment(CameraBoom);
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +50,10 @@ void ABaseCharacter::UpdateSprintStatus() const
 	}
 }
 
+void ABaseCharacter::OnDeath()
+{
+}
+
 // Called every frame
 void ABaseCharacter::Tick(float DeltaTime)
 {
@@ -60,6 +67,27 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (HealthComponent->IsAlive())
+	{
+		HealthComponent->TakeDamage(DamageAmount);
+		if (!HealthComponent->IsAlive())
+		{
+			OnDeath();
+		}
+
+		return DamageAmount;
+	}
+	else
+	{
+		return 0.f;
+	}
 }
 
 void ABaseCharacter::RequestMove(const FVector2d& AxisValue)
@@ -110,5 +138,15 @@ void ABaseCharacter::RequestJump()
 void ABaseCharacter::RequestStopJumping()
 {
 	StopJumping();
+}
+
+float ABaseCharacter::GetMaxHealth() const
+{
+	return HealthComponent->GetMaxHealth();
+}
+
+float ABaseCharacter::GetCurrentHealth() const
+{
+	return HealthComponent->GetCurrentHealth();
 }
 
