@@ -3,7 +3,9 @@
 
 #include "Characters/ShooterCharacter.h"
 
+#include "Components/HealthComponent.h"
 #include "Components/ShieldComponent.h"
+#include "UI/PlayerHud.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -13,11 +15,34 @@ AShooterCharacter::AShooterCharacter()
 	ShieldComponent = CreateDefaultSubobject<UShieldComponent>(TEXT("Shield Component"));
 }
 
+void AShooterCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	PC = Cast<APlayerController>(GetController());
+	if (PlayerHudClass)
+	{
+		PlayerHudRef = CreateWidget<UPlayerHud>(PC, PlayerHudClass);
+		PlayerHudRef->AddToViewport();
+		PlayerHudRef->SetCurrentHealth(HealthComponent->GetCurrentHealth());
+		PlayerHudRef->SetMaxHealth(HealthComponent->GetMaxHealth());
+		PlayerHudRef->SetCurrentShield(ShieldComponent->GetCurrentShield());
+		PlayerHudRef->SetMaxShield(ShieldComponent->GetMaxShield());
+	}
+}
+
 float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	AActor* DamageCauser)
 {
 	bool bShouldDamageHealth = false;
 	float RemainingDamage = DamageAmount;
+	float DamageAbsorbedByShield = 0.f;
+	float DamageAbsorbedByHealth = 0.f;
+
+	if (!HealthComponent->IsAlive())
+	{
+		return 0.f;
+	}
 	
 	if (!ShieldComponent->IsBroken())
 	{
@@ -28,6 +53,7 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 			RemainingDamage = FMath::Abs(RemainingDamage);
 		}
 
+		DamageAbsorbedByShield = ((ShieldComponent->GetCurrentShield() - DamageAmount) < 0.f)? ShieldComponent->GetCurrentShield() : DamageAmount;
 		ShieldComponent->AbsorbDamage(DamageAmount);
 		if (ShieldComponent->IsBroken())
 		{
@@ -37,10 +63,16 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 
 	if (bShouldDamageHealth || ShieldComponent->IsBroken())
 	{
-		Super::TakeDamage(RemainingDamage, DamageEvent, EventInstigator, DamageCauser);
+		DamageAbsorbedByHealth = Super::TakeDamage(RemainingDamage, DamageEvent, EventInstigator, DamageCauser);
 	}
 
-	return DamageAmount;
+	const float TotalDamageAbsorbed = DamageAbsorbedByShield + DamageAbsorbedByHealth;
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnTakeDamage(TotalDamageAbsorbed, HealthComponent->GetCurrentHealth(), ShieldComponent->GetCurrentShield());
+	}
+	
+	return TotalDamageAbsorbed;
 }
 
 float AShooterCharacter::GetMaxShield() const

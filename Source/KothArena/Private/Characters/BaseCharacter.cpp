@@ -74,20 +74,18 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+	float DamageAbsorbed = 0.f;
 	if (HealthComponent->IsAlive())
 	{
+		DamageAbsorbed = ((HealthComponent->GetCurrentHealth() - DamageAmount) < 0.f)? HealthComponent->GetCurrentHealth() : DamageAmount;
 		HealthComponent->TakeDamage(DamageAmount);
 		if (!HealthComponent->IsAlive())
 		{
 			OnDeath();
 		}
-
-		return DamageAmount;
 	}
-	else
-	{
-		return 0.f;
-	}
+	
+	return DamageAbsorbed;
 }
 
 void ABaseCharacter::RequestMove(const FVector2d& AxisValue)

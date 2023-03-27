@@ -7,6 +7,7 @@
 #include "ShooterCharacter.generated.h"
 
 class UShieldComponent;
+class UPlayerHud;
 
 /**
  * 
@@ -19,6 +20,8 @@ class KOTHARENA_API AShooterCharacter : public ABaseCharacter
 	
 public:
 	AShooterCharacter();
+
+	virtual void BeginPlay() override;
 	
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
@@ -35,4 +38,14 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, NoClear)
 	TObjectPtr<UShieldComponent> ShieldComponent;
+
+protected:
+	UPROPERTY(Transient)
+	TObjectPtr<APlayerController> PC;
+	
+	UPROPERTY(EditAnywhere, Category="HUD")
+	TSubclassOf<UPlayerHud> PlayerHudClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UPlayerHud> PlayerHudRef;
 };
