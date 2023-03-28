@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Gameplay/Items/BaseItem.h"
+#include "ConsumableItem.h"
 #include "ShieldItem.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class KOTHARENA_API AShieldItem : public ABaseItem
+class KOTHARENA_API AShieldItem : public AConsumableItem
 {
 	GENERATED_BODY()
 

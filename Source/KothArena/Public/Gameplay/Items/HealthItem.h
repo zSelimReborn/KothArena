@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Gameplay/Items/BaseItem.h"
+#include "ConsumableItem.h"
 #include "HealthItem.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class KOTHARENA_API AHealthItem : public ABaseItem
+class KOTHARENA_API AHealthItem : public AConsumableItem
 {
 	GENERATED_BODY()
 
