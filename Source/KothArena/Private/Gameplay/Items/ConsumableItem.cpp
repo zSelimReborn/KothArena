@@ -25,6 +25,8 @@ AConsumableItem::AConsumableItem()
 void AConsumableItem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bIsItemEnabled = bIsItemEnabledOnBeginPlay;
 	
 	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AConsumableItem::OnBeginOverlap);
 	RotatingMovementComponent->SetUpdatedComponent(BaseMeshComponent);
@@ -33,6 +35,11 @@ void AConsumableItem::BeginPlay()
 void AConsumableItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!IsItemEnabled())
+	{
+		return;
+	}
+	
 	if (!bConsumeOnOverlap)
 	{
 		return;

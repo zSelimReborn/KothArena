@@ -50,6 +50,9 @@ protected:
 // Properties
 protected:
 	UPROPERTY(EditAnywhere, Category="Item")
+	bool bIsItemEnabledOnBeginPlay = true;
+	
+	UPROPERTY(EditAnywhere, Category="Item")
 	bool bDestroyOnConsume = true;
 
 	UPROPERTY(EditAnywhere, Category="Item")

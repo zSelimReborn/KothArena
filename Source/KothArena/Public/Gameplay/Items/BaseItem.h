@@ -26,6 +26,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	FItemUsedDelegate& OnItemUsed() { return ItemUsedDelegate; }
+
+	FORCEINLINE bool IsItemEnabled() const { return bIsItemEnabled; }
+	FORCEINLINE void DisableItem() { bIsItemEnabled = false; }
+	FORCEINLINE void EnableItem() { bIsItemEnabled = true; }
 	
 // Components
 protected:
@@ -35,4 +39,7 @@ protected:
 // Properties
 protected:
 	FItemUsedDelegate ItemUsedDelegate;
+
+	UPROPERTY(VisibleAnywhere, Category="Item")
+	bool bIsItemEnabled = true;
 };
