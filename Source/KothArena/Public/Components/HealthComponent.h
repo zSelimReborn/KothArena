@@ -32,7 +32,7 @@ public:
 	void TakeDamage(const float& Damage);
 
 	UFUNCTION(BlueprintCallable)
-	void RegenHealth(const float& Amount);
+	bool RegenHealth(const float& Amount);
 
 	UFUNCTION(BlueprintPure)
 	bool IsAlive() const;

@@ -85,6 +85,35 @@ float AShooterCharacter::GetCurrentShield() const
 	return ShieldComponent->GetCurrentShield();
 }
 
+bool AShooterCharacter::AddHealthRegen(const float& HealthAmount)
+{
+	if (HealthComponent->RegenHealth(HealthAmount))
+	{
+		if (PlayerHudRef)
+		{
+			PlayerHudRef->OnRegen(HealthAmount, HealthComponent->GetCurrentHealth(), ShieldComponent->GetCurrentShield());
+		}
+		return true;
+	}
+
+	return false;
+}
+
+bool AShooterCharacter::AddShieldRegen(const float& ShieldAmount)
+{
+	if (ShieldComponent->RegenShield(ShieldAmount))
+	{
+		if (PlayerHudRef)
+		{
+			PlayerHudRef->OnRegen(ShieldAmount, HealthComponent->GetCurrentHealth(), ShieldComponent->GetCurrentShield());
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 void AShooterCharacter::OnShieldBroken()
 {
 }

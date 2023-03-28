@@ -31,6 +31,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetCurrentShield() const;
 
+	UFUNCTION(BlueprintCallable)
+	bool AddHealthRegen(const float& HealthAmount);
+
+	UFUNCTION(BlueprintCallable)
+	bool AddShieldRegen(const float& ShieldAmount);
+
 protected:
 	void OnShieldBroken();
 

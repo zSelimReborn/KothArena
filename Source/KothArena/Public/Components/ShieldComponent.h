@@ -32,7 +32,7 @@ public:
 	void AbsorbDamage(const float& Damage);
 
 	UFUNCTION(BlueprintCallable)
-	void RegenShield(const float& Amount);
+	bool RegenShield(const float& Amount);
 
 	UFUNCTION(BlueprintPure)
 	bool IsBroken() const;

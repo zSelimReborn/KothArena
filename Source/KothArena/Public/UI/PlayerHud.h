@@ -31,5 +31,8 @@ public:
 	void OnTakeDamage(const float& Damage, const float& HealthValue, const float& ShieldValue);
 
 	UFUNCTION(BlueprintImplementableEvent)
+	void OnRegen(const float& RegenAmount, const float& HealthValue, const float& ShieldValue);
+	
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnPlayerDeath();
 };

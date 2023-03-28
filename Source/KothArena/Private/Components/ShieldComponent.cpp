@@ -43,9 +43,15 @@ void UShieldComponent::AbsorbDamage(const float& Damage)
 	}
 }
 
-void UShieldComponent::RegenShield(const float& Amount)
+bool UShieldComponent::RegenShield(const float& Amount)
 {
+	if (CurrentShield >= MaxShield)
+	{
+		return false;
+	}
+	
 	CurrentShield = FMath::Min(MaxShield, CurrentShield + Amount);
+	return true;
 }
 
 bool UShieldComponent::IsBroken() const

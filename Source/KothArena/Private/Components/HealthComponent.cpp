@@ -43,14 +43,20 @@ void UHealthComponent::TakeDamage(const float& Damage)
 	}
 }
 
-void UHealthComponent::RegenHealth(const float& Amount)
+bool UHealthComponent::RegenHealth(const float& Amount)
 {
 	if (!IsAlive())
 	{
-		return;
+		return false;
 	}
 
+	if (CurrentHealth >= MaxHealth)
+	{
+		return false;
+	}
+	
 	CurrentHealth = FMath::Min(MaxHealth, CurrentHealth + Amount);
+	return true;
 }
 
 bool UHealthComponent::IsAlive() const
