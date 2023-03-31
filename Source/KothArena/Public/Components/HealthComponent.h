@@ -29,7 +29,7 @@ public:
 // Component interface
 public:
 	UFUNCTION(BlueprintCallable)
-	void TakeDamage(const float& Damage);
+	float TakeDamage(const float& Damage);
 
 	UFUNCTION(BlueprintCallable)
 	bool RegenHealth(const float& Amount);

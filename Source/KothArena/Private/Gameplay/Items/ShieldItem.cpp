@@ -3,7 +3,7 @@
 
 #include "Gameplay/Items/ShieldItem.h"
 
-#include "Characters/ShooterCharacter.h"
+#include "Characters/BaseCharacter.h"
 
 int32 AShieldItem::GetShieldAmountToRegen() const
 {
@@ -12,11 +12,11 @@ int32 AShieldItem::GetShieldAmountToRegen() const
 
 bool AShieldItem::ConsumeItem(AActor* InstigatorActor)
 {
-	AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(InstigatorActor);
-	if (ShooterCharacter)
+	ABaseCharacter* Character = Cast<ABaseCharacter>(InstigatorActor);
+	if (Character)
 	{
 		const int32 ShieldAmount = GetShieldAmountToRegen();
-		return ShooterCharacter->AddShieldRegen(ShieldAmount);
+		return Character->AddShieldRegen(ShieldAmount);
 	}
 
 	return false;

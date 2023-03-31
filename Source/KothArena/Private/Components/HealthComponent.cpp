@@ -29,18 +29,21 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UHealthComponent::TakeDamage(const float& Damage)
+float UHealthComponent::TakeDamage(const float& Damage)
 {
 	if (!IsAlive())
 	{
-		return;
+		return 0.f;
 	}
 
+	const float TakenDamage = (CurrentHealth - Damage <= 0.f)? CurrentHealth : Damage;
 	CurrentHealth = FMath::Max(0.f, CurrentHealth - Damage);
 	if (!IsAlive())
 	{
 		OnDeathDelegate.Broadcast();
 	}
+
+	return TakenDamage;
 }
 
 bool UHealthComponent::RegenHealth(const float& Amount)

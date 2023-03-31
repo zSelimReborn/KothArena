@@ -8,6 +8,8 @@
 #include "Components/HealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/ShieldComponent.h"
+#include "UI/PlayerHud.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -22,6 +24,7 @@ ABaseCharacter::ABaseCharacter()
 	CameraComponent->SetupAttachment(CameraBoom);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
+	ShieldComponent = CreateDefaultSubobject<UShieldComponent>(TEXT("Shield Component"));
 }
 
 // Called when the game starts or when spawned
@@ -29,13 +32,16 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
-		UEnhancedInputLocalPlayerSubsystem* EnhancedInputComponent = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+		UEnhancedInputLocalPlayerSubsystem* EnhancedInputComponent = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 		if (EnhancedInputComponent)
 		{
 			EnhancedInputComponent->AddMappingContext(MappingContext, 0);
 		}
+
+		PC = PlayerController;
+		InitializeHud();
 	}
 }
 
@@ -50,8 +56,72 @@ void ABaseCharacter::UpdateSprintStatus() const
 	}
 }
 
+float ABaseCharacter::AbsorbShieldDamage(const float DamageAmount)
+{
+	if (!ShieldComponent)
+	{
+		return 0.f;
+	}
+
+	if (DamageAmount <= 0.f)
+	{
+		return 0.f;
+	}
+
+	const float AbsorbedDamage = ShieldComponent->AbsorbDamage(DamageAmount);
+	if (PlayerHudRef && AbsorbedDamage > 0.f)
+	{
+		PlayerHudRef->OnAbsorbShieldDamage(AbsorbedDamage, ShieldComponent->GetCurrentShield());	
+	}
+	
+	if (ShieldComponent->IsBroken())
+	{
+		OnShieldBroken();
+	}
+
+	return AbsorbedDamage;
+}
+
+float ABaseCharacter::TakeHealthDamage(const float DamageAmount)
+{
+	if (DamageAmount <= 0.f)
+	{
+		return 0.f;
+	}
+	
+	const float TakenDamage = HealthComponent->TakeDamage(DamageAmount);
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnTakeHealthDamage(TakenDamage, HealthComponent->GetCurrentHealth());
+	}
+	
+	if (!HealthComponent->IsAlive())
+	{
+		OnDeath();
+	}
+
+	return TakenDamage;
+}
+
 void ABaseCharacter::OnDeath()
 {
+}
+
+void ABaseCharacter::InitializeHud()
+{
+	if (PlayerHudClass)
+	{
+		PlayerHudRef = CreateWidget<UPlayerHud>(PC, PlayerHudClass);
+		PlayerHudRef->AddToViewport();
+		PlayerHudRef->InitializeHealthAndShield(
+			(HealthComponent != nullptr),
+			(HealthComponent)? HealthComponent->GetMaxHealth() : 0.f,
+			(HealthComponent)? HealthComponent->GetCurrentHealth() : 0.f,
+			(ShieldComponent != nullptr),
+			(ShieldComponent)? ShieldComponent->GetMaxShield() : 0.f,
+			(ShieldComponent)? ShieldComponent->GetCurrentShield() : 0.f
+		);
+	}
 }
 
 // Called every frame
@@ -74,18 +144,15 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	float DamageAbsorbed = 0.f;
-	if (HealthComponent->IsAlive())
+	if (!HealthComponent->IsAlive())
 	{
-		DamageAbsorbed = ((HealthComponent->GetCurrentHealth() - DamageAmount) < 0.f)? HealthComponent->GetCurrentHealth() : DamageAmount;
-		HealthComponent->TakeDamage(DamageAmount);
-		if (!HealthComponent->IsAlive())
-		{
-			OnDeath();
-		}
+		return 0.f;
 	}
+
+	const float ShieldAbsorbedDamage = AbsorbShieldDamage(DamageAmount);
+	const float RemainingDamage = (DamageAmount - ShieldAbsorbedDamage <= 0.f)? 0.f : DamageAmount - ShieldAbsorbedDamage;
 	
-	return DamageAbsorbed;
+	return TakeHealthDamage(RemainingDamage);
 }
 
 void ABaseCharacter::RequestMove(const FVector2d& AxisValue)
@@ -148,3 +215,53 @@ float ABaseCharacter::GetCurrentHealth() const
 	return HealthComponent->GetCurrentHealth();
 }
 
+float ABaseCharacter::GetMaxShield() const
+{
+	check(ShieldComponent);
+	return ShieldComponent->GetMaxShield();
+}
+
+float ABaseCharacter::GetCurrentShield() const
+{
+	check(ShieldComponent);
+	return ShieldComponent->GetCurrentShield();
+}
+
+bool ABaseCharacter::AddHealthRegen(const float HealthAmount)
+{
+	if (HealthComponent->RegenHealth(HealthAmount))
+	{
+		if (PlayerHudRef)
+		{
+			PlayerHudRef->OnRegenHealth(HealthAmount, HealthComponent->GetCurrentHealth());
+		}
+		return true;
+	}
+
+	return false;
+}
+
+bool ABaseCharacter::AddShieldRegen(const float ShieldAmount)
+{
+	if (!ShieldComponent)
+	{
+		return false;
+	}
+	
+	if (ShieldComponent->RegenShield(ShieldAmount))
+	{
+		if (PlayerHudRef)
+		{
+			PlayerHudRef->OnRegenShield(ShieldAmount, ShieldComponent->GetCurrentShield());
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void ABaseCharacter::OnShieldBroken()
+{
+	
+}

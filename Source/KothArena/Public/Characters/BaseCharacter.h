@@ -10,6 +10,8 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UHealthComponent;
+class UShieldComponent;
+class UPlayerHud;
 
 UCLASS()
 class KOTHARENA_API ABaseCharacter : public ACharacter
@@ -20,13 +22,22 @@ public:
 	// Sets default values for this character's properties
 	ABaseCharacter();
 
+// Features
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	void UpdateSprintStatus() const;
 
+	float AbsorbShieldDamage(const float DamageAmount);
+
+	float TakeHealthDamage(const float DamageAmount);
+	
+	void OnShieldBroken();
+
 	void OnDeath();
+
+	void InitializeHud();
 	
 public:	
 	// Called every frame
@@ -48,6 +59,18 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	float GetCurrentHealth() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetMaxShield() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetCurrentShield() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool AddHealthRegen(const float HealthAmount);
+
+	UFUNCTION(BlueprintCallable)
+	bool AddShieldRegen(const float ShieldAmount);
 	
 // Components
 protected:
@@ -59,6 +82,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, NoClear)
 	TObjectPtr<UHealthComponent> HealthComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UShieldComponent> ShieldComponent;
 
 // Properties
 protected:
@@ -76,4 +102,13 @@ protected:
 
 	UPROPERTY(Transient)
 	float WalkSpeed = 600.f;
+
+	UPROPERTY(Transient)
+	TObjectPtr<APlayerController> PC;
+	
+	UPROPERTY(EditAnywhere, Category="HUD")
+	TSubclassOf<UPlayerHud> PlayerHudClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UPlayerHud> PlayerHudRef;
 };

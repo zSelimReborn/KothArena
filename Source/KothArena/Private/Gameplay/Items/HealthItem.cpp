@@ -3,7 +3,7 @@
 
 #include "Gameplay/Items/HealthItem.h"
 
-#include "Characters/ShooterCharacter.h"
+#include "Characters/BaseCharacter.h"
 
 int32 AHealthItem::GetHealthAmountToRegen() const
 {
@@ -12,11 +12,11 @@ int32 AHealthItem::GetHealthAmountToRegen() const
 
 bool AHealthItem::ConsumeItem(AActor* InstigatorActor)
 {
-	AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(InstigatorActor);
-	if (ShooterCharacter)
+	ABaseCharacter* Character = Cast<ABaseCharacter>(InstigatorActor);
+	if (Character)
 	{
 		const int32 HealthAmount = GetHealthAmountToRegen();
-		return ShooterCharacter->AddHealthRegen(HealthAmount);
+		return Character->AddHealthRegen(HealthAmount);
 	}
 
 	return false;

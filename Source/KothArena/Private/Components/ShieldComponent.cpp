@@ -29,18 +29,21 @@ void UShieldComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UShieldComponent::AbsorbDamage(const float& Damage)
+float UShieldComponent::AbsorbDamage(const float& Damage)
 {
 	if (IsBroken())
 	{
-		return;
+		return 0.f;
 	}
 
+	const float AbsorbedDamage = (CurrentShield - Damage <= 0.f)? CurrentShield : Damage; 
 	CurrentShield = FMath::Max(0.f, CurrentShield - Damage);
 	if (IsBroken())
 	{
 		OnShieldBreakDelegate.Broadcast();
 	}
+
+	return AbsorbedDamage;
 }
 
 bool UShieldComponent::RegenShield(const float& Amount)

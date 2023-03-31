@@ -16,22 +16,19 @@ class KOTHARENA_API UPlayerHud : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetCurrentShield(const float& ShieldValue);
+	void InitializeHealthAndShield(bool bHasHealth, const float MaxHealth, const float CurrentHealth, bool bHasShield, const float MaxShield, const float CurrentShield);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetMaxShield(const float& MaxShieldValue);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetCurrentHealth(const float& HealthValue);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetMaxHealth(const float& MaxHealth);
+	void OnAbsorbShieldDamage(const float Damage, const float NewShieldValue);
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnTakeDamage(const float& Damage, const float& HealthValue, const float& ShieldValue);
+	void OnTakeHealthDamage(const float Damage, const float NewHealthValue);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnRegen(const float& RegenAmount, const float& HealthValue, const float& ShieldValue);
+	void OnRegenShield(const float RegenAmount, const float NewShieldValue);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnRegenHealth(const float RegenAmount, const float NewHealthValue);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnPlayerDeath();

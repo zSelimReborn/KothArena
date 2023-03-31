@@ -29,7 +29,7 @@ public:
 // Component interface
 public:
 	UFUNCTION(BlueprintCallable)
-	void AbsorbDamage(const float& Damage);
+	float AbsorbDamage(const float& Damage);
 
 	UFUNCTION(BlueprintCallable)
 	bool RegenShield(const float& Amount);
