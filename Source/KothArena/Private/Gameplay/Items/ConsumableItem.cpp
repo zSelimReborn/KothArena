@@ -32,9 +32,23 @@ void AConsumableItem::BeginPlay()
 	RotatingMovementComponent->SetUpdatedComponent(BaseMeshComponent);
 }
 
+void AConsumableItem::RequestConsumeItem(AActor* InstigatorActor)
+{
+	if (ConsumeItem(InstigatorActor))
+	{
+		ItemUsedDelegate.Broadcast(this, InstigatorActor);
+		if (bDestroyOnConsume)
+		{
+			Destroy();
+		}
+	}
+}
+
 void AConsumableItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	LastOverlappingActor = OtherActor;
+	
 	if (!IsItemEnabled())
 	{
 		return;
@@ -44,14 +58,16 @@ void AConsumableItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, A
 	{
 		return;
 	}
-	
-	if (ConsumeItem(OtherActor))
+
+	RequestConsumeItem(OtherActor);
+}
+
+void AConsumableItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (LastOverlappingActor.IsValid())
 	{
-		ItemUsedDelegate.Broadcast(this, OtherActor);
-		if (bDestroyOnConsume)
-		{
-			Destroy();
-		}
+		LastOverlappingActor = nullptr;
 	}
 }
 
@@ -64,4 +80,17 @@ bool AConsumableItem::ConsumeItem(AActor* InstigatorActor)
 {
 	// Override in children classes
 	return false;
+}
+
+void AConsumableItem::EnableItem()
+{
+	Super::EnableItem();
+
+	if (LastOverlappingActor.IsValid())
+	{
+		if (TriggerVolume->IsOverlappingActor(LastOverlappingActor.Get()))
+		{
+			RequestConsumeItem(LastOverlappingActor.Get());
+		}
+	}
 }

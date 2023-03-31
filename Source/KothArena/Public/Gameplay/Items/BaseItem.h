@@ -28,8 +28,8 @@ public:
 	FItemUsedDelegate& OnItemUsed() { return ItemUsedDelegate; }
 
 	FORCEINLINE bool IsItemEnabled() const { return bIsItemEnabled; }
-	FORCEINLINE void DisableItem() { bIsItemEnabled = false; }
-	FORCEINLINE void EnableItem() { bIsItemEnabled = true; }
+	virtual void DisableItem() { bIsItemEnabled = false; }
+	virtual void EnableItem() { bIsItemEnabled = true; }
 	
 // Components
 protected:
