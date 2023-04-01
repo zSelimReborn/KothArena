@@ -29,6 +29,7 @@ void AConsumableItem::BeginPlay()
 	bIsItemEnabled = bIsItemEnabledOnBeginPlay;
 	
 	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AConsumableItem::OnBeginOverlap);
+	TriggerVolume->OnComponentEndOverlap.AddDynamic(this, &AConsumableItem::OnEndOverlap);
 	RotatingMovementComponent->SetUpdatedComponent(BaseMeshComponent);
 }
 

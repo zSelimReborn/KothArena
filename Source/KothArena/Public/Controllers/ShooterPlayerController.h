@@ -9,6 +9,7 @@
 
 class ABaseCharacter;
 class UInputAction;
+class UPlayerHud;
 
 /**
  * 
@@ -24,6 +25,24 @@ public:
 
 // Callbacks
 protected:
+	UFUNCTION()
+	void OnCharacterReady(ACharacter* InstigatorCharacter);
+	
+	UFUNCTION()
+	void OnCharacterAbsorbShieldDamage(ACharacter* InstigatorCharacter, const float AbsorbedDamage, const float NewShieldValue);
+
+	UFUNCTION()
+	void OnCharacterTakeHealthDamage(ACharacter* InstigatorCharacter, const float TakenDamage, const float NewHealthValue);
+
+	UFUNCTION()
+	void OnCharacterRegenShield(ACharacter* InstigatorCharacter, const float RegenAmount, const float NewShieldValue);
+
+	UFUNCTION()
+	void OnCharacterRegenHealth(ACharacter* InstigatorCharacter, const float RegenAmount, const float NewHealthValue);
+
+protected:
+	void InitializeHud();
+	void InitializeHudDelegates();
 	
 // Action functions
 protected:
@@ -38,6 +57,12 @@ protected:
 protected:
 	UPROPERTY(Transient)
 	TObjectPtr<ABaseCharacter> BaseCharacterRef;
+
+	UPROPERTY(EditAnywhere, Category="HUD")
+	TSubclassOf<UPlayerHud> PlayerHudClass;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UPlayerHud> PlayerHudRef;
 	
 // Bindings
 protected:

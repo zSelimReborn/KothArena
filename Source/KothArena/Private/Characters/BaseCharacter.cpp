@@ -24,7 +24,6 @@ ABaseCharacter::ABaseCharacter()
 	CameraComponent->SetupAttachment(CameraBoom);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
-	ShieldComponent = CreateDefaultSubobject<UShieldComponent>(TEXT("Shield Component"));
 }
 
 // Called when the game starts or when spawned
@@ -32,6 +31,8 @@ void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ShieldComponent = FindComponentByClass<UShieldComponent>();
+	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
 		UEnhancedInputLocalPlayerSubsystem* EnhancedInputComponent = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
@@ -41,8 +42,9 @@ void ABaseCharacter::BeginPlay()
 		}
 
 		PC = PlayerController;
-		InitializeHud();
 	}
+
+	CharacterReadyDelegate.Broadcast(this);
 }
 
 void ABaseCharacter::UpdateSprintStatus() const
@@ -69,9 +71,9 @@ float ABaseCharacter::AbsorbShieldDamage(const float DamageAmount)
 	}
 
 	const float AbsorbedDamage = ShieldComponent->AbsorbDamage(DamageAmount);
-	if (PlayerHudRef && AbsorbedDamage > 0.f)
+	if (AbsorbedDamage > 0.f)
 	{
-		PlayerHudRef->OnAbsorbShieldDamage(AbsorbedDamage, ShieldComponent->GetCurrentShield());	
+		AbsorbShieldDamageDelegate.Broadcast(this, AbsorbedDamage, ShieldComponent->GetCurrentShield());
 	}
 	
 	if (ShieldComponent->IsBroken())
@@ -90,10 +92,7 @@ float ABaseCharacter::TakeHealthDamage(const float DamageAmount)
 	}
 	
 	const float TakenDamage = HealthComponent->TakeDamage(DamageAmount);
-	if (PlayerHudRef)
-	{
-		PlayerHudRef->OnTakeHealthDamage(TakenDamage, HealthComponent->GetCurrentHealth());
-	}
+	TakeHealthDamageDelegate.Broadcast(this, TakenDamage, HealthComponent->GetCurrentHealth());
 	
 	if (!HealthComponent->IsAlive())
 	{
@@ -105,23 +104,6 @@ float ABaseCharacter::TakeHealthDamage(const float DamageAmount)
 
 void ABaseCharacter::OnDeath()
 {
-}
-
-void ABaseCharacter::InitializeHud()
-{
-	if (PlayerHudClass)
-	{
-		PlayerHudRef = CreateWidget<UPlayerHud>(PC, PlayerHudClass);
-		PlayerHudRef->AddToViewport();
-		PlayerHudRef->InitializeHealthAndShield(
-			(HealthComponent != nullptr),
-			(HealthComponent)? HealthComponent->GetMaxHealth() : 0.f,
-			(HealthComponent)? HealthComponent->GetCurrentHealth() : 0.f,
-			(ShieldComponent != nullptr),
-			(ShieldComponent)? ShieldComponent->GetMaxShield() : 0.f,
-			(ShieldComponent)? ShieldComponent->GetCurrentShield() : 0.f
-		);
-	}
 }
 
 // Called every frame
@@ -215,26 +197,36 @@ float ABaseCharacter::GetCurrentHealth() const
 	return HealthComponent->GetCurrentHealth();
 }
 
+bool ABaseCharacter::HasShield() const
+{
+	return ShieldComponent != nullptr;
+}
+
 float ABaseCharacter::GetMaxShield() const
 {
-	check(ShieldComponent);
-	return ShieldComponent->GetMaxShield();
+	if (HasShield())
+	{
+		return ShieldComponent->GetMaxShield();
+	}
+
+	return 0.f;
 }
 
 float ABaseCharacter::GetCurrentShield() const
 {
-	check(ShieldComponent);
-	return ShieldComponent->GetCurrentShield();
+	if (HasShield())
+	{
+		return ShieldComponent->GetCurrentShield();
+	}
+
+	return 0.f;
 }
 
 bool ABaseCharacter::AddHealthRegen(const float HealthAmount)
 {
 	if (HealthComponent->RegenHealth(HealthAmount))
 	{
-		if (PlayerHudRef)
-		{
-			PlayerHudRef->OnRegenHealth(HealthAmount, HealthComponent->GetCurrentHealth());
-		}
+		RegenHealthDelegate.Broadcast(this, HealthAmount, HealthComponent->GetCurrentHealth());
 		return true;
 	}
 
@@ -250,11 +242,7 @@ bool ABaseCharacter::AddShieldRegen(const float ShieldAmount)
 	
 	if (ShieldComponent->RegenShield(ShieldAmount))
 	{
-		if (PlayerHudRef)
-		{
-			PlayerHudRef->OnRegenShield(ShieldAmount, ShieldComponent->GetCurrentShield());
-		}
-
+		RegenShieldDelegate.Broadcast(this, ShieldAmount, ShieldComponent->GetCurrentShield());
 		return true;
 	}
 

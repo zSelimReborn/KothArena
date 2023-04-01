@@ -4,6 +4,8 @@
 #include "Controllers/ShooterPlayerController.h"
 
 #include "EnhancedInputComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "UI/PlayerHud.h"
 #include "Characters/BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -12,6 +14,10 @@ void AShooterPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	BaseCharacterRef = Cast<ABaseCharacter>(GetCharacter());
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->OnCharacterReady().AddDynamic(this, &AShooterPlayerController::OnCharacterReady);
+	}
 }
 
 void AShooterPlayerController::SetupInputComponent()
@@ -32,6 +38,79 @@ void AShooterPlayerController::SetupInputComponent()
 
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestSprintAction);
 		}
+	}
+}
+
+void AShooterPlayerController::OnCharacterReady(ACharacter* InstigatorCharacter)
+{
+	InitializeHud();
+	InitializeHudDelegates();
+}
+
+void AShooterPlayerController::OnCharacterAbsorbShieldDamage(ACharacter* InstigatorCharacter,
+	const float AbsorbedDamage, const float NewShieldValue)
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnAbsorbShieldDamage(AbsorbedDamage, NewShieldValue);
+	}
+}
+
+void AShooterPlayerController::OnCharacterTakeHealthDamage(ACharacter* InstigatorCharacter, const float TakenDamage,
+	const float NewHealthValue)
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnTakeHealthDamage(TakenDamage, NewHealthValue);
+	}
+}
+
+void AShooterPlayerController::OnCharacterRegenShield(ACharacter* InstigatorCharacter, const float RegenAmount,
+	const float NewShieldValue)
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnRegenShield(RegenAmount, NewShieldValue);
+	}
+}
+
+void AShooterPlayerController::OnCharacterRegenHealth(ACharacter* InstigatorCharacter, const float RegenAmount,
+	const float NewHealthValue)
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnRegenHealth(RegenAmount, NewHealthValue);
+	}
+}
+
+void AShooterPlayerController::InitializeHud()
+{
+	if (PlayerHudClass)
+	{
+		PlayerHudRef = CreateWidget<UPlayerHud>(this, PlayerHudClass);
+		PlayerHudRef->AddToViewport();
+		if (BaseCharacterRef)
+		{
+			PlayerHudRef->InitializeHealthAndShield(
+				true,
+				BaseCharacterRef->GetMaxHealth(),
+				BaseCharacterRef->GetCurrentHealth(),
+				BaseCharacterRef->HasShield(),
+				BaseCharacterRef->GetMaxShield(),
+				BaseCharacterRef->GetCurrentShield()
+			);
+		}
+	}
+}
+
+void AShooterPlayerController::InitializeHudDelegates()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->OnAbsorbShieldDamage().AddDynamic(this, &AShooterPlayerController::OnCharacterAbsorbShieldDamage);
+		BaseCharacterRef->OnTakeHealthDamage().AddDynamic(this, &AShooterPlayerController::OnCharacterTakeHealthDamage);
+		BaseCharacterRef->OnRegenShield().AddDynamic(this, &AShooterPlayerController::OnCharacterRegenShield);
+		BaseCharacterRef->OnRegenHealth().AddDynamic(this, &AShooterPlayerController::OnCharacterRegenHealth);
 	}
 }
 

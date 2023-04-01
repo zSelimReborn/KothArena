@@ -13,6 +13,14 @@ class UHealthComponent;
 class UShieldComponent;
 class UPlayerHud;
 
+// Maybe there's another way to do this?
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterReady, ACharacter*, InstigatorCharacter);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAbsorbShieldDamageDelegate, ACharacter*, InstigatorCharacter, const float, DamageAbsorbed, const float, NewShieldValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTakeHealthDamageDelegate, ACharacter*, InstigatorCharacter, const float, TakenDamage, const float, NewHealthValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnRegenShieldDelegate, ACharacter*, InstigatorCharacter, const float, RegenAmount, const float, NewShieldValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnRegenHealthDelegate, ACharacter*, InstigatorCharacter, const float, RegenAmount, const float, NewHealthValue);
+
 UCLASS()
 class KOTHARENA_API ABaseCharacter : public ACharacter
 {
@@ -37,8 +45,6 @@ protected:
 
 	void OnDeath();
 
-	void InitializeHud();
-	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -61,6 +67,9 @@ public:
 	float GetCurrentHealth() const;
 
 	UFUNCTION(BlueprintPure)
+	bool HasShield() const;
+	
+	UFUNCTION(BlueprintPure)
 	float GetMaxShield() const;
 
 	UFUNCTION(BlueprintPure)
@@ -71,6 +80,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool AddShieldRegen(const float ShieldAmount);
+
+// Events
+public:
+	FOnCharacterReady& OnCharacterReady() { return CharacterReadyDelegate; }
+	FOnAbsorbShieldDamageDelegate& OnAbsorbShieldDamage() { return AbsorbShieldDamageDelegate; }
+	FOnTakeHealthDamageDelegate& OnTakeHealthDamage() { return TakeHealthDamageDelegate; }
+	FOnRegenShieldDelegate& OnRegenShield() { return RegenShieldDelegate; }
+	FOnRegenHealthDelegate& OnRegenHealth() { return RegenHealthDelegate; }
 	
 // Components
 protected:
@@ -105,10 +122,19 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<APlayerController> PC;
-	
-	UPROPERTY(EditAnywhere, Category="HUD")
-	TSubclassOf<UPlayerHud> PlayerHudClass;
 
-	UPROPERTY(Transient)
-	TObjectPtr<UPlayerHud> PlayerHudRef;
+	UPROPERTY()
+	FOnCharacterReady CharacterReadyDelegate;
+	
+	UPROPERTY()
+	FOnAbsorbShieldDamageDelegate AbsorbShieldDamageDelegate;
+
+	UPROPERTY()
+	FOnTakeHealthDamageDelegate TakeHealthDamageDelegate;
+
+	UPROPERTY()
+	FOnRegenShieldDelegate RegenShieldDelegate;
+
+	UPROPERTY()
+	FOnRegenHealthDelegate RegenHealthDelegate;
 };
