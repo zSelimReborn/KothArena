@@ -51,6 +51,8 @@ protected:
 	void RequestMoveAction(const FInputActionValue&);
 	void RequestLookAction(const FInputActionValue&);
 	void RequestSprintAction();
+	void RequestWeaponPullTriggerAction();
+	void RequestWeaponReleaseTriggerAction();
 	
 
 // Properties
@@ -80,4 +82,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> SprintAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+    TObjectPtr<UInputAction> PullTriggerAction;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> ReleaseTriggerAction;
+
 };

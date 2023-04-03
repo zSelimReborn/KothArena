@@ -37,6 +37,9 @@ void AShooterPlayerController::SetupInputComponent()
 			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestLookAction);
 
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestSprintAction);
+
+			EnhancedInputComponent->BindAction(PullTriggerAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestWeaponPullTriggerAction);
+			EnhancedInputComponent->BindAction(ReleaseTriggerAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestWeaponReleaseTriggerAction);
 		}
 	}
 }
@@ -151,5 +154,21 @@ void AShooterPlayerController::RequestSprintAction()
 	if (BaseCharacterRef)
 	{
 		BaseCharacterRef->RequestToggleSprint();
+	}
+}
+
+void AShooterPlayerController::RequestWeaponPullTriggerAction()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestWeaponPullTrigger();
+	}
+}
+
+void AShooterPlayerController::RequestWeaponReleaseTriggerAction()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestWeaponReleaseTrigger();
 	}
 }

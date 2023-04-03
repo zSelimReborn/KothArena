@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/ShieldComponent.h"
+#include "Components/WeaponInventoryComponent.h"
 #include "UI/PlayerHud.h"
 
 // Sets default values
@@ -32,6 +33,7 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	ShieldComponent = FindComponentByClass<UShieldComponent>();
+	WeaponInventoryComponent = FindComponentByClass<UWeaponInventoryComponent>();
 	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -185,6 +187,22 @@ void ABaseCharacter::RequestJump()
 void ABaseCharacter::RequestStopJumping()
 {
 	StopJumping();
+}
+
+void ABaseCharacter::RequestWeaponPullTrigger() const
+{
+	if (WeaponInventoryComponent)
+	{
+		WeaponInventoryComponent->PullTrigger();
+	}
+}
+
+void ABaseCharacter::RequestWeaponReleaseTrigger() const
+{
+	if (WeaponInventoryComponent)
+	{
+		WeaponInventoryComponent->ReleaseTrigger();
+	}
 }
 
 float ABaseCharacter::GetMaxHealth() const
