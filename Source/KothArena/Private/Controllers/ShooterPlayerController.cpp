@@ -40,6 +40,8 @@ void AShooterPlayerController::SetupInputComponent()
 
 			EnhancedInputComponent->BindAction(PullTriggerAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestWeaponPullTriggerAction);
 			EnhancedInputComponent->BindAction(ReleaseTriggerAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestWeaponReleaseTriggerAction);
+
+			EnhancedInputComponent->BindAction(ReloadWeaponAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestReloadWeapon);
 		}
 	}
 }
@@ -170,5 +172,13 @@ void AShooterPlayerController::RequestWeaponReleaseTriggerAction()
 	if (BaseCharacterRef)
 	{
 		BaseCharacterRef->RequestWeaponReleaseTrigger();
+	}
+}
+
+void AShooterPlayerController::RequestReloadWeapon()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestReloadCurrentWeapon();
 	}
 }

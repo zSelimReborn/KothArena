@@ -9,6 +9,7 @@
 class USkeletalMeshComponent;
 class UWeaponFireComponent;
 class UParticleSystem;
+class USoundCue;
 
 UENUM()
 enum class EWeaponType
@@ -17,7 +18,18 @@ enum class EWeaponType
 	SMG			UMETA(DisplayName="SubMachine-Gun"),
 	Pistol		UMETA(DisplayName="Pistol"),
 	Launcher	UMETA(DisplayName="Launcher"),
-	Shotgun		UMETA(DisplayName="Shotgun")
+	Shotgun		UMETA(DisplayName="Shotgun"),
+	Sniper		UMETA(DisplayName="Sniper")
+};
+
+// TODO Move elsewhere
+UENUM()
+enum class EAmmoType
+{
+	LargeCaliber	UMETA(DisplayName="Large Caliber"),
+	SmallCaliber	UMETA(DisplayName="Small Caliber"),
+	Shotgun			UMETA(DisplayName="Shot shell"),
+	Missile			UMETA(DisplayName="Missile")
 };
 
 /**
@@ -36,17 +48,35 @@ protected:
 
 	void SpawnHitParticle(const FVector& Location, const FRotator& Rotation) const;
 	virtual void ApplyDamage(AActor* HitActor, const float Damage) const;
+	void DeductAmmo();
+	void PlaySound(USoundCue* Sound, const FVector& Location, const FRotator& Rotation) const;
 
 // Weapon interface
 public:
 	virtual void PullTrigger();
 	virtual void ReleaseTrigger();
+	virtual void Reload(const int32 Amount);
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
 	UFUNCTION(BlueprintPure)
+	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
+
+	UFUNCTION(BlueprintPure)
 	FVector GetMuzzleLocation() const;
+
+	UFUNCTION(BlueprintPure)
+	bool HasAmmo() const;
+
+	UFUNCTION(BlueprintPure)
+	int32 GetMagCapacity() const;
+
+	UFUNCTION(BlueprintPure)
+	int32 GetCurrentAmmo() const;
+
+	UFUNCTION(BlueprintPure)
+	int32 GetMissingAmmo() const;
 
 // Callbacks
 protected:
@@ -85,4 +115,22 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Weapon|Particles")
 	TObjectPtr<UParticleSystem> HitParticle;
+
+	UPROPERTY(EditAnywhere, Category="Weapon|Ammo")
+	int32 MagCapacity = 25;
+
+	UPROPERTY(VisibleAnywhere, Category="Weapon|Ammo")
+	int32 CurrentMag = 0;
+
+	UPROPERTY(EditAnywhere, Category="Weapon|Ammo")
+	EAmmoType AmmoType = EAmmoType::LargeCaliber;
+
+	UPROPERTY(EditAnywhere, Category="Weapon|Sounds")
+	TObjectPtr<USoundCue> SoundWeaponShot;
+
+	UPROPERTY(EditAnywhere, Category="Weapon|Sounds")
+	TObjectPtr<USoundCue> SoundWeaponHit;
+
+	UPROPERTY(EditAnywhere, Category="Weapon|Sounds")
+	TObjectPtr<USoundCue> SoundNoAmmo;
 };

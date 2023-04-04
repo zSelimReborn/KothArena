@@ -53,6 +53,7 @@ protected:
 	void RequestSprintAction();
 	void RequestWeaponPullTriggerAction();
 	void RequestWeaponReleaseTriggerAction();
+	void RequestReloadWeapon();
 	
 
 // Properties
@@ -88,5 +89,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> ReleaseTriggerAction;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> ReloadWeaponAction;
 
 };

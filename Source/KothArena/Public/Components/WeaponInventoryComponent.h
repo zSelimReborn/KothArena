@@ -38,6 +38,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ReleaseTrigger();
+
+	FORCEINLINE ABaseWeapon* GetCurrentWeapon() { return CurrentWeaponRef; };
 	
 // Properties
 protected:

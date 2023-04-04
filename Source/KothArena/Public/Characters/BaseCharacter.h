@@ -12,6 +12,7 @@ class UInputMappingContext;
 class UHealthComponent;
 class UShieldComponent;
 class UWeaponInventoryComponent;
+class UAmmoInventoryComponent;
 class UPlayerHud;
 
 // Maybe there's another way to do this?
@@ -62,6 +63,7 @@ public:
 	void RequestStopJumping();
 	void RequestWeaponPullTrigger() const;
 	void RequestWeaponReleaseTrigger() const;
+	void RequestReloadCurrentWeapon();
 
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const;
@@ -106,8 +108,11 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UShieldComponent> ShieldComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY()
 	TObjectPtr<UWeaponInventoryComponent> WeaponInventoryComponent;
+
+	UPROPERTY()
+	TObjectPtr<UAmmoInventoryComponent> AmmoInventoryComponent;
 	
 // Properties
 protected:
