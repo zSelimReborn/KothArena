@@ -306,6 +306,17 @@ bool ABaseCharacter::AddShieldRegen(const float ShieldAmount)
 	return false;
 }
 
+bool ABaseCharacter::AddAmmo(const EAmmoType AmmoType, const int32 Amount)
+{
+	if (AmmoInventoryComponent == nullptr)
+	{
+		return false;
+	}
+
+	AmmoInventoryComponent->AddAmmo(AmmoType, Amount);
+	return true;
+}
+
 void ABaseCharacter::OnShieldBroken()
 {
 	

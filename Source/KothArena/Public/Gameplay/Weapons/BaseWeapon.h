@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Gameplay/Items/BaseItem.h"
+#include "Gameplay/Items/AmmoItem.h"
 #include "BaseWeapon.generated.h"
 
 class USkeletalMeshComponent;
@@ -20,16 +21,6 @@ enum class EWeaponType
 	Launcher	UMETA(DisplayName="Launcher"),
 	Shotgun		UMETA(DisplayName="Shotgun"),
 	Sniper		UMETA(DisplayName="Sniper")
-};
-
-// TODO Move elsewhere
-UENUM()
-enum class EAmmoType
-{
-	LargeCaliber	UMETA(DisplayName="Large Caliber"),
-	SmallCaliber	UMETA(DisplayName="Small Caliber"),
-	Shotgun			UMETA(DisplayName="Shot shell"),
-	Missile			UMETA(DisplayName="Missile")
 };
 
 /**

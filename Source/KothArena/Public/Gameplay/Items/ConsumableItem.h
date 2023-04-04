@@ -42,6 +42,9 @@ public:
 	virtual bool ConsumeItem(AActor* InstigatorActor);
 
 	virtual void EnableItem() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnConsumeItem(AConsumableItem* Item, AActor* InstigatorActor);
 	
 // Components
 protected:

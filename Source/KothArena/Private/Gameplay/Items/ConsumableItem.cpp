@@ -37,6 +37,7 @@ void AConsumableItem::RequestConsumeItem(AActor* InstigatorActor)
 {
 	if (ConsumeItem(InstigatorActor))
 	{
+		OnConsumeItem(this, InstigatorActor);
 		ItemUsedDelegate.Broadcast(this, InstigatorActor);
 		if (bDestroyOnConsume)
 		{
