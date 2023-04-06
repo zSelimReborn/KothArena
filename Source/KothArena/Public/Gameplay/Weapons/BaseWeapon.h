@@ -49,6 +49,9 @@ public:
 	virtual void Reload(const int32 Amount);
 
 	UFUNCTION(BlueprintPure)
+	bool CanShoot() const;
+	
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
 	UFUNCTION(BlueprintPure)

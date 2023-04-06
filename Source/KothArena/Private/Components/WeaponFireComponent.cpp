@@ -11,7 +11,7 @@ UWeaponFireComponent::UWeaponFireComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -81,6 +81,11 @@ bool UWeaponFireComponent::TraceFromWeaponMuzzle(const FVector ShotEndLocation, 
 
 void UWeaponFireComponent::StartSingleShot() const
 {
+	if (WeaponRef && !WeaponRef->CanShoot())
+	{
+		return;
+	}
+	
 	FHitResult ShotResult;
 	FHitResult WeaponMuzzleResult;
 	FVector EndShotTrace;
@@ -102,21 +107,39 @@ void UWeaponFireComponent::StartSingleShot() const
 	}
 }
 
-
-// Called every frame
-void UWeaponFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UWeaponFireComponent::StartAutomaticFire()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	GetOwner()->GetWorldTimerManager().SetTimer(AutomaticFireTimerHandle, this, &UWeaponFireComponent::StartSingleShot, AutomaticFireRate, true, 0);
+}
 
-	// ...
+void UWeaponFireComponent::StopAutomaticFire()
+{
+	GetOwner()->GetWorldTimerManager().ClearTimer(AutomaticFireTimerHandle);
+}
+
+void UWeaponFireComponent::StartBurstFire()
+{
+	// TODO Check if already shooting
+	StartSingleShot();
+	float AccumulatedBurstTime = BurstFireRate;
+	for (int8 BurstBullet = 1; BurstBullet < BurstNumOfBullets; ++BurstBullet)
+	{
+		FTimerHandle BurstFireSingleBulletTimerHandle;
+		GetOwner()->GetWorldTimerManager().SetTimer(BurstFireSingleBulletTimerHandle, this, &UWeaponFireComponent::StartSingleShot, AccumulatedBurstTime, false);
+		AccumulatedBurstTime += BurstFireRate;
+	}
 }
 
 void UWeaponFireComponent::StartFire()
 {
 	switch (WeaponFireType)
 	{
-	case EWeaponFireType::Burst: break;
-	case EWeaponFireType::Automatic: break;
+	case EWeaponFireType::Burst:
+		StartBurstFire();
+		break;
+	case EWeaponFireType::Automatic:
+		StartAutomaticFire();
+		break;
 	case EWeaponFireType::Single:
 		StartSingleShot();
 		break;
@@ -127,5 +150,9 @@ void UWeaponFireComponent::StartFire()
 
 void UWeaponFireComponent::StopFire()
 {
+	if (WeaponFireType == EWeaponFireType::Automatic)
+	{
+		StopAutomaticFire();
+	}
 }
 

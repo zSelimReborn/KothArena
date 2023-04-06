@@ -38,11 +38,11 @@ protected:
 	bool TraceFromWeaponMuzzle(const FVector ShotEndLocation, OUT FHitResult& ShotResult) const;
 	
 	void StartSingleShot() const;
+	void StartAutomaticFire();
+	void StopAutomaticFire();
+	void StartBurstFire();
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	void StartFire();
 	void StopFire();
 
@@ -66,10 +66,15 @@ protected:
 	float WeaponRange = 100.f;
 
 	UPROPERTY(EditAnywhere, Category="Weapon Fire|Burst")
+	int8 BurstNumOfBullets = 3;
+	
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Burst")
 	float BurstFireRate = 0.2f;
 
 	UPROPERTY(EditAnywhere, Category="Weapon Fire|Automatic")
 	float AutomaticFireRate = 0.2f;
+	
+	FTimerHandle AutomaticFireTimerHandle;
 
 // Delegates
 protected:

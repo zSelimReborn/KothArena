@@ -88,6 +88,12 @@ void ABaseWeapon::Reload(const int32 Amount)
 	CurrentMag = FMath::Min(MagCapacity, CurrentMag + Amount);
 }
 
+bool ABaseWeapon::CanShoot() const
+{
+	// TODO This will check also weapon state
+	return HasAmmo();
+}
+
 FVector ABaseWeapon::GetMuzzleLocation() const
 {
 	return WeaponSkeletalMeshComponent->GetSocketLocation(MuzzleSocketName);
