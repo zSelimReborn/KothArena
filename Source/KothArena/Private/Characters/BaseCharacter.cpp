@@ -317,6 +317,66 @@ bool ABaseCharacter::AddAmmo(const EAmmoType AmmoType, const int32 Amount)
 	return true;
 }
 
+bool ABaseCharacter::HasAmmoInventory() const
+{
+	return (AmmoInventoryComponent != nullptr);
+}
+
+int32 ABaseCharacter::GetCurrentWeaponAmmo() const
+{
+	if (!WeaponInventoryComponent)
+	{
+		return 0;
+	}
+	
+	if (WeaponInventoryComponent->GetCurrentWeapon())
+	{
+		return WeaponInventoryComponent->GetCurrentWeapon()->GetCurrentAmmo();
+	}
+
+	return 0;
+}
+
+int32 ABaseCharacter::GetCurrentWeaponMaxAmmo() const
+{
+	if (!WeaponInventoryComponent)
+	{
+		return 0;
+	}
+	
+	if (WeaponInventoryComponent->GetCurrentWeapon())
+	{
+		return WeaponInventoryComponent->GetCurrentWeapon()->GetMagCapacity();
+	}
+
+	return 0;
+}
+
+int32 ABaseCharacter::GetCurrentWeaponAmmoStorage() const
+{
+	if (!AmmoInventoryComponent || !WeaponInventoryComponent)
+	{
+		return 0;
+	}
+
+	if (WeaponInventoryComponent->GetCurrentWeapon())
+	{
+		return AmmoInventoryComponent->GetAmmoStorage(WeaponInventoryComponent->GetCurrentWeapon()->GetAmmoType());
+	}
+	
+	return 0;
+}
+
+EAmmoType ABaseCharacter::GetCurrentWeaponAmmoType() const
+{
+	if (WeaponInventoryComponent->GetCurrentWeapon())
+	{
+		return WeaponInventoryComponent->GetCurrentWeapon()->GetAmmoType();
+	}
+
+	return EAmmoType::Default;
+}
+
 void ABaseCharacter::OnShieldBroken()
 {
 	

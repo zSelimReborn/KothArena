@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
+#include "Gameplay/Items/AmmoItem.h"
 #include "ShooterPlayerController.generated.h"
 
 class ABaseCharacter;
@@ -22,6 +23,26 @@ class KOTHARENA_API AShooterPlayerController : public APlayerController
 public:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+
+	// This is used by PlayerHUD
+	UFUNCTION(BlueprintPure)
+	bool HasAmmoInventory() const;
+
+	// This is used by PlayerHUD
+	UFUNCTION(BlueprintPure)
+	int32 GetCurrentWeaponAmmo() const;
+
+	// This is used by PlayerHUD
+	UFUNCTION(BlueprintPure)
+	int32 GetCurrentWeaponMaxAmmo() const;
+
+	// This is used by PlayerHUD
+	UFUNCTION(BlueprintPure)
+	int32 GetCurrentWeaponAmmoStorage() const;
+
+	// This is used by PlayerHUD
+	UFUNCTION(BlueprintPure)
+	EAmmoType GetCurrentWeaponAmmoType() const;
 
 // Callbacks
 protected:

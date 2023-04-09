@@ -46,6 +46,31 @@ void AShooterPlayerController::SetupInputComponent()
 	}
 }
 
+bool AShooterPlayerController::HasAmmoInventory() const
+{
+	return (BaseCharacterRef)? BaseCharacterRef->HasAmmoInventory() : false;
+}
+
+int32 AShooterPlayerController::GetCurrentWeaponAmmo() const
+{
+	return (BaseCharacterRef)? BaseCharacterRef->GetCurrentWeaponAmmo() : 0;
+}
+
+int32 AShooterPlayerController::GetCurrentWeaponMaxAmmo() const
+{
+	return (BaseCharacterRef)? BaseCharacterRef->GetCurrentWeaponMaxAmmo() : 0;
+}
+
+int32 AShooterPlayerController::GetCurrentWeaponAmmoStorage() const
+{
+	return (BaseCharacterRef)? BaseCharacterRef->GetCurrentWeaponAmmoStorage() : 0;
+}
+
+EAmmoType AShooterPlayerController::GetCurrentWeaponAmmoType() const
+{
+	return (BaseCharacterRef)? BaseCharacterRef->GetCurrentWeaponAmmoType() : EAmmoType::Default;
+}
+
 void AShooterPlayerController::OnCharacterReady(ACharacter* InstigatorCharacter)
 {
 	InitializeHud();

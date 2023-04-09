@@ -64,3 +64,13 @@ float UAmmoInventoryComponent::UseAmmo(const EAmmoType AmmoType, const int32 Amo
 	return ActualUsedAmmo;
 }
 
+int32 UAmmoInventoryComponent::GetAmmoStorage(const EAmmoType AmmoType)
+{
+	if (!AmmoInventory.Contains(AmmoType))
+	{
+		return 0;
+	}
+
+	return AmmoInventory[AmmoType];
+}
+

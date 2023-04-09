@@ -6,9 +6,10 @@
 #include "Gameplay/Items/ConsumableItem.h"
 #include "AmmoItem.generated.h"
 
-UENUM()
-enum class EAmmoType
+UENUM(BlueprintType)
+enum class EAmmoType : uint8
 {
+	Default			UMETA(DisplayName="None"),
 	LargeCaliber	UMETA(DisplayName="Large Caliber"),
 	SmallCaliber	UMETA(DisplayName="Small Caliber"),
 	Shotgun			UMETA(DisplayName="Shot shell"),

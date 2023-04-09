@@ -90,6 +90,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool AddAmmo(const EAmmoType AmmoType, const int32 Amount);
 
+	UFUNCTION(BlueprintPure)
+	bool HasAmmoInventory() const;
+	
+	UFUNCTION(BlueprintPure)
+	int32 GetCurrentWeaponAmmo() const;
+
+	UFUNCTION(BlueprintPure)
+	int32 GetCurrentWeaponMaxAmmo() const;
+
+	UFUNCTION(BlueprintPure)
+	int32 GetCurrentWeaponAmmoStorage() const;
+
+	UFUNCTION(BlueprintPure)
+	EAmmoType GetCurrentWeaponAmmoType() const;
+
 // Events
 public:
 	FOnCharacterReady& OnCharacterReady() { return CharacterReadyDelegate; }
