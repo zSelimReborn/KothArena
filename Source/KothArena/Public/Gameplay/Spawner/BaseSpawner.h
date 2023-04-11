@@ -36,6 +36,8 @@ protected:
 	void SortClassProbability();
 	
 	TSubclassOf<ABaseItem> ComputeClassToSpawn() const;
+
+	void CheckEmptyItem();
 	
 	virtual void SpawnItem();
 
@@ -71,7 +73,13 @@ protected:
 	float MaxTimeToSpawn = 20.f;
 
 	UPROPERTY(EditAnywhere, Category="Spawner")
+	float TimeToCheckEmptyItem = 5.f;
+
+	UPROPERTY(EditAnywhere, Category="Spawner")
 	bool bSpawnOnBeginPlay = true;
+
+	UPROPERTY()
+	bool bIsWaitingToSpawn = false;
 
 	UPROPERTY(EditAnywhere, Category="Spawner")
 	TSubclassOf<ABaseItem> DefaultItemClass;
@@ -81,4 +89,6 @@ protected:
 	
 	UPROPERTY(Transient, VisibleAnywhere)
 	TWeakObjectPtr<ABaseItem> ItemRef;
+
+	FTimerHandle CheckEmptyItemHandle;
 };

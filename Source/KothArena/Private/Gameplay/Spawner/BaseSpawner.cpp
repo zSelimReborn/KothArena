@@ -42,6 +42,8 @@ void ABaseSpawner::BeginPlay()
 	{
 		StartSpawnTimer();
 	}
+
+	GetWorldTimerManager().SetTimer(CheckEmptyItemHandle, this, &ABaseSpawner::CheckEmptyItem, TimeToCheckEmptyItem, true);
 }
 
 void ABaseSpawner::SortClassProbability()
@@ -91,6 +93,16 @@ TSubclassOf<ABaseItem> ABaseSpawner::ComputeClassToSpawn() const
 	return ItemClass;
 }
 
+void ABaseSpawner::CheckEmptyItem()
+{
+	if (bIsWaitingToSpawn || ItemRef.IsValid())
+	{
+		return;
+	}
+
+	StartSpawnTimer();
+}
+
 void ABaseSpawner::SpawnItem()
 {
 	if (ItemRef.IsValid() && ItemRef != nullptr)
@@ -98,6 +110,7 @@ void ABaseSpawner::SpawnItem()
 		return;
 	}
 
+	bIsWaitingToSpawn = false;
 	const TSubclassOf<ABaseItem> ItemClassToSpawn = ComputeClassToSpawn();
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Owner = this;
@@ -122,6 +135,7 @@ void ABaseSpawner::StartSpawnTimer()
 	const float SpawnTime = FMath::RandRange(MinTimeToSpawn, MaxTimeToSpawn);
 	FTimerHandle SpawnItemHandler;
 	GetWorldTimerManager().SetTimer(SpawnItemHandler, this, &ABaseSpawner::SpawnItem, SpawnTime, false);
+	bIsWaitingToSpawn = true;
 }
 
 void ABaseSpawner::OnItemPicked(AActor* ItemUsed, AActor* InstigatorActor)
