@@ -32,6 +32,6 @@ public:
 	
 // Properties
 protected:
-	UPROPERTY(VisibleAnywhere, Category="Ammo")
+	UPROPERTY(EditAnywhere, Category="Ammo")
 	TMap<EAmmoType, int32> AmmoInventory;
 };
