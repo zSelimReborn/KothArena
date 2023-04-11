@@ -27,7 +27,7 @@ protected:
 public:	
 	void AddAmmo(const EAmmoType AmmoType, const int32 Amount);
 	bool HasAmmo(const EAmmoType AmmoType, const int32 Amount);
-	float UseAmmo(const EAmmoType AmmoType, const int32 Amount);
+	int32 UseAmmo(const EAmmoType AmmoType, const int32 Amount);
 	int32 GetAmmoStorage(const EAmmoType AmmoType);
 	
 // Properties

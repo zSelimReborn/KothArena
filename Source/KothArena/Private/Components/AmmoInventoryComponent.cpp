@@ -52,14 +52,14 @@ bool UAmmoInventoryComponent::HasAmmo(const EAmmoType AmmoType, const int32 Amou
 	return AmmoInventory[AmmoType] >= Amount;
 }
 
-float UAmmoInventoryComponent::UseAmmo(const EAmmoType AmmoType, const int32 Amount)
+int32 UAmmoInventoryComponent::UseAmmo(const EAmmoType AmmoType, const int32 Amount)
 {
 	if (!AmmoInventory.Contains(AmmoType))
 	{
 		return 0;
 	}
 
-	const float ActualUsedAmmo = (AmmoInventory[AmmoType] - Amount <= 0)? AmmoInventory[AmmoType] : Amount;
+	const int32 ActualUsedAmmo = (AmmoInventory[AmmoType] - Amount <= 0)? AmmoInventory[AmmoType] : Amount;
 	AmmoInventory[AmmoType] -= ActualUsedAmmo;
 	return ActualUsedAmmo;
 }
