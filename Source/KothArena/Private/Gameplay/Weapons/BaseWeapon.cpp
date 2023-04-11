@@ -26,6 +26,7 @@ void ABaseWeapon::BeginPlay()
 	if (WeaponFireComponent)
 	{
 		WeaponFireComponent->OnWeaponShotDelegate().AddDynamic(this, &ABaseWeapon::OnWeaponShot);
+		WeaponFireComponent->OnWeaponShotProjectileDelegate().AddDynamic(this, &ABaseWeapon::OnWeaponProjectileShot);
 		WeaponFireComponent->OnWeaponHitDelegate().AddDynamic(this, &ABaseWeapon::OnWeaponHit);
 	}
 }
@@ -125,6 +126,13 @@ void ABaseWeapon::OnWeaponShot(const FHitResult& ShotResult, const FVector& EndS
 
 	PlaySound(SoundWeaponShot, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
 	DeductAmmo();
+}
+
+void ABaseWeapon::OnWeaponProjectileShot(ABaseProjectile* NewProjectile)
+{
+	PlaySound(SoundWeaponShot, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+	DeductAmmo();
+	// This can be a point to extend functionality. Think of a grenade launcher. 
 }
 
 void ABaseWeapon::OnWeaponHit(AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName)

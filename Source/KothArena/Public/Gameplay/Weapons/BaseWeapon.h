@@ -11,6 +11,7 @@ class USkeletalMeshComponent;
 class UWeaponFireComponent;
 class UParticleSystem;
 class USoundCue;
+class ABaseProjectile;
 
 UENUM()
 enum class EWeaponType
@@ -76,6 +77,9 @@ public:
 protected:
 	UFUNCTION()
 	void OnWeaponShot(const FHitResult& ShotResult, const FVector& EndShotLocation);
+
+	UFUNCTION()
+	void OnWeaponProjectileShot(ABaseProjectile* NewProjectile);
 
 	UFUNCTION()
 	void OnWeaponHit(AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName);

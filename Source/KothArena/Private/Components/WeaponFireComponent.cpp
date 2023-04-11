@@ -3,6 +3,7 @@
 
 #include "Components/WeaponFireComponent.h"
 
+#include "Gameplay/Projectiles/BaseProjectile.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -24,7 +25,7 @@ void UWeaponFireComponent::BeginPlay()
 	PlayerController = GetWorld()->GetFirstPlayerController();
 }
 
-bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVector& TraceEndLocation) const
+bool UWeaponFireComponent::ComputeScreenCenterAndDirection(FVector& CenterLocation, FVector& CenterDirection) const
 {
 	if (PlayerController == nullptr)
 	{
@@ -35,9 +36,13 @@ bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVecto
 	PlayerController->GetViewportSize(ViewportSizeX, ViewportSizeY);
 
 	const FVector2D ViewportCenter = {ViewportSizeX / 2.f, ViewportSizeY / 2.f};
+	return UGameplayStatics::DeprojectScreenToWorld(PlayerController, ViewportCenter, CenterLocation, CenterDirection);
+}
 
+bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVector& TraceEndLocation) const
+{
 	FVector CenterLocation, CenterDirection;
-	if (UGameplayStatics::DeprojectScreenToWorld(PlayerController, ViewportCenter, CenterLocation, CenterDirection))
+	if (ComputeScreenCenterAndDirection(CenterLocation, CenterDirection))
 	{
 		const FCollisionQueryParams ShotQueryParams{TEXT("StartSingleShot|Screen")};
 		const FVector StartShotTrace = CenterLocation;
@@ -130,6 +135,44 @@ void UWeaponFireComponent::StartBurstFire()
 	}
 }
 
+void UWeaponFireComponent::StartConeSpreadShot()
+{
+}
+
+void UWeaponFireComponent::StartSpawnProjectile()
+{
+	if (ProjectileClass && WeaponRef)
+	{
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.Owner = GetOwner();
+		
+		ABaseProjectile* NewProjectile = GetWorld()->SpawnActor<ABaseProjectile>(
+			ProjectileClass,
+			WeaponRef->GetMuzzleLocation() + ProjectileSpawningPointOffset,
+			FRotator::ZeroRotator,
+			SpawnParameters
+		);
+
+		if (NewProjectile)
+		{
+			WeaponShotProjectileDelegate.Broadcast(NewProjectile);
+			NewProjectile->OnProjectileHit().AddDynamic(this, &UWeaponFireComponent::ProjectileHitSomething);
+			
+			FVector CenterLocation, CenterDirection;
+			if (ComputeScreenCenterAndDirection(CenterLocation, CenterDirection))
+			{
+				NewProjectile->Fire(CenterDirection);
+			}
+		}
+	}
+}
+
+void UWeaponFireComponent::ProjectileHitSomething(AActor* ProjectileInstigator, AActor* OtherActor, const FHitResult& Hit)
+{
+	const FVector HitLocation = (ProjectileInstigator)? ProjectileInstigator->GetActorLocation() : Hit.Location;
+	WeaponHitDelegate.Broadcast(OtherActor, HitLocation, Hit.BoneName);
+}
+
 void UWeaponFireComponent::StartFire()
 {
 	switch (WeaponFireType)
@@ -139,6 +182,12 @@ void UWeaponFireComponent::StartFire()
 		break;
 	case EWeaponFireType::Automatic:
 		StartAutomaticFire();
+		break;
+	case EWeaponFireType::ConeSpread:
+		StartConeSpreadShot();
+		break;
+	case EWeaponFireType::Projectile:
+		StartSpawnProjectile();
 		break;
 	case EWeaponFireType::Single:
 		StartSingleShot();

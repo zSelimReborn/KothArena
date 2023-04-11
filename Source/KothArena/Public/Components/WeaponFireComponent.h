@@ -9,8 +9,10 @@
 #define OUT
 
 class ABaseWeapon;
+class ABaseProjectile;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponShotDelegate, const FHitResult&, ShotResult, const FVector&, EndShotLocation);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponShotProjectileDelegate, ABaseProjectile*, NewProjectile);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnWeaponHitDelegate, AActor*, HitActor, const FVector&, HitLocation, const FName&, HitBoneName);
 
 UENUM()
@@ -18,7 +20,9 @@ enum class EWeaponFireType
 {
 	Single		UMETA(DisplayName="Single Shot"),
 	Burst		UMETA(DisplayName="Burst"),
-	Automatic	UMETA(DisplayName="Automatic")
+	Automatic	UMETA(DisplayName="Automatic"),
+	ConeSpread	UMETA(DisplayName="Cone Spread"),
+	Projectile	UMETA(DisplayName="Projectile")
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -33,7 +37,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	
+
+	bool ComputeScreenCenterAndDirection(OUT FVector& CenterLocation, OUT FVector& CenterDirection) const;
 	bool TraceUnderScreenCenter(OUT FHitResult& ShotResult, OUT FVector& TraceEndLocation) const;
 	bool TraceFromWeaponMuzzle(const FVector ShotEndLocation, OUT FHitResult& ShotResult) const;
 	
@@ -41,12 +46,20 @@ protected:
 	void StartAutomaticFire();
 	void StopAutomaticFire();
 	void StartBurstFire();
+	void StartConeSpreadShot();
+	void StartSpawnProjectile();
 
+// Callback
+protected:
+	UFUNCTION()
+	void ProjectileHitSomething(AActor* ProjectileInstigator, AActor* OtherActor, const FHitResult& Hit);
+	
 public:	
 	void StartFire();
 	void StopFire();
 
 	FOnWeaponShotDelegate& OnWeaponShotDelegate() { return WeaponShotDelegate; }
+	FOnWeaponShotProjectileDelegate& OnWeaponShotProjectileDelegate() { return WeaponShotProjectileDelegate; }
 	FOnWeaponHitDelegate& OnWeaponHitDelegate() { return WeaponHitDelegate; }
 	
 	FORCEINLINE float GetWeaponRangeInMeters() const { return WeaponRange * 100.f; }
@@ -73,6 +86,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Weapon Fire|Automatic")
 	float AutomaticFireRate = 0.2f;
+
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Projectile")
+	TSubclassOf<ABaseProjectile> ProjectileClass;
+	
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Projectile")
+	FVector ProjectileSpawningPointOffset = FVector::ZeroVector;
 	
 	FTimerHandle AutomaticFireTimerHandle;
 
@@ -81,4 +100,6 @@ protected:
 	FOnWeaponShotDelegate WeaponShotDelegate;
 
 	FOnWeaponHitDelegate WeaponHitDelegate;
+
+	FOnWeaponShotProjectileDelegate WeaponShotProjectileDelegate;
 };
