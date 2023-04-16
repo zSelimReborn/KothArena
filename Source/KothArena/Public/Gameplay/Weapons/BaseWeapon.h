@@ -83,6 +83,12 @@ protected:
 
 	UFUNCTION()
 	void OnWeaponHit(AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName);
+
+	UFUNCTION()
+	void OnShotgunShot(const FVector& IdealShotDirection, const int32 NumOfPellets);
+
+	UFUNCTION()
+	void OnShotgunPelletHit(AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName, const int32 NumOfPellets);
 	
 // Components
 protected:

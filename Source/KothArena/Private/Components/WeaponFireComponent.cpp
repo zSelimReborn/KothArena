@@ -7,6 +7,13 @@
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "Kismet/GameplayStatics.h"
 
+static TAutoConsoleVariable<bool> CVarDebugWeaponFire(
+	TEXT("KothArena.WeaponFire.ShowDebugTraces"),
+	false,
+	TEXT("Show weapon fire traces."),
+	ECVF_Default
+);
+
 // Sets default values for this component's properties
 UWeaponFireComponent::UWeaponFireComponent()
 {
@@ -109,6 +116,11 @@ void UWeaponFireComponent::StartSingleShot() const
 		}
 
 		WeaponHitDelegate.Broadcast(HitActor, HitLocation, HitBoneName);
+
+		if (CVarDebugWeaponFire->GetBool())
+		{
+			DrawDebugDirectionalArrow(GetWorld(), WeaponRef->GetMuzzleLocation(), HitLocation, 5.f, FColor::Red, false, 10.f);
+		}
 	}
 }
 
@@ -137,6 +149,55 @@ void UWeaponFireComponent::StartBurstFire()
 
 void UWeaponFireComponent::StartConeSpreadShot()
 {
+	if (!WeaponRef)
+	{
+		return;
+	}
+	
+	FHitResult ShotResult;
+	FVector EndShotTrace, MuzzleLocation = WeaponRef->GetMuzzleLocation();
+	TraceUnderScreenCenter(ShotResult, EndShotTrace);
+
+	FVector StraightShotLocation = (EndShotTrace - MuzzleLocation);
+	StraightShotLocation.Normalize();
+
+	ShotgunShotDelegate.Broadcast(StraightShotLocation, NumOfPellets);
+
+	for (int32 CurrentPellet = 0; CurrentPellet < NumOfPellets; ++CurrentPellet)
+	{
+		const float BulletSpreadOffset = BulletSpreadCurve.GetRichCurveConst()->Eval(FMath::RandRange(0.f, 1.f));
+		const float RandomAngle = BulletSpreadOffset * NoiseAngle;
+		const float PitchNoiseAngle = FMath::RandRange(-RandomAngle, RandomAngle);
+		const float YawNoiseAngle = FMath::RandRange(-RandomAngle, RandomAngle);
+		const FRotator Noise{PitchNoiseAngle, YawNoiseAngle, 0.f};
+
+		const FVector PelletDirection = Noise.RotateVector(StraightShotLocation);
+		const FVector EndPelletLocation = MuzzleLocation + (PelletDirection * GetWeaponRangeInMeters());
+
+		FHitResult PelletHitResult;
+		const bool bHitSomething = GetWorld()->LineTraceSingleByChannel(
+			PelletHitResult,
+			MuzzleLocation,
+			EndPelletLocation,
+			ECollisionChannel::ECC_Visibility
+		);
+
+		if (bHitSomething)
+		{
+			ShotgunPelletHitDelegate.Broadcast(PelletHitResult.GetActor(), PelletHitResult.Location, PelletHitResult.BoneName, NumOfPellets);
+		}
+
+		if (CVarDebugWeaponFire->GetBool())
+		{
+			DrawDebugDirectionalArrow(GetWorld(), MuzzleLocation, EndPelletLocation, 5.f, FColor::Red, false, 10.f);
+		}
+	}
+
+	if (CVarDebugWeaponFire->GetBool())
+	{
+		const FVector IdealShotLocation = MuzzleLocation + (StraightShotLocation * GetWeaponRangeInMeters());
+		DrawDebugDirectionalArrow(GetWorld(), MuzzleLocation, IdealShotLocation, 5.f, FColor::Red, false, 10.f);
+	}
 }
 
 void UWeaponFireComponent::StartSpawnProjectile()

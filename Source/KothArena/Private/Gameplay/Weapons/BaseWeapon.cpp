@@ -28,6 +28,8 @@ void ABaseWeapon::BeginPlay()
 		WeaponFireComponent->OnWeaponShotDelegate().AddDynamic(this, &ABaseWeapon::OnWeaponShot);
 		WeaponFireComponent->OnWeaponShotProjectileDelegate().AddDynamic(this, &ABaseWeapon::OnWeaponProjectileShot);
 		WeaponFireComponent->OnWeaponHitDelegate().AddDynamic(this, &ABaseWeapon::OnWeaponHit);
+		WeaponFireComponent->OnShotgunShotDelegate().AddDynamic(this, &ABaseWeapon::OnShotgunShot);
+		WeaponFireComponent->OnShotgunPelletHitDelegate().AddDynamic(this, &ABaseWeapon::OnShotgunPelletHit);
 	}
 }
 
@@ -148,11 +150,32 @@ void ABaseWeapon::OnWeaponHit(AActor* HitActor, const FVector& HitLocation, cons
 		DamageToDeal = WeaponBaseDamage * HeadshotMultiplier;
 	}
 
-	/* DrawDebugPoint(GetWorld(), HitLocation, 10.f, FColor::Red, true);
-	DrawDebugString(GetWorld(), HitLocation, HitActor->GetActorLabel(), nullptr, FColor::Red); */
 	ApplyDamage(HitActor, DamageToDeal);
 	SpawnHitParticle(HitLocation, FRotator::ZeroRotator);
 
 	// TODO Different sounds based on what hit?
 	PlaySound(SoundWeaponHit, HitLocation, FRotator::ZeroRotator);
+}
+
+void ABaseWeapon::OnShotgunShot(const FVector& IdealShotDirection, const int32 NumOfPellets)
+{
+	PlaySound(SoundWeaponShot, GetOwner()->GetActorLocation(), GetOwner()->GetActorRotation());
+	DeductAmmo();
+}
+
+void ABaseWeapon::OnShotgunPelletHit(AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName, const int32 NumOfPellets)
+{
+	if (HitActor == nullptr)
+	{
+		return;
+	}
+	
+	float DamageToDeal = WeaponBaseDamage / NumOfPellets;
+	if (HitBoneName.IsEqual(TEXT("head")))
+	{
+		DamageToDeal = WeaponBaseDamage * HeadshotMultiplier;
+	}
+
+	ApplyDamage(HitActor, DamageToDeal);
+	SpawnHitParticle(HitLocation, FRotator::ZeroRotator);
 }

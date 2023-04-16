@@ -14,6 +14,8 @@ class ABaseProjectile;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponShotDelegate, const FHitResult&, ShotResult, const FVector&, EndShotLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponShotProjectileDelegate, ABaseProjectile*, NewProjectile);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnWeaponHitDelegate, AActor*, HitActor, const FVector&, HitLocation, const FName&, HitBoneName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnShotgunShotDelegate, const FVector&, IdealShotDirection, const int32, NumOfPellets);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShotgunPelletHitDelegate, AActor*, HitActor, const FVector&, HitLocation, const FName&, HitBoneName, const int32, NumOfPellets);
 
 UENUM()
 enum class EWeaponFireType
@@ -61,6 +63,8 @@ public:
 	FOnWeaponShotDelegate& OnWeaponShotDelegate() { return WeaponShotDelegate; }
 	FOnWeaponShotProjectileDelegate& OnWeaponShotProjectileDelegate() { return WeaponShotProjectileDelegate; }
 	FOnWeaponHitDelegate& OnWeaponHitDelegate() { return WeaponHitDelegate; }
+	FOnShotgunShotDelegate& OnShotgunShotDelegate() { return ShotgunShotDelegate; }
+	FOnShotgunPelletHitDelegate& OnShotgunPelletHitDelegate() { return ShotgunPelletHitDelegate; }
 	
 	FORCEINLINE float GetWeaponRangeInMeters() const { return WeaponRange * 100.f; }
 	FORCEINLINE EWeaponFireType GetWeaponFireType() const { return WeaponFireType; }
@@ -87,6 +91,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Weapon Fire|Automatic")
 	float AutomaticFireRate = 0.2f;
 
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Shotgun")
+	int32 NumOfPellets = 25;
+
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Shotgun")
+	float NoiseAngle = 25.f;
+
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Shotgun")
+	FRuntimeFloatCurve BulletSpreadCurve;
+
 	UPROPERTY(EditAnywhere, Category="Weapon Fire|Projectile")
 	TSubclassOf<ABaseProjectile> ProjectileClass;
 	
@@ -102,4 +115,8 @@ protected:
 	FOnWeaponHitDelegate WeaponHitDelegate;
 
 	FOnWeaponShotProjectileDelegate WeaponShotProjectileDelegate;
+
+	FOnShotgunShotDelegate ShotgunShotDelegate;
+
+	FOnShotgunPelletHitDelegate ShotgunPelletHitDelegate;
 };
