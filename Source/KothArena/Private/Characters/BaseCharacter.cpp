@@ -108,6 +108,15 @@ float ABaseCharacter::TakeHealthDamage(const float DamageAmount)
 
 void ABaseCharacter::OnDeath()
 {
+	// If player restart level, destroy otherwise
+	if (PC)
+	{
+		PC->RestartLevel();
+	}
+	else
+	{
+		Destroy();
+	}
 }
 
 // Called every frame
