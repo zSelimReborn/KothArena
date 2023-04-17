@@ -3,7 +3,9 @@
 
 #include "Gameplay/Weapons/BaseWeapon.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/WeaponFireComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 
@@ -13,6 +15,11 @@ ABaseWeapon::ABaseWeapon()
 	WeaponSkeletalMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon Skeletal Mesh Component"));
 	WeaponSkeletalMeshComponent->SetupAttachment(DefaultSceneComponent);
 
+	PickupWeaponWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Pickup Widget Component"));
+	PickupWeaponWidgetComponent->SetupAttachment(DefaultSceneComponent);
+
+	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Collision"));
+	CapsuleComponent->SetupAttachment(DefaultSceneComponent);
 }
 
 void ABaseWeapon::BeginPlay()
@@ -20,7 +27,8 @@ void ABaseWeapon::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentMag = MagCapacity;
-	
+
+	DisableHighlight();
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	WeaponFireComponent = FindComponentByClass<UWeaponFireComponent>();
 	if (WeaponFireComponent)
@@ -89,6 +97,28 @@ void ABaseWeapon::ReleaseTrigger()
 void ABaseWeapon::Reload(const int32 Amount)
 {
 	CurrentMag = FMath::Min(MagCapacity, CurrentMag + Amount);
+}
+
+void ABaseWeapon::EnableHighlight() const
+{
+	WeaponSkeletalMeshComponent->SetRenderCustomDepth(true);
+	PickupWeaponWidgetComponent->SetVisibility(true);
+}
+
+void ABaseWeapon::DisableHighlight() const
+{
+	WeaponSkeletalMeshComponent->SetRenderCustomDepth(false);
+	PickupWeaponWidgetComponent->SetVisibility(false);
+}
+
+void ABaseWeapon::DisableCollision() const
+{
+	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ABaseWeapon::OnEquip()
+{
+	ItemUsedDelegate.Broadcast(this, GetOwner());
 }
 
 bool ABaseWeapon::CanShoot() const

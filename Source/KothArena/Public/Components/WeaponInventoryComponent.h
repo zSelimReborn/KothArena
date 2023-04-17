@@ -23,6 +23,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	bool EquipDefaultWeapon();
+	
+	void UnEquipCurrentWeapon();
+
+	int32 AddWeapon(ABaseWeapon* Weapon);
 
 public:	
 	// Called every frame
@@ -32,6 +36,9 @@ public:
 public:
 	UFUNCTION(BlueprintCallable)
 	bool EquipWeapon(ABaseWeapon* Weapon);
+
+	UFUNCTION(BlueprintCallable)
+	bool ChangeWeapon(const int32 WeaponIndex);
 
 	UFUNCTION(BlueprintCallable)
 	void PullTrigger();
@@ -58,6 +65,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Weapon")
 	TSubclassOf<ABaseWeapon> DefaultWeaponClass;
 
+	UPROPERTY(EditAnywhere, Category="Weapon")
+	int32 InventoryCapacity = 4;
+
+	UPROPERTY(VisibleAnywhere, Category="Weapon")
+	int32 CurrentWeaponIndex = 0;
+	
 	UPROPERTY(VisibleAnywhere, Category="Weapon")
 	TArray<TObjectPtr<ABaseWeapon>> WeaponInventory;
 };

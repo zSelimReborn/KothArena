@@ -42,6 +42,12 @@ void AShooterPlayerController::SetupInputComponent()
 			EnhancedInputComponent->BindAction(ReleaseTriggerAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestWeaponReleaseTriggerAction);
 
 			EnhancedInputComponent->BindAction(ReloadWeaponAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestReloadWeapon);
+			EnhancedInputComponent->BindAction(ChangeWeaponFirstSlotAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestChangeWeaponFirstSlot);
+			EnhancedInputComponent->BindAction(ChangeWeaponSecondSlotAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestChangeWeaponSecondSlot);
+			EnhancedInputComponent->BindAction(ChangeWeaponThirdSlotAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestChangeWeaponThirdSlot);
+			EnhancedInputComponent->BindAction(ChangeWeaponFourthSlotAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestChangeWeaponFourthSlot);
+
+			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestInteract);
 		}
 	}
 }
@@ -205,5 +211,41 @@ void AShooterPlayerController::RequestReloadWeapon()
 	if (BaseCharacterRef)
 	{
 		BaseCharacterRef->RequestReloadCurrentWeapon();
+	}
+}
+
+void AShooterPlayerController::RequestInteract()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestInteract();
+	}
+}
+
+void AShooterPlayerController::RequestChangeWeaponFirstSlot()
+{
+	RequestChangeWeapon(0);
+}
+
+void AShooterPlayerController::RequestChangeWeaponSecondSlot()
+{
+	RequestChangeWeapon(1);
+}
+
+void AShooterPlayerController::RequestChangeWeaponThirdSlot()
+{
+	RequestChangeWeapon(2);
+}
+
+void AShooterPlayerController::RequestChangeWeaponFourthSlot()
+{
+	RequestChangeWeapon(3);
+}
+
+void AShooterPlayerController::RequestChangeWeapon(const int32 Index)
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestChangeWeapon(Index);
 	}
 }

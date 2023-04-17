@@ -75,6 +75,12 @@ protected:
 	void RequestWeaponPullTriggerAction();
 	void RequestWeaponReleaseTriggerAction();
 	void RequestReloadWeapon();
+	void RequestInteract();
+	void RequestChangeWeaponFirstSlot();
+	void RequestChangeWeaponSecondSlot();
+	void RequestChangeWeaponThirdSlot();
+	void RequestChangeWeaponFourthSlot();
+	void RequestChangeWeapon(const int32 Index);
 	
 
 // Properties
@@ -113,5 +119,20 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Input")
 	TObjectPtr<UInputAction> ReloadWeaponAction;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> InteractAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> ChangeWeaponFirstSlotAction;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> ChangeWeaponSecondSlotAction;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> ChangeWeaponThirdSlotAction;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputAction> ChangeWeaponFourthSlotAction;
 
 };

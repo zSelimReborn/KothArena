@@ -9,6 +9,8 @@
 
 class USkeletalMeshComponent;
 class UWeaponFireComponent;
+class UWidgetComponent;
+class UCapsuleComponent;
 class UParticleSystem;
 class USoundCue;
 class ABaseProjectile;
@@ -48,6 +50,11 @@ public:
 	virtual void PullTrigger();
 	virtual void ReleaseTrigger();
 	virtual void Reload(const int32 Amount);
+	void EnableHighlight() const;
+	void DisableHighlight() const;
+	void DisableCollision() const;
+	
+	void OnEquip();
 
 	UFUNCTION(BlueprintPure)
 	bool CanShoot() const;
@@ -95,6 +102,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, NoClear)
 	TObjectPtr<USkeletalMeshComponent> WeaponSkeletalMeshComponent;
 
+	UPROPERTY(VisibleAnywhere, NoClear)
+	TObjectPtr<UWidgetComponent> PickupWeaponWidgetComponent;
+
+	UPROPERTY(VisibleAnywhere, NoClear)
+	TObjectPtr<UCapsuleComponent> CapsuleComponent;
+	
 	UPROPERTY()
 	TObjectPtr<UWeaponFireComponent> WeaponFireComponent;
 

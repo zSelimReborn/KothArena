@@ -47,6 +47,31 @@ bool UWeaponInventoryComponent::EquipDefaultWeapon()
 	return false;
 }
 
+void UWeaponInventoryComponent::UnEquipCurrentWeapon()
+{
+	if (CurrentWeaponRef)
+	{
+		CurrentWeaponRef->SetActorHiddenInGame(true);
+	}
+}
+
+int32 UWeaponInventoryComponent::AddWeapon(ABaseWeapon* Weapon)
+{
+	if (WeaponInventory.Num() < InventoryCapacity)
+	{
+		return WeaponInventory.Add(Weapon);
+	}
+
+	if (WeaponInventory.IsValidIndex(CurrentWeaponIndex) && WeaponInventory[CurrentWeaponIndex] != nullptr)
+	{
+		WeaponInventory[CurrentWeaponIndex]->Destroy();
+		WeaponInventory[CurrentWeaponIndex] = Weapon;
+		return CurrentWeaponIndex;
+	}
+
+	return -1;
+}
+
 
 // Called every frame
 void UWeaponInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -58,15 +83,28 @@ bool UWeaponInventoryComponent::EquipWeapon(ABaseWeapon* Weapon)
 {
 	if (Weapon && BaseCharacterRef)
 	{
-		if (CurrentWeaponRef)
-		{
-			// TODO Remove from hand old current weapon
-		}
-
+		UnEquipCurrentWeapon();
 		Weapon->AttachToComponent(BaseCharacterRef->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ShooterSocketAttachName);
 		CurrentWeaponRef = Weapon;
-		WeaponInventory.Add(Weapon);
+		CurrentWeaponRef->SetOwner(BaseCharacterRef);
+		CurrentWeaponRef->DisableCollision();
+		// TODO Manage weapon collision, visibility and so on using states
+		CurrentWeaponRef->OnEquip();
+		CurrentWeaponIndex = AddWeapon(Weapon);
 		return true;
+	}
+
+	return false;
+}
+
+bool UWeaponInventoryComponent::ChangeWeapon(const int32 WeaponIndex)
+{
+	if (WeaponInventory.IsValidIndex(WeaponIndex) && CurrentWeaponIndex != WeaponIndex)
+	{
+		UnEquipCurrentWeapon();
+		CurrentWeaponRef = WeaponInventory[WeaponIndex];
+		CurrentWeaponIndex = WeaponIndex;
+		CurrentWeaponRef->SetActorHiddenInGame(false);
 	}
 
 	return false;

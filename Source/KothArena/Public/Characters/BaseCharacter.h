@@ -15,8 +15,8 @@ class UShieldComponent;
 class UWeaponInventoryComponent;
 class UAmmoInventoryComponent;
 class UPlayerHud;
+class ABaseWeapon;
 
-// Maybe there's another way to do this?
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterReady, ACharacter*, InstigatorCharacter);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAbsorbShieldDamageDelegate, ACharacter*, InstigatorCharacter, const float, DamageAbsorbed, const float, NewShieldValue);
@@ -39,6 +39,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	void UpdateSprintStatus() const;
+
+	float GetAngleBetweenVectors(FVector, FVector) const;
+	
+	void SearchForWeapon();
 
 	float AbsorbShieldDamage(const float DamageAmount);
 
@@ -65,6 +69,8 @@ public:
 	void RequestWeaponPullTrigger() const;
 	void RequestWeaponReleaseTrigger() const;
 	void RequestReloadCurrentWeapon();
+	void RequestChangeWeapon(const int32 WeaponIndex) const;
+	void RequestInteract();
 
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const;
@@ -147,11 +153,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Sprint", meta=(ClampMin="0", UIMin="0", ForceUnits="cm/s"))
 	float SprintSpeed = 900.f;
 
+	UPROPERTY(EditAnywhere, Category="Weapon Trace")
+	float SearchWeaponLength = 1000.f;
+	
 	UPROPERTY(Transient)
 	float WalkSpeed = 600.f;
 
 	UPROPERTY(Transient)
 	TObjectPtr<APlayerController> PC;
+
+	UPROPERTY(Transient)
+	TObjectPtr<ABaseWeapon> WeaponFoundRef;
 
 	UPROPERTY()
 	FOnCharacterReady CharacterReadyDelegate;

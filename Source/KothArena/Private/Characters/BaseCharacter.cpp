@@ -62,6 +62,73 @@ void ABaseCharacter::UpdateSprintStatus() const
 	}
 }
 
+float ABaseCharacter::GetAngleBetweenVectors(FVector First, FVector Second) const
+{
+	First.Normalize();
+	Second.Normalize();
+
+	const float Cos = FVector::DotProduct(First, Second);
+	const float ACos = FMath::Acos(Cos);
+	const float Angle = FMath::RadiansToDegrees(ACos);
+
+	return Angle;
+}
+
+void ABaseCharacter::SearchForWeapon()
+{
+	FVector CameraLocation; FRotator CameraRotation;
+	GetController()->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+	const FVector CharacterForward = GetActorForwardVector();
+
+	const FVector CameraForward = CameraRotation.Vector();
+	const FVector EndTrace = CameraLocation + (CameraForward * SearchWeaponLength);
+
+	if (GetAngleBetweenVectors(CameraForward, CharacterForward) > CameraComponent->FieldOfView)
+	{
+		if (WeaponFoundRef)
+		{
+			WeaponFoundRef->DisableHighlight();
+			WeaponFoundRef = nullptr;
+		}
+		return;
+	}
+
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(100.f);
+
+	FCollisionQueryParams QueryParams{TEXT("KOTHArena::SearchForWeapon")};
+	QueryParams.AddIgnoredActor(this);
+	FHitResult TraceResult;
+	const bool bHitSomething = GetWorld()->SweepSingleByChannel(
+		TraceResult,
+		CameraLocation,
+		EndTrace,
+		FQuat::Identity,
+		ECollisionChannel::ECC_Visibility,
+		Sphere,
+		QueryParams
+	);
+
+	ABaseWeapon* FoundWeapon = Cast<ABaseWeapon>(TraceResult.GetActor());
+	if (bHitSomething && FoundWeapon)
+	{
+		if (WeaponFoundRef)
+		{
+			WeaponFoundRef->DisableHighlight();
+		}
+
+		WeaponFoundRef = FoundWeapon;
+		FoundWeapon->EnableHighlight();
+	}
+	else
+	{
+		if (WeaponFoundRef)
+		{
+			WeaponFoundRef->DisableHighlight();
+		}
+	}
+}
+
 float ABaseCharacter::AbsorbShieldDamage(const float DamageAmount)
 {
 	if (!ShieldComponent)
@@ -125,6 +192,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateSprintStatus();
+	SearchForWeapon();
 }
 
 // Called to bind functionality to input
@@ -251,6 +319,22 @@ void ABaseCharacter::RequestReloadCurrentWeapon()
 	}
 	
 	CurrentWeapon->Reload(AmmoToReload);
+}
+
+void ABaseCharacter::RequestChangeWeapon(const int32 WeaponIndex) const
+{
+	if (WeaponInventoryComponent)
+	{
+		WeaponInventoryComponent->ChangeWeapon(WeaponIndex);
+	}
+}
+
+void ABaseCharacter::RequestInteract()
+{
+	if (WeaponInventoryComponent && WeaponFoundRef)
+	{
+		WeaponInventoryComponent->EquipWeapon(WeaponFoundRef);
+	}
 }
 
 float ABaseCharacter::GetMaxHealth() const
