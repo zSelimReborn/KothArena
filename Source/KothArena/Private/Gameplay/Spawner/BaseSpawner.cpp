@@ -49,7 +49,7 @@ void ABaseSpawner::BeginPlay()
 void ABaseSpawner::SortClassProbability()
 {
 	ItemToSpawnClasses.Sort([](const FClassProbabilityMapping& First, const FClassProbabilityMapping& Second) {
-		return First.Probability < First.Probability;
+		return First.Probability < Second.Probability;
 	});
 }
 
