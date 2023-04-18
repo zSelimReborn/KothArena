@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/AmmoInventoryComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/SearchItemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/ShieldComponent.h"
@@ -36,6 +37,13 @@ void ABaseCharacter::BeginPlay()
 	ShieldComponent = FindComponentByClass<UShieldComponent>();
 	WeaponInventoryComponent = FindComponentByClass<UWeaponInventoryComponent>();
 	AmmoInventoryComponent = FindComponentByClass<UAmmoInventoryComponent>();
+	SearchItemComponent = FindComponentByClass<USearchItemComponent>();
+
+	if (SearchItemComponent)
+	{
+		SearchItemComponent->OnNewItemFound().AddDynamic(this, &ABaseCharacter::OnNewItemFound);
+		SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
+	}
 	
 	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -59,73 +67,6 @@ void ABaseCharacter::UpdateSprintStatus() const
 	if (FMath::IsNearlyZero(CurrentSpeed) && bIsSprinting)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-	}
-}
-
-float ABaseCharacter::GetAngleBetweenVectors(FVector First, FVector Second) const
-{
-	First.Normalize();
-	Second.Normalize();
-
-	const float Cos = FVector::DotProduct(First, Second);
-	const float ACos = FMath::Acos(Cos);
-	const float Angle = FMath::RadiansToDegrees(ACos);
-
-	return Angle;
-}
-
-void ABaseCharacter::SearchForWeapon()
-{
-	FVector CameraLocation; FRotator CameraRotation;
-	GetController()->GetPlayerViewPoint(CameraLocation, CameraRotation);
-
-	const FVector CharacterForward = GetActorForwardVector();
-
-	const FVector CameraForward = CameraRotation.Vector();
-	const FVector EndTrace = CameraLocation + (CameraForward * SearchWeaponLength);
-
-	if (GetAngleBetweenVectors(CameraForward, CharacterForward) > CameraComponent->FieldOfView)
-	{
-		if (WeaponFoundRef)
-		{
-			WeaponFoundRef->DisableHighlight();
-			WeaponFoundRef = nullptr;
-		}
-		return;
-	}
-
-	FCollisionShape Sphere = FCollisionShape::MakeSphere(100.f);
-
-	FCollisionQueryParams QueryParams{TEXT("KOTHArena::SearchForWeapon")};
-	QueryParams.AddIgnoredActor(this);
-	FHitResult TraceResult;
-	const bool bHitSomething = GetWorld()->SweepSingleByChannel(
-		TraceResult,
-		CameraLocation,
-		EndTrace,
-		FQuat::Identity,
-		ECollisionChannel::ECC_Visibility,
-		Sphere,
-		QueryParams
-	);
-
-	ABaseWeapon* FoundWeapon = Cast<ABaseWeapon>(TraceResult.GetActor());
-	if (bHitSomething && FoundWeapon)
-	{
-		if (WeaponFoundRef)
-		{
-			WeaponFoundRef->DisableHighlight();
-		}
-
-		WeaponFoundRef = FoundWeapon;
-		FoundWeapon->EnableHighlight();
-	}
-	else
-	{
-		if (WeaponFoundRef)
-		{
-			WeaponFoundRef->DisableHighlight();
-		}
 	}
 }
 
@@ -192,7 +133,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateSprintStatus();
-	SearchForWeapon();
 }
 
 // Called to bind functionality to input
@@ -468,6 +408,30 @@ EAmmoType ABaseCharacter::GetCurrentWeaponAmmoType() const
 	}
 
 	return EAmmoType::Default;
+}
+
+void ABaseCharacter::OnNewItemFound(const FHitResult& HitResult, AActor* ItemFound)
+{
+	ABaseWeapon* NewWeapon = Cast<ABaseWeapon>(ItemFound);
+	if (NewWeapon)
+	{
+		if (WeaponFoundRef)
+		{
+			WeaponFoundRef->DisableHighlight();
+		}
+
+		WeaponFoundRef = NewWeapon;
+		WeaponFoundRef->EnableHighlight();
+	}
+}
+
+void ABaseCharacter::OnItemLost(AActor* ItemLost)
+{
+	if (WeaponFoundRef)
+	{
+		WeaponFoundRef->DisableHighlight();
+		WeaponFoundRef = nullptr;
+	}
 }
 
 void ABaseCharacter::OnShieldBroken()

@@ -14,6 +14,7 @@ class UHealthComponent;
 class UShieldComponent;
 class UWeaponInventoryComponent;
 class UAmmoInventoryComponent;
+class USearchItemComponent;
 class UPlayerHud;
 class ABaseWeapon;
 
@@ -39,11 +40,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void UpdateSprintStatus() const;
-
-	float GetAngleBetweenVectors(FVector, FVector) const;
 	
-	void SearchForWeapon();
-
 	float AbsorbShieldDamage(const float DamageAmount);
 
 	float TakeHealthDamage(const float DamageAmount);
@@ -111,6 +108,14 @@ public:
 	UFUNCTION(BlueprintPure)
 	EAmmoType GetCurrentWeaponAmmoType() const;
 
+// Callbacks
+protected:
+	UFUNCTION()
+	void OnNewItemFound(const FHitResult& HitResult, AActor* ItemFound);
+
+	UFUNCTION()
+	void OnItemLost(AActor* ItemLost);
+
 // Events
 public:
 	FOnCharacterReady& OnCharacterReady() { return CharacterReadyDelegate; }
@@ -138,6 +143,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAmmoInventoryComponent> AmmoInventoryComponent;
+
+	UPROPERTY()
+	TObjectPtr<USearchItemComponent> SearchItemComponent;
 	
 // Properties
 protected:
@@ -152,9 +160,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Sprint", meta=(ClampMin="0", UIMin="0", ForceUnits="cm/s"))
 	float SprintSpeed = 900.f;
-
-	UPROPERTY(EditAnywhere, Category="Weapon Trace")
-	float SearchWeaponLength = 1000.f;
 	
 	UPROPERTY(Transient)
 	float WalkSpeed = 600.f;
