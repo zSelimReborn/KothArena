@@ -10,6 +10,7 @@ struct FAIStimulus;
 class UAIPerceptionComponent;
 class UBehaviorTree;
 class UFindPlayerComponent;
+class UAITargetComponent;
 
 /**
  * 
@@ -33,11 +34,10 @@ protected:
 // Components
 protected:
 	UPROPERTY()
-	TObjectPtr<UFindPlayerComponent> FindPlayerComponent;
-
+	TObjectPtr<UAITargetComponent> AITargetComponent;
+	
 	UPROPERTY()
 	TObjectPtr<UAIPerceptionComponent> AiPerceptionComponent;
-
 	
 // AI Properties
 protected:

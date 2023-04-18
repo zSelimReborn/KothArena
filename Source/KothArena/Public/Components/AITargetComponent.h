@@ -4,25 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "FindPlayerComponent.generated.h"
+#include "AITargetComponent.generated.h"
 
 class UBlackboardComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class KOTHARENA_API UFindPlayerComponent : public UActorComponent
+class KOTHARENA_API UAITargetComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UFindPlayerComponent();
+	UAITargetComponent();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	void UpdatePlayerLocation() const;
-
+	void SelectTarget(const float);
+	void PublishTargetInformation() const;
+	
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -34,19 +35,26 @@ protected:
 	
 	UPROPERTY(Transient)
 	TObjectPtr<APawn> PossessedPawn;
-	
-	UPROPERTY(Transient)
-	TObjectPtr<APawn> PlayerRef;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UBlackboardComponent> BlackboardComponent;
 
-	UPROPERTY(EditAnywhere)
-	FName PlayerObjectBlackboardKey = NAME_None;
+	UPROPERTY(EditAnywhere, Category="Target")
+	float TimeToUpdateTarget = 1.f;
 
-	UPROPERTY(EditAnywhere)
-	FName PlayerLocationBlackboardKey = NAME_None;
+	UPROPERTY()
+	float CurrentTimeUpdateTarget = 0.f;
+	
+	UPROPERTY(Transient)
+	TWeakObjectPtr<AActor> SelectedTarget;
 
-	UPROPERTY(EditAnywhere)
-	FName RangeToPlayerBlackboardKey = NAME_None;
+	UPROPERTY(EditAnywhere, Category="Target")
+	FName TargetObjectBlackboardKey = NAME_None;
+
+	UPROPERTY(EditAnywhere, Category="Target")
+	FName TargetLocationBlackboardKey = NAME_None;
+
+	UPROPERTY(EditAnywhere, Category="Target")
+	FName TargetDistanceBlackboardKey = NAME_None;
+	
 };

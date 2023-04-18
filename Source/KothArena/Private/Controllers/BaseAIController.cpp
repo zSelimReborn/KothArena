@@ -5,14 +5,14 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Characters/BaseCharacter.h"
-#include "Components/FindPlayerComponent.h"
+#include "Components/AITargetComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 
 void ABaseAIController::BeginPlay()
 {
 	Super::BeginPlay();
 	AiPerceptionComponent = FindComponentByClass<UAIPerceptionComponent>();
-	FindPlayerComponent = FindComponentByClass<UFindPlayerComponent>();
+	AITargetComponent = FindComponentByClass<UAITargetComponent>();
 	if (AiPerceptionComponent)
 	{
 		AiPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ABaseAIController::OnPerceptionSomething);
