@@ -64,7 +64,7 @@ void USearchItemComponent::SearchForItems()
 			CameraLocation,
 			EndTrace,
 			FQuat::Identity,
-			ECollisionChannel::ECC_Visibility,
+			ECollisionChannel::ECC_WorldDynamic,
 			Sphere,
 			QueryParams
 		);
