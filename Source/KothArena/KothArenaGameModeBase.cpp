@@ -11,6 +11,8 @@ void AKothArenaGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	KillCounterMapping.Empty();
+	
 	TArray<AActor*> Characters; 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), Characters);
 
@@ -34,8 +36,17 @@ void AKothArenaGameModeBase::OnCharacterTakeDamage(AController* ControllerDamage
 
 void AKothArenaGameModeBase::OnCharacterDeath(ACharacter* Character, AController* ControllerCauser)
 {
+	if (!KillCounterMapping.Contains(ControllerCauser))
+	{
+		KillCounterMapping.Add(ControllerCauser, 1);
+	}
+	else
+	{
+		KillCounterMapping[ControllerCauser] += 1;
+	}
+
 	if (AShooterPlayerController* ShooterController = Cast<AShooterPlayerController>(ControllerCauser))
 	{
-		ShooterController->OnCharacterKillSomeone();
+		ShooterController->OnCharacterKillSomeone(KillCounterMapping[ControllerCauser]);
 	}
 }

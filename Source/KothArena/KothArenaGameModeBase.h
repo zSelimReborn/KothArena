@@ -24,5 +24,9 @@ protected:
 
 	UFUNCTION()
 	void OnCharacterDeath(ACharacter* Character, AController* ControllerCauser);
-	
+
+// Properties
+protected:
+	UPROPERTY(Transient)
+	TMap<AController*, int32> KillCounterMapping;
 };

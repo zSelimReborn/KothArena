@@ -127,9 +127,9 @@ void AShooterPlayerController::OnCharacterHitSomeone()
 	}
 }
 
-void AShooterPlayerController::OnCharacterKillSomeone()
+void AShooterPlayerController::OnCharacterKillSomeone(const int32 NewKillCount)
 {
-	KillCount += 1;
+	KillCount = NewKillCount;
 
 	if (PlayerHudRef)
 	{
