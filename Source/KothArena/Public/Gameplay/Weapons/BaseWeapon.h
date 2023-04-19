@@ -14,6 +14,7 @@ class UCapsuleComponent;
 class UParticleSystem;
 class USoundCue;
 class ABaseProjectile;
+class ABaseCharacter;
 
 UENUM()
 enum class EWeaponType
@@ -80,6 +81,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	int32 GetMissingAmmo() const;
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE ABaseCharacter* GetCharacterOwner() const { return BaseCharacterRef; };
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE AController* GetControllerOwner() const { return PlayerController; }
+
 // Callbacks
 protected:
 	UFUNCTION()
@@ -113,6 +120,11 @@ protected:
 
 // Properties
 protected:
+
+	UPROPERTY(Transient)
+	TObjectPtr<ABaseCharacter> BaseCharacterRef;
+
+	UPROPERTY(Transient)
 	TObjectPtr<APlayerController> PlayerController;
 
 	UPROPERTY(EditAnywhere, Category="Weapon")

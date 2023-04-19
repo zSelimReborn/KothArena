@@ -10,6 +10,7 @@
 
 class ABaseWeapon;
 class ABaseProjectile;
+class AAIController;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponShotDelegate, const FHitResult&, ShotResult, const FVector&, EndShotLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponShotProjectileDelegate, ABaseProjectile*, NewProjectile);
@@ -40,6 +41,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	AActor* GetOwnerToIgnore() const;
+	
 	bool ComputeScreenCenterAndDirection(OUT FVector& CenterLocation, OUT FVector& CenterDirection) const;
 	bool TraceUnderScreenCenter(OUT FHitResult& ShotResult, OUT FVector& TraceEndLocation) const;
 	bool TraceFromWeaponMuzzle(const FVector ShotEndLocation, OUT FHitResult& ShotResult) const;
@@ -69,12 +72,21 @@ public:
 	FORCEINLINE float GetWeaponRangeInMeters() const { return WeaponRange * 100.f; }
 	FORCEINLINE EWeaponFireType GetWeaponFireType() const { return WeaponFireType; }
 
+	void SetController(AController* NewController);
+
 // Properties
 protected:
 	UPROPERTY(Transient)
 	TObjectPtr<ABaseWeapon> WeaponRef;
 
-	TObjectPtr<APlayerController> PlayerController;
+	UPROPERTY(Transient)
+	TObjectPtr<AController> ControllerRef;
+
+	UPROPERTY(Transient)
+	TObjectPtr<APlayerController> PlayerControllerRef;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AAIController> AIControllerRef;
 	
 	UPROPERTY(EditAnywhere, Category="Weapon Fire")
 	EWeaponFireType WeaponFireType = EWeaponFireType::Single;

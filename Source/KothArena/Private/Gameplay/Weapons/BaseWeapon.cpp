@@ -3,6 +3,7 @@
 
 #include "Gameplay/Weapons/BaseWeapon.h"
 
+#include "Characters/BaseCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WeaponFireComponent.h"
 #include "Components/WidgetComponent.h"
@@ -29,7 +30,8 @@ void ABaseWeapon::BeginPlay()
 	CurrentMag = MagCapacity;
 
 	DisableHighlight();
-	PlayerController = GetWorld()->GetFirstPlayerController();
+	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
+	PlayerController = (BaseCharacterRef)? Cast<APlayerController>(BaseCharacterRef->GetController()) : GetWorld()->GetFirstPlayerController();
 	WeaponFireComponent = FindComponentByClass<UWeaponFireComponent>();
 	if (WeaponFireComponent)
 	{
@@ -118,6 +120,12 @@ void ABaseWeapon::DisableCollision() const
 
 void ABaseWeapon::OnEquip()
 {
+	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
+	PlayerController = (BaseCharacterRef)? Cast<APlayerController>(BaseCharacterRef->GetController()) : GetWorld()->GetFirstPlayerController();
+	if (WeaponFireComponent)
+	{
+		WeaponFireComponent->SetController(PlayerController);
+	}
 	ItemUsedDelegate.Broadcast(this, GetOwner());
 }
 

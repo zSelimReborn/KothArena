@@ -3,6 +3,8 @@
 
 #include "Components/WeaponFireComponent.h"
 
+#include "AIController.h"
+#include "Characters/BaseCharacter.h"
 #include "Gameplay/Projectiles/BaseProjectile.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "Kismet/GameplayStatics.h"
@@ -29,21 +31,31 @@ void UWeaponFireComponent::BeginPlay()
 	Super::BeginPlay();
 
 	WeaponRef = Cast<ABaseWeapon>(GetOwner());
-	PlayerController = GetWorld()->GetFirstPlayerController();
+	SetController(WeaponRef? WeaponRef->GetControllerOwner() : GetWorld()->GetFirstPlayerController());
+}
+
+AActor* UWeaponFireComponent::GetOwnerToIgnore() const
+{
+	if (WeaponRef)
+	{
+		return WeaponRef->GetCharacterOwner();
+	}
+
+	return nullptr;
 }
 
 bool UWeaponFireComponent::ComputeScreenCenterAndDirection(FVector& CenterLocation, FVector& CenterDirection) const
 {
-	if (PlayerController == nullptr)
+	if (PlayerControllerRef == nullptr)
 	{
 		return false;
 	}
 	
 	int32 ViewportSizeX, ViewportSizeY;
-	PlayerController->GetViewportSize(ViewportSizeX, ViewportSizeY);
+	PlayerControllerRef->GetViewportSize(ViewportSizeX, ViewportSizeY);
 
 	const FVector2D ViewportCenter = {ViewportSizeX / 2.f, ViewportSizeY / 2.f};
-	return UGameplayStatics::DeprojectScreenToWorld(PlayerController, ViewportCenter, CenterLocation, CenterDirection);
+	return UGameplayStatics::DeprojectScreenToWorld(PlayerControllerRef, ViewportCenter, CenterLocation, CenterDirection);
 }
 
 bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVector& TraceEndLocation) const
@@ -51,9 +63,11 @@ bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVecto
 	FVector CenterLocation, CenterDirection;
 	if (ComputeScreenCenterAndDirection(CenterLocation, CenterDirection))
 	{
-		const FCollisionQueryParams ShotQueryParams{TEXT("StartSingleShot|Screen")};
+		FCollisionQueryParams ShotQueryParams{TEXT("StartSingleShot|Screen")};
 		const FVector StartShotTrace = CenterLocation;
 		const FVector EndShotTrace = CenterLocation + CenterDirection * GetWeaponRangeInMeters();
+
+		ShotQueryParams.AddIgnoredActor(GetOwnerToIgnore());
 		const bool bHit = GetWorld()->LineTraceSingleByChannel(
 			ShotResult,
 			StartShotTrace,
@@ -76,7 +90,8 @@ bool UWeaponFireComponent::TraceFromWeaponMuzzle(const FVector ShotEndLocation, 
 		const FVector StartWeaponTrace = WeaponRef->GetMuzzleLocation();
 		const FVector WeaponToCenter = (ShotEndLocation - StartWeaponTrace);
 		const FVector EndWeaponTrace = StartWeaponTrace + WeaponToCenter * GetWeaponRangeInMeters();
-		const FCollisionQueryParams WeaponQueryParams{TEXT("StartSingleShot|Weapon")};
+		FCollisionQueryParams WeaponQueryParams{TEXT("StartSingleShot|Weapon")};
+		WeaponQueryParams.AddIgnoredActor(GetOwnerToIgnore());
 		const bool bWeaponHit = GetWorld()->LineTraceSingleByChannel(
 			ShotResult,
 			StartWeaponTrace,
@@ -174,12 +189,15 @@ void UWeaponFireComponent::StartConeSpreadShot()
 		const FVector PelletDirection = Noise.RotateVector(StraightShotLocation);
 		const FVector EndPelletLocation = MuzzleLocation + (PelletDirection * GetWeaponRangeInMeters());
 
+		FCollisionQueryParams ShotgunQueryParams{TEXT("StartConeSpreadShot")};
+		ShotgunQueryParams.AddIgnoredActor(GetOwnerToIgnore());
 		FHitResult PelletHitResult;
 		const bool bHitSomething = GetWorld()->LineTraceSingleByChannel(
 			PelletHitResult,
 			MuzzleLocation,
 			EndPelletLocation,
-			ECollisionChannel::ECC_Visibility
+			ECollisionChannel::ECC_Visibility,
+			ShotgunQueryParams
 		);
 
 		if (bHitSomething)
@@ -264,5 +282,12 @@ void UWeaponFireComponent::StopFire()
 	{
 		StopAutomaticFire();
 	}
+}
+
+void UWeaponFireComponent::SetController(AController* NewController)
+{
+	ControllerRef = NewController;
+	PlayerControllerRef = Cast<APlayerController>(ControllerRef);
+	AIControllerRef = Cast<AAIController>(ControllerRef);
 }
 
