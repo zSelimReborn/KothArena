@@ -87,6 +87,8 @@ public:
 
 	void OnCharacterKillSomeone(const int32 NewKillCount);
 
+	void OnCharacterBrokeShield();
+
 // Properties
 protected:
 	UPROPERTY(Transient)

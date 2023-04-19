@@ -22,6 +22,7 @@ void AKothArenaGameModeBase::BeginPlay()
 		{
 			Character->OnTakeDamage().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterTakeDamage);
 			Character->OnCharacterDeath().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterDeath);
+			Character->OnCharacterShieldBroken().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterBrokenShield);
 		}
 	}
 }
@@ -48,5 +49,13 @@ void AKothArenaGameModeBase::OnCharacterDeath(ACharacter* Character, AController
 	if (AShooterPlayerController* ShooterController = Cast<AShooterPlayerController>(ControllerCauser))
 	{
 		ShooterController->OnCharacterKillSomeone(KillCounterMapping[ControllerCauser]);
+	}
+}
+
+void AKothArenaGameModeBase::OnCharacterBrokenShield(ACharacter* Character, AController* ControllerCauser)
+{
+	if (AShooterPlayerController* ShooterController = Cast<AShooterPlayerController>(ControllerCauser))
+	{
+		ShooterController->OnCharacterBrokeShield();
 	}
 }

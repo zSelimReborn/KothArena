@@ -137,6 +137,14 @@ void AShooterPlayerController::OnCharacterKillSomeone(const int32 NewKillCount)
 	}
 }
 
+void AShooterPlayerController::OnCharacterBrokeShield()
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnBrokeShield();
+	}
+}
+
 void AShooterPlayerController::InitializeHud()
 {
 	if (PlayerHudClass)

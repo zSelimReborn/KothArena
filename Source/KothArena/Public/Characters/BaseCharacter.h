@@ -27,6 +27,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnRegenHealthDelegate, ACharacte
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTakeDamageDelegate, AController*, DamagedController, AController*, InstigatorController);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterDeathDelegate, ACharacter*, DeadCharacter, AController*, KillerController);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterShieldBrokenDelegate, ACharacter*, DamagedCharacter, AController*, ControllerCauser);
 
 UCLASS()
 class KOTHARENA_API ABaseCharacter : public ACharacter
@@ -128,6 +129,7 @@ public:
 	FOnRegenHealthDelegate& OnRegenHealth() { return RegenHealthDelegate; }
 	FOnTakeDamageDelegate& OnTakeDamage() { return TakeDamageDelegate; }
 	FOnCharacterDeathDelegate& OnCharacterDeath() { return CharacterDeathDelegate; }
+	FOnCharacterShieldBrokenDelegate& OnCharacterShieldBroken() { return CharacterShieldBrokenDelegate; }
 	
 // Components
 protected:
@@ -200,4 +202,7 @@ protected:
 
 	UPROPERTY()
 	FOnCharacterDeathDelegate CharacterDeathDelegate;
+
+	UPROPERTY()
+	FOnCharacterShieldBrokenDelegate CharacterShieldBrokenDelegate;
 };

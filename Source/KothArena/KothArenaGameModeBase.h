@@ -25,6 +25,9 @@ protected:
 	UFUNCTION()
 	void OnCharacterDeath(ACharacter* Character, AController* ControllerCauser);
 
+	UFUNCTION()
+	void OnCharacterBrokenShield(ACharacter* Character, AController* ControllerCauser);
+
 // Properties
 protected:
 	UPROPERTY(Transient)

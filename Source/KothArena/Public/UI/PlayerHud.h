@@ -38,4 +38,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnKillSomeone(const int32 KillCounter);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnBrokeShield();
 };

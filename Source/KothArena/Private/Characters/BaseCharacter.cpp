@@ -77,7 +77,7 @@ float ABaseCharacter::AbsorbShieldDamage(const float DamageAmount)
 		return 0.f;
 	}
 
-	if (DamageAmount <= 0.f)
+	if (DamageAmount <= 0.f || ShieldComponent->IsBroken())
 	{
 		return 0.f;
 	}
@@ -439,5 +439,5 @@ void ABaseCharacter::OnItemLost(AActor* ItemLost)
 
 void ABaseCharacter::OnShieldBroken()
 {
-	
+	CharacterShieldBrokenDelegate.Broadcast(this, LastDamageCauserController);
 }
