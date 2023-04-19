@@ -119,6 +119,24 @@ void AShooterPlayerController::OnCharacterRegenHealth(ACharacter* InstigatorChar
 	}
 }
 
+void AShooterPlayerController::OnCharacterHitSomeone()
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnHitSomeone();
+	}
+}
+
+void AShooterPlayerController::OnCharacterKillSomeone()
+{
+	KillCount += 1;
+
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnKillSomeone(KillCount);
+	}
+}
+
 void AShooterPlayerController::InitializeHud()
 {
 	if (PlayerHudClass)

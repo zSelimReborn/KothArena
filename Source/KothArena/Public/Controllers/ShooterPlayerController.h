@@ -81,7 +81,11 @@ protected:
 	void RequestChangeWeaponThirdSlot();
 	void RequestChangeWeaponFourthSlot();
 	void RequestChangeWeapon(const int32 Index);
-	
+
+public:
+	void OnCharacterHitSomeone();
+
+	void OnCharacterKillSomeone();
 
 // Properties
 protected:
@@ -93,6 +97,9 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UPlayerHud> PlayerHudRef;
+
+	UPROPERTY(Transient)
+	int32 KillCount = 0;
 	
 // Bindings
 protected:

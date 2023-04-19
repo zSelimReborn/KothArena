@@ -32,4 +32,10 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnPlayerDeath();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnHitSomeone();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnKillSomeone(const int32 KillCounter);
 };

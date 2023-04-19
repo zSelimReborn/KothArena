@@ -117,6 +117,7 @@ float ABaseCharacter::TakeHealthDamage(const float DamageAmount)
 void ABaseCharacter::OnDeath()
 {
 	// If player restart level, destroy otherwise
+	CharacterDeathDelegate.Broadcast(this, LastDamageCauserController);
 	if (PC)
 	{
 		PC->RestartLevel();
@@ -152,6 +153,8 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		return 0.f;
 	}
 
+	LastDamageCauserController = EventInstigator;
+	TakeDamageDelegate.Broadcast(GetController(), LastDamageCauserController);
 	const float ShieldAbsorbedDamage = AbsorbShieldDamage(DamageAmount);
 	const float RemainingDamage = (DamageAmount - ShieldAbsorbedDamage <= 0.f)? 0.f : DamageAmount - ShieldAbsorbedDamage;
 	

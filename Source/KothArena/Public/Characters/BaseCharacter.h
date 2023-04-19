@@ -25,6 +25,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTakeHealthDamageDelegate, ACha
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnRegenShieldDelegate, ACharacter*, InstigatorCharacter, const float, RegenAmount, const float, NewShieldValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnRegenHealthDelegate, ACharacter*, InstigatorCharacter, const float, RegenAmount, const float, NewHealthValue);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTakeDamageDelegate, AController*, DamagedController, AController*, InstigatorController);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterDeathDelegate, ACharacter*, DeadCharacter, AController*, KillerController);
+
 UCLASS()
 class KOTHARENA_API ABaseCharacter : public ACharacter
 {
@@ -123,6 +126,8 @@ public:
 	FOnTakeHealthDamageDelegate& OnTakeHealthDamage() { return TakeHealthDamageDelegate; }
 	FOnRegenShieldDelegate& OnRegenShield() { return RegenShieldDelegate; }
 	FOnRegenHealthDelegate& OnRegenHealth() { return RegenHealthDelegate; }
+	FOnTakeDamageDelegate& OnTakeDamage() { return TakeDamageDelegate; }
+	FOnCharacterDeathDelegate& OnCharacterDeath() { return CharacterDeathDelegate; }
 	
 // Components
 protected:
@@ -170,6 +175,11 @@ protected:
 	UPROPERTY(Transient)
 	TObjectPtr<ABaseWeapon> WeaponFoundRef;
 
+	UPROPERTY(Transient)
+	TObjectPtr<AController> LastDamageCauserController;
+
+// Events
+protected:
 	UPROPERTY()
 	FOnCharacterReady CharacterReadyDelegate;
 	
@@ -184,4 +194,10 @@ protected:
 
 	UPROPERTY()
 	FOnRegenHealthDelegate RegenHealthDelegate;
+
+	UPROPERTY()
+	FOnTakeDamageDelegate TakeDamageDelegate;
+
+	UPROPERTY()
+	FOnCharacterDeathDelegate CharacterDeathDelegate;
 };
