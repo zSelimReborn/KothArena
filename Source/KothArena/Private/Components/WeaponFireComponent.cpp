@@ -50,12 +50,13 @@ bool UWeaponFireComponent::ComputeScreenCenterAndDirection(FVector& CenterLocati
 	{
 		return false;
 	}
-	
-	int32 ViewportSizeX, ViewportSizeY;
-	PlayerControllerRef->GetViewportSize(ViewportSizeX, ViewportSizeY);
 
-	const FVector2D ViewportCenter = {ViewportSizeX / 2.f, ViewportSizeY / 2.f};
-	return UGameplayStatics::DeprojectScreenToWorld(PlayerControllerRef, ViewportCenter, CenterLocation, CenterDirection);
+	FRotator ViewPointRotator;
+	PlayerControllerRef->GetActorEyesViewPoint(CenterLocation, ViewPointRotator);
+	CenterDirection = ViewPointRotator.Vector();
+
+	return true;
+	//return UGameplayStatics::DeprojectScreenToWorld(PlayerControllerRef, ViewportCenter, CenterLocation, CenterDirection);
 }
 
 bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVector& TraceEndLocation) const

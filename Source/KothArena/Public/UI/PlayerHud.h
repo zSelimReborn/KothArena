@@ -16,6 +16,9 @@ class KOTHARENA_API UPlayerHud : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintImplementableEvent)
+	void InitializeOwnerController(AController* OwnerController);
+	
+	UFUNCTION(BlueprintImplementableEvent)
 	void InitializeHealthAndShield(bool bHasHealth, const float MaxHealth, const float CurrentHealth, bool bHasShield, const float MaxShield, const float CurrentShield);
 
 	UFUNCTION(BlueprintImplementableEvent)

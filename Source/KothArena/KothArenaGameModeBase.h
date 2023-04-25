@@ -16,7 +16,6 @@ class KOTHARENA_API AKothArenaGameModeBase : public AGameModeBase
 	
 protected:
 	virtual void BeginPlay() override;
-
 // Delegates
 protected:
 	UFUNCTION()
@@ -28,6 +27,9 @@ protected:
 	UFUNCTION()
 	void OnCharacterBrokenShield(ACharacter* Character, AController* ControllerCauser);
 
+public:
+	void RegisterController(AController* NewController);
+	
 // Properties
 protected:
 	UPROPERTY(Transient)

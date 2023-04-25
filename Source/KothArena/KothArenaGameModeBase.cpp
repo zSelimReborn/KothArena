@@ -13,16 +13,14 @@ void AKothArenaGameModeBase::BeginPlay()
 
 	KillCounterMapping.Empty();
 	
-	TArray<AActor*> Characters; 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), Characters);
+	TArray<AActor*> Controllers; 
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AController::StaticClass(), Controllers);
 
-	for (AActor* Actor : Characters)
+	for (AActor* ControllerActor : Controllers)
 	{
-		if (ABaseCharacter* Character = Cast<ABaseCharacter>(Actor))
+		if (AController* Controller = Cast<AController>(ControllerActor))
 		{
-			Character->OnTakeDamage().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterTakeDamage);
-			Character->OnCharacterDeath().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterDeath);
-			Character->OnCharacterShieldBroken().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterBrokenShield);
+			RegisterController(Controller);
 		}
 	}
 }
@@ -57,5 +55,21 @@ void AKothArenaGameModeBase::OnCharacterBrokenShield(ACharacter* Character, ACon
 	if (AShooterPlayerController* ShooterController = Cast<AShooterPlayerController>(ControllerCauser))
 	{
 		ShooterController->OnCharacterBrokeShield();
+	}
+}
+
+void AKothArenaGameModeBase::RegisterController(AController* NewController)
+{
+	if (KillCounterMapping.Contains(NewController))
+	{
+		return;
+	}
+	
+	if (ABaseCharacter* Character = Cast<ABaseCharacter>(NewController->GetCharacter()))
+	{
+		Character->OnTakeDamage().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterTakeDamage);
+		Character->OnCharacterDeath().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterDeath);
+		Character->OnCharacterShieldBroken().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterBrokenShield);
+		KillCounterMapping.Add(NewController, 0);
 	}
 }
