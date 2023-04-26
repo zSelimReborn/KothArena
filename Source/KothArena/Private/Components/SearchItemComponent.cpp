@@ -3,6 +3,8 @@
 
 #include "Components/SearchItemComponent.h"
 
+#include "Utils/MathUtils.h"
+
 // Sets default values for this component's properties
 USearchItemComponent::USearchItemComponent()
 {
@@ -20,18 +22,6 @@ void USearchItemComponent::BeginPlay()
 	OwnerPawn = Cast<APawn>(GetOwner());
 }
 
-float USearchItemComponent::GetAngleBetweenVectors(FVector First, FVector Second) const
-{
-	First.Normalize();
-	Second.Normalize();
-
-	const float Cos = FVector::DotProduct(First, Second);
-	const float ACos = FMath::Acos(Cos);
-	const float Angle = FMath::RadiansToDegrees(ACos);
-
-	return Angle;
-}
-
 void USearchItemComponent::SearchForItems()
 {
 	if (bShouldSearchForItems && OwnerPawn && OwnerPawn->GetController())
@@ -44,7 +34,7 @@ void USearchItemComponent::SearchForItems()
 		const FVector CameraForward = CameraRotation.Vector();
 		const FVector EndTrace = CameraLocation + (CameraForward * SearchTraceLength);
 
-		if (GetAngleBetweenVectors(CameraForward, CharacterForward) > SearchMaxFOV)
+		if (UMathUtils::GetAngleBetweenVectors(CameraForward, CharacterForward) > SearchMaxFOV)
 		{
 			if (ItemFoundRef)
 			{
@@ -58,6 +48,7 @@ void USearchItemComponent::SearchForItems()
 
 		FCollisionQueryParams QueryParams{TEXT("KOTHArena::SearchItemComponent")};
 		QueryParams.AddIgnoredActor(OwnerPawn);
+		
 		FHitResult TraceResult;
 		const bool bHitSomething = GetWorld()->SweepSingleByChannel(
 			TraceResult,
@@ -70,7 +61,7 @@ void USearchItemComponent::SearchForItems()
 		);
 
 		AActor* FoundItem = (TraceResult.GetActor());
-		if (bHitSomething && FoundItem)
+		if (bHitSomething && FoundItem && FoundItem->IsA(ActorClassToSearch))
 		{
 			NewItemFoundDelegate.Broadcast(TraceResult, FoundItem);
 			ItemFoundRef = FoundItem;

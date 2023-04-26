@@ -10,7 +10,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnNewItemFoundDelegate, const FHitResult&, HitResult, AActor*, NewItem);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemLostDelegate, AActor*, LostItem);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, ToolTip="Search for specific actors in front of the current character/actor.") )
 class KOTHARENA_API USearchItemComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -23,7 +23,6 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	float GetAngleBetweenVectors(FVector, FVector) const;
 	void SearchForItems();
 	
 public:	
@@ -44,6 +43,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Trace")
 	float SearchMaxFOV = 90.f;
 
+	UPROPERTY(EditAnywhere, Category="Trace")
+	TSubclassOf<AActor> ActorClassToSearch;
+	
 	UPROPERTY(Transient, VisibleAnywhere, Category="Trace")
 	TObjectPtr<APawn> OwnerPawn;
 

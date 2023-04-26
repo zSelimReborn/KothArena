@@ -67,9 +67,19 @@ void AKothArenaGameModeBase::RegisterController(AController* NewController)
 	
 	if (ABaseCharacter* Character = Cast<ABaseCharacter>(NewController->GetCharacter()))
 	{
-		Character->OnTakeDamage().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterTakeDamage);
-		Character->OnCharacterDeath().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterDeath);
-		Character->OnCharacterShieldBroken().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterBrokenShield);
+		if (!Character->OnTakeDamage().IsAlreadyBound(this, &AKothArenaGameModeBase::OnCharacterTakeDamage))
+		{
+			Character->OnTakeDamage().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterTakeDamage);
+		}
+		if (!Character->OnCharacterDeath().IsAlreadyBound(this, &AKothArenaGameModeBase::OnCharacterDeath))
+		{
+			Character->OnCharacterDeath().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterDeath);
+		}
+		if (Character->OnCharacterShieldBroken().IsAlreadyBound(this, &AKothArenaGameModeBase::OnCharacterBrokenShield))
+		{
+			Character->OnCharacterShieldBroken().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterBrokenShield);
+		}
+		
 		KillCounterMapping.Add(NewController, 0);
 	}
 }
