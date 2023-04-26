@@ -12,6 +12,7 @@ class ABaseCharacter;
 class UInputAction;
 class UPlayerHud;
 class AKothArenaGameModeBase;
+class UInputMappingContext;
 
 /**
  * 
@@ -95,6 +96,9 @@ public:
 protected:
 	UPROPERTY(Transient)
 	TObjectPtr<ABaseCharacter> BaseCharacterRef;
+
+	UPROPERTY(EditDefaultsOnly, Category="Input")
+	TObjectPtr<UInputMappingContext> MappingContext;
 
 	UPROPERTY(EditAnywhere, Category="HUD")
 	TSubclassOf<UPlayerHud> PlayerHudClass;

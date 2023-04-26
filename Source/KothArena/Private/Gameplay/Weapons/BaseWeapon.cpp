@@ -122,10 +122,6 @@ void ABaseWeapon::OnEquip()
 {
 	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
 	PlayerController = (BaseCharacterRef)? Cast<APlayerController>(BaseCharacterRef->GetController()) : GetWorld()->GetFirstPlayerController();
-	if (WeaponFireComponent)
-	{
-		WeaponFireComponent->SetController(PlayerController);
-	}
 	ItemUsedDelegate.Broadcast(this, GetOwner());
 }
 
@@ -158,6 +154,23 @@ int32 ABaseWeapon::GetCurrentAmmo() const
 int32 ABaseWeapon::GetMissingAmmo() const
 {
 	return (GetMagCapacity() - GetCurrentAmmo() >= 0)? GetMagCapacity() - GetCurrentAmmo() : GetMagCapacity();
+}
+
+AController* ABaseWeapon::GetControllerOwner()
+{
+	if (ControllerOwner != nullptr)
+	{
+		return ControllerOwner;
+	}
+
+	if (BaseCharacterRef)
+	{
+		ControllerOwner = BaseCharacterRef->GetController();
+		PlayerController = Cast<APlayerController>(BaseCharacterRef->GetController());
+		AIController = Cast<AAIController>(BaseCharacterRef->GetController());
+	}
+
+	return ControllerOwner;
 }
 
 void ABaseWeapon::OnWeaponShot(const FHitResult& ShotResult, const FVector& EndShotLocation)

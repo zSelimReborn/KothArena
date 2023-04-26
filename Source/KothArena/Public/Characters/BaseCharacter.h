@@ -9,7 +9,6 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class UInputMappingContext;
 class UHealthComponent;
 class UShieldComponent;
 class UWeaponInventoryComponent;
@@ -156,9 +155,6 @@ protected:
 	
 // Properties
 protected:
-	UPROPERTY(EditDefaultsOnly, Category="Input")
-	TObjectPtr<UInputMappingContext> MappingContext;
-
 	UPROPERTY(EditAnywhere, Category="Look", meta=(ClampMin="0", UIMin="0", ForceUnits="deg/s"))
 	float BaseLookUpRate = 90.f;
 

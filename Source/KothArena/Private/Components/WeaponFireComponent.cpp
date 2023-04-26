@@ -3,7 +3,6 @@
 
 #include "Components/WeaponFireComponent.h"
 
-#include "AIController.h"
 #include "Characters/BaseCharacter.h"
 #include "Gameplay/Projectiles/BaseProjectile.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
@@ -31,7 +30,6 @@ void UWeaponFireComponent::BeginPlay()
 	Super::BeginPlay();
 
 	WeaponRef = Cast<ABaseWeapon>(GetOwner());
-	SetController(WeaponRef? WeaponRef->GetControllerOwner() : GetWorld()->GetFirstPlayerController());
 }
 
 AActor* UWeaponFireComponent::GetOwnerToIgnore() const
@@ -255,6 +253,7 @@ void UWeaponFireComponent::ProjectileHitSomething(AActor* ProjectileInstigator, 
 
 void UWeaponFireComponent::StartFire()
 {
+	FillControllerOwner();
 	switch (WeaponFireType)
 	{
 	case EWeaponFireType::Burst:
@@ -285,10 +284,15 @@ void UWeaponFireComponent::StopFire()
 	}
 }
 
-void UWeaponFireComponent::SetController(AController* NewController)
+AController* UWeaponFireComponent::FillControllerOwner()
 {
-	ControllerRef = NewController;
+	if (ControllerRef != nullptr)
+	{
+		return ControllerRef;
+	}
+
+	ControllerRef = (WeaponRef)? WeaponRef->GetControllerOwner() : nullptr;
 	PlayerControllerRef = Cast<APlayerController>(ControllerRef);
 	AIControllerRef = Cast<AAIController>(ControllerRef);
+	return ControllerRef;
 }
-

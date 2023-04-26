@@ -75,7 +75,7 @@ void AKothArenaGameModeBase::RegisterController(AController* NewController)
 		{
 			Character->OnCharacterDeath().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterDeath);
 		}
-		if (Character->OnCharacterShieldBroken().IsAlreadyBound(this, &AKothArenaGameModeBase::OnCharacterBrokenShield))
+		if (!Character->OnCharacterShieldBroken().IsAlreadyBound(this, &AKothArenaGameModeBase::OnCharacterBrokenShield))
 		{
 			Character->OnCharacterShieldBroken().AddDynamic(this, &AKothArenaGameModeBase::OnCharacterBrokenShield);
 		}

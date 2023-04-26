@@ -4,6 +4,7 @@
 #include "Controllers/ShooterPlayerController.h"
 
 #include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/PlayerHud.h"
 #include "Characters/BaseCharacter.h"
@@ -60,6 +61,12 @@ void AShooterPlayerController::SetupInputComponent()
 			EnhancedInputComponent->BindAction(ChangeWeaponFourthSlotAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestChangeWeaponFourthSlot);
 
 			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestInteract);
+			
+			UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+			if (EnhancedInputLocalPlayerSubsystem)
+			{
+				EnhancedInputLocalPlayerSubsystem->AddMappingContext(MappingContext, 0);
+			}
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AIController.h"
 #include "Gameplay/Items/BaseItem.h"
 #include "Gameplay/Items/AmmoItem.h"
 #include "BaseWeapon.generated.h"
@@ -84,8 +85,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ABaseCharacter* GetCharacterOwner() const { return BaseCharacterRef; };
 
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE AController* GetControllerOwner() const { return PlayerController; }
+	AController* GetControllerOwner();
 
 // Callbacks
 protected:
@@ -125,7 +125,13 @@ protected:
 	TObjectPtr<ABaseCharacter> BaseCharacterRef;
 
 	UPROPERTY(Transient)
+	TObjectPtr<AController> ControllerOwner;
+	
+	UPROPERTY(Transient)
 	TObjectPtr<APlayerController> PlayerController;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AAIController> AIController;
 
 	UPROPERTY(EditAnywhere, Category="Weapon")
 	float WeaponBaseDamage = 5.f;

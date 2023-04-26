@@ -72,7 +72,7 @@ public:
 	FORCEINLINE float GetWeaponRangeInMeters() const { return WeaponRange * 100.f; }
 	FORCEINLINE EWeaponFireType GetWeaponFireType() const { return WeaponFireType; }
 
-	void SetController(AController* NewController);
+	AController* FillControllerOwner();
 
 // Properties
 protected:

@@ -45,17 +45,6 @@ void ABaseCharacter::BeginPlay()
 		SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
 	}
 	
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		UEnhancedInputLocalPlayerSubsystem* EnhancedInputComponent = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-		if (EnhancedInputComponent)
-		{
-			EnhancedInputComponent->AddMappingContext(MappingContext, 0);
-		}
-
-		PC = PlayerController;
-	}
-
 	CharacterReadyDelegate.Broadcast(this);
 }
 
@@ -141,6 +130,10 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		PC = PlayerController;
+	}
 }
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
