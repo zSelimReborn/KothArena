@@ -25,6 +25,12 @@ void AKothArenaGameModeBase::BeginPlay()
 	}
 }
 
+void AKothArenaGameModeBase::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	RegisterController(NewPlayer);
+}
+
 void AKothArenaGameModeBase::OnCharacterTakeDamage(AController* ControllerDamaged, AController* ControllerCauser)
 {
 	if (AShooterPlayerController* ShooterController = Cast<AShooterPlayerController>(ControllerCauser))

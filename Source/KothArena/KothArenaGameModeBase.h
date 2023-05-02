@@ -16,6 +16,10 @@ class KOTHARENA_API AKothArenaGameModeBase : public AGameModeBase
 	
 protected:
 	virtual void BeginPlay() override;
+
+public:
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
 // Delegates
 protected:
 	UFUNCTION()

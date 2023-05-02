@@ -9,27 +9,20 @@
 #include "UI/PlayerHud.h"
 #include "Characters/BaseCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "KothArena/KothArenaGameModeBase.h"
 
 void AShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AShooterPlayerController::OnPossess(APawn* InPawn)
+void AShooterPlayerController::AcknowledgePossession(APawn* P)
 {
-	Super::OnPossess(InPawn);
+	Super::AcknowledgePossession(P);
 	BaseCharacterRef = Cast<ABaseCharacter>(GetCharacter());
 	if (BaseCharacterRef)
 	{
 		OnCharacterReady(BaseCharacterRef);
 		BaseCharacterRef->OnCharacterReady().AddDynamic(this, &AShooterPlayerController::OnCharacterReady);
-	}
-
-	GameModeRef = Cast<AKothArenaGameModeBase>(GetWorld()->GetAuthGameMode());
-	if (GameModeRef)
-	{
-		GameModeRef->RegisterController(this);
 	}
 }
 
@@ -171,7 +164,7 @@ void AShooterPlayerController::OnCharacterBrokeShield()
 
 void AShooterPlayerController::InitializeHud()
 {
-	if (PlayerHudClass)
+	if (PlayerHudClass && IsLocalController())
 	{
 		if (PlayerHudRef == nullptr)
 		{
@@ -200,7 +193,7 @@ void AShooterPlayerController::InitializeHud()
 
 void AShooterPlayerController::InitializeHudDelegates()
 {
-	if (BaseCharacterRef)
+	if (BaseCharacterRef && IsLocalController())
 	{
 		if (!BaseCharacterRef->OnAbsorbShieldDamage().IsAlreadyBound(this, &AShooterPlayerController::OnCharacterAbsorbShieldDamage))
 		{

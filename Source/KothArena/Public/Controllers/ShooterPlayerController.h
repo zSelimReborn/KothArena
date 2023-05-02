@@ -24,7 +24,7 @@ class KOTHARENA_API AShooterPlayerController : public APlayerController
 
 public:
 	virtual void BeginPlay() override;
-	virtual void OnPossess(APawn* InPawn) override;
+	virtual void AcknowledgePossession(APawn* P) override;
 	virtual void SetupInputComponent() override;
 
 	// This is used by PlayerHUD
