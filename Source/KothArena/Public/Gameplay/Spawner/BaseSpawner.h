@@ -49,10 +49,6 @@ protected:
 	UFUNCTION()
 	void OnItemPicked(AActor* ItemUsed, AActor* InstigatorActor);
 	
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 // Components
 protected:
 	UPROPERTY(VisibleAnywhere, NoClear)

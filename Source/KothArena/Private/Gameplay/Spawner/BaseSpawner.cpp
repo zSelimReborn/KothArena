@@ -32,18 +32,21 @@ void ABaseSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SortClassProbability();
-
-	if (bSpawnOnBeginPlay)
+	if (HasAuthority())
 	{
-		SpawnItem();
-	}
-	else
-	{
-		StartSpawnTimer();
-	}
+		SortClassProbability();
 
-	GetWorldTimerManager().SetTimer(CheckEmptyItemHandle, this, &ABaseSpawner::CheckEmptyItem, TimeToCheckEmptyItem, true);
+		if (bSpawnOnBeginPlay)
+		{
+			SpawnItem();
+		}
+		else
+		{
+			StartSpawnTimer();
+		}
+
+		GetWorldTimerManager().SetTimer(CheckEmptyItemHandle, this, &ABaseSpawner::CheckEmptyItem, TimeToCheckEmptyItem, true);
+	}
 }
 
 void ABaseSpawner::SortClassProbability()
@@ -105,6 +108,12 @@ void ABaseSpawner::CheckEmptyItem()
 
 void ABaseSpawner::SpawnItem()
 {
+	// Spawning enabled only for servers.
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
 	if (ItemRef.IsValid() && ItemRef != nullptr)
 	{
 		return;
@@ -149,18 +158,13 @@ void ABaseSpawner::OnItemPicked(AActor* ItemUsed, AActor* InstigatorActor)
 	{
 		ItemRef->OnItemUsed().RemoveDynamic(this, &ABaseSpawner::OnItemPicked);
 		ItemRef= nullptr;
-		StartSpawnTimer();
+		if (HasAuthority())
+		{
+			StartSpawnTimer();
+		}
 		if (CVarShowSpawnerRandomGenerator->GetBool())
 		{
 			FlushDebugStrings(GetWorld());
 		}
 	}
 }
-
-// Called every frame
-void ABaseSpawner::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
