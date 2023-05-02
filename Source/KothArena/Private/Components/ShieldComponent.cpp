@@ -3,6 +3,9 @@
 
 #include "Components/ShieldComponent.h"
 
+#include "Characters/BaseCharacter.h"
+#include "Net/UnrealNetwork.h"
+
 // Sets default values for this component's properties
 UShieldComponent::UShieldComponent()
 {
@@ -10,7 +13,7 @@ UShieldComponent::UShieldComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -20,13 +23,31 @@ void UShieldComponent::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentShield = MaxShield;
+	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
 }
 
-
-// Called every frame
-void UShieldComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UShieldComponent::OnRep_CurrentShield(const float OldShieldValue)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (!BaseCharacterRef)
+	{
+		return;
+	}
+
+	if (OldShieldValue == CurrentShield)
+	{
+		// No changes
+		return;
+	}
+
+	const float Amount = FMath::Max(0.f, FMath::Abs(OldShieldValue - CurrentShield));
+	if (CurrentShield > OldShieldValue)
+	{
+		BaseCharacterRef->NotifyShieldRegen(Amount, CurrentShield);
+	}
+	else
+	{
+		BaseCharacterRef->NotifyShieldDamage(Amount, CurrentShield);
+	}
 }
 
 float UShieldComponent::AbsorbDamage(const float& Damage)
@@ -75,5 +96,12 @@ float UShieldComponent::GetCurrentShield() const
 float UShieldComponent::GetCurrentShieldPercentage() const
 {
 	return GetCurrentShield() / GetMaxShield();
+}
+
+void UShieldComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(UShieldComponent, CurrentShield);
 }
 

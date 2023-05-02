@@ -3,7 +3,6 @@
 
 #include "Characters/BaseCharacter.h"
 
-#include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Components/AmmoInventoryComponent.h"
 #include "Components/HealthComponent.h"
@@ -27,6 +26,9 @@ ABaseCharacter::ABaseCharacter()
 	CameraComponent->SetupAttachment(CameraBoom);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
+
+	bReplicates = true;
+	SetReplicateMovement(true);
 }
 
 // Called when the game starts or when spawned
@@ -141,6 +143,11 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+	if (!HasAuthority())
+	{
+		return 0.f;
+	}
+	
 	if (!HealthComponent->IsAlive())
 	{
 		return 0.f;
@@ -310,6 +317,11 @@ float ABaseCharacter::GetCurrentShield() const
 
 bool ABaseCharacter::AddHealthRegen(const float HealthAmount)
 {
+	if (!HasAuthority())
+	{
+		return false;
+	}
+	
 	if (HealthComponent->RegenHealth(HealthAmount))
 	{
 		RegenHealthDelegate.Broadcast(this, HealthAmount, HealthComponent->GetCurrentHealth());
@@ -321,6 +333,11 @@ bool ABaseCharacter::AddHealthRegen(const float HealthAmount)
 
 bool ABaseCharacter::AddShieldRegen(const float ShieldAmount)
 {
+	if (!HasAuthority())
+	{
+		return false;
+	}
+	
 	if (!ShieldComponent)
 	{
 		return false;
@@ -404,6 +421,42 @@ EAmmoType ABaseCharacter::GetCurrentWeaponAmmoType() const
 	}
 
 	return EAmmoType::Default;
+}
+
+void ABaseCharacter::NotifyShieldDamage(const float DamageAbsorbed, const float NewShield)
+{
+	if (IsLocallyControlled())
+	{
+		// Updates UI
+		AbsorbShieldDamageDelegate.Broadcast(this, DamageAbsorbed, NewShield);
+	}
+}
+
+void ABaseCharacter::NotifyShieldRegen(const float Amount, const float NewShield)
+{
+	if (IsLocallyControlled())
+	{
+		// Updates UI
+		RegenShieldDelegate.Broadcast(this, Amount, NewShield);
+	}
+}
+
+void ABaseCharacter::NotifyHealthDamage(const float DamageAbsorbed, const float NewHealth)
+{
+	if (IsLocallyControlled())
+	{
+		// Updates UI
+		TakeHealthDamageDelegate.Broadcast(this, DamageAbsorbed, NewHealth);
+	}
+}
+
+void ABaseCharacter::NotifyHealthRegen(const float Amount, const float NewHealth)
+{
+	if (IsLocallyControlled())
+	{
+		// Updates UI
+		RegenHealthDelegate.Broadcast(this, Amount, NewHealth);
+	}
 }
 
 void ABaseCharacter::OnNewItemFound(const FHitResult& HitResult, AActor* ItemFound)

@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ShieldComponent.generated.h"
 
+class ABaseCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShieldBreakDelegate);
 
@@ -22,10 +23,9 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	UFUNCTION()
+	void OnRep_CurrentShield(const float OldShieldValue);
+	
 // Component interface
 public:
 	UFUNCTION(BlueprintCallable)
@@ -47,14 +47,19 @@ public:
 	float GetCurrentShieldPercentage() const;
 
 	FOnShieldBreakDelegate& OnShieldBreakEvent() { return OnShieldBreakDelegate; };
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 // Properties
 protected:
 	UPROPERTY(EditAnywhere, Category="Shield")
 	float MaxShield = 100.f;
 
-	UPROPERTY(VisibleAnywhere, Category="Shield")
+	UPROPERTY(VisibleAnywhere, Category="Shield", ReplicatedUsing = OnRep_CurrentShield)
 	float CurrentShield = 0.f;
+
+	UPROPERTY()
+	TObjectPtr<ABaseCharacter> BaseCharacterRef;
 
 	FOnShieldBreakDelegate OnShieldBreakDelegate;
 };

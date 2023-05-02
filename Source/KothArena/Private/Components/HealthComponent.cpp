@@ -3,6 +3,9 @@
 
 #include "Components/HealthComponent.h"
 
+#include "Characters/BaseCharacter.h"
+#include "Net/UnrealNetwork.h"
+
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
@@ -10,7 +13,7 @@ UHealthComponent::UHealthComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -19,14 +22,42 @@ void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentHealth = MaxHealth;
+	if (GetOwner()->HasAuthority())
+	{
+		CurrentHealth = MaxHealth;
+	}
+	
+	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
 }
 
-
-// Called every frame
-void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UHealthComponent, CurrentHealth);
+}
+
+void UHealthComponent::OnRep_CurrentHealth(const float OldHealthValue)
+{
+	if (!BaseCharacterRef)
+	{
+		return;
+	}
+	
+	if (OldHealthValue == CurrentHealth)
+	{
+		return;
+	}
+
+	const float Amount = FMath::Max(0.f, FMath::Abs(OldHealthValue - CurrentHealth));
+	if (CurrentHealth > OldHealthValue)
+	{
+		BaseCharacterRef->NotifyHealthRegen(Amount, CurrentHealth);
+	}
+	else
+	{
+		BaseCharacterRef->NotifyHealthDamage(Amount, CurrentHealth);
+	}
 }
 
 float UHealthComponent::TakeDamage(const float& Damage)
