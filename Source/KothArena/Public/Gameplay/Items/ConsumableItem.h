@@ -26,6 +26,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void RequestConsumeItem(AActor* InstigatorActor);
+
+	UFUNCTION(Server, Reliable)
+	void ServerAfterConsumeItem(AActor* InstigatorActor);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastAfterConsumeItem(AActor* InstigatorActor);
 	
 // Callbacks
 protected:
@@ -36,9 +42,6 @@ protected:
 	virtual void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	
 	virtual bool ConsumeItem(AActor* InstigatorActor);
 
 	virtual void EnableItem() override;

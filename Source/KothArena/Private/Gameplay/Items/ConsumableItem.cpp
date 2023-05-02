@@ -10,6 +10,7 @@ AConsumableItem::AConsumableItem()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+	bReplicates = true;
 	
 	BaseMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Base Mesh Component"));
 	BaseMeshComponent->SetupAttachment(DefaultSceneComponent);
@@ -37,12 +38,22 @@ void AConsumableItem::RequestConsumeItem(AActor* InstigatorActor)
 {
 	if (ConsumeItem(InstigatorActor))
 	{
-		OnConsumeItem(this, InstigatorActor);
-		ItemUsedDelegate.Broadcast(this, InstigatorActor);
-		if (bDestroyOnConsume)
-		{
-			Destroy();
-		}
+		ServerAfterConsumeItem(InstigatorActor);
+	}
+}
+
+void AConsumableItem::ServerAfterConsumeItem_Implementation(AActor* InstigatorActor)
+{
+	MulticastAfterConsumeItem(InstigatorActor);
+}
+
+void AConsumableItem::MulticastAfterConsumeItem_Implementation(AActor* InstigatorActor)
+{
+	OnConsumeItem(this, InstigatorActor);
+	ItemUsedDelegate.Broadcast(this, InstigatorActor);
+	if (bDestroyOnConsume)
+	{
+		Destroy();
 	}
 }
 
@@ -71,11 +82,6 @@ void AConsumableItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 	{
 		LastOverlappingActor = nullptr;
 	}
-}
-
-void AConsumableItem::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 bool AConsumableItem::ConsumeItem(AActor* InstigatorActor)
