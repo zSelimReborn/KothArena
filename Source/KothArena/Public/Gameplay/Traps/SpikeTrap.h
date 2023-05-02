@@ -34,6 +34,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void StartTimerToCloseSpikes();
 	void StartTimerToShowSpikes();
 	void UpdateSpikes(const float&);
@@ -45,6 +46,9 @@ protected:
 
 	UFUNCTION()
 	void OnSpikeHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnRep_NewRelativeLocation();
 
 // Components
 protected:
@@ -83,6 +87,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Spike")
 	float CurrentTimeAccumulator = 0.f;
 
-	UPROPERTY(VisibleAnywhere, Category="Spike")
-	ESpikeStatus SpikeStatus = ESpikeStatus::Closed; 
+	UPROPERTY(VisibleAnywhere, Category="Spike", Replicated)
+	ESpikeStatus SpikeStatus = ESpikeStatus::Closed;
+
+	UPROPERTY(VisibleAnywhere, Category="Spike", ReplicatedUsing=OnRep_NewRelativeLocation)
+	FVector NewRelativeLocation = FVector::ZeroVector;
 };

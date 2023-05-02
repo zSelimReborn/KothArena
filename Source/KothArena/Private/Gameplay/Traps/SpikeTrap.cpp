@@ -4,6 +4,7 @@
 #include "Gameplay/Traps/SpikeTrap.h"
 
 #include "Components/BoxComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ASpikeTrap::ASpikeTrap()
 {
@@ -14,13 +15,26 @@ ASpikeTrap::ASpikeTrap()
 	TriggerVolume->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	TriggerVolume->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Overlap);
 	TriggerVolume->SetupAttachment(SpikeMeshComponent);
+
+	if (HasAuthority())
+	{
+		PrimaryActorTick.bCanEverTick = true;
+	}
+	else
+	{
+		PrimaryActorTick.bCanEverTick = false;
+	}
 }
 
 void ASpikeTrap::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::OnSpikeHit);
+	if (HasAuthority())
+	{
+		TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::OnSpikeHit);
+	}
+	
 	InitialZValueSpikes = SpikeMeshComponent->GetRelativeLocation().Z;
 	StartTimerToShowSpikes();
 }
@@ -30,6 +44,14 @@ void ASpikeTrap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateSpikes(DeltaTime);
+}
+
+void ASpikeTrap::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASpikeTrap, SpikeStatus);
+	DOREPLIFETIME(ASpikeTrap, NewRelativeLocation);
 }
 
 void ASpikeTrap::StartTimerToCloseSpikes()
@@ -46,6 +68,11 @@ void ASpikeTrap::StartTimerToShowSpikes()
 
 void ASpikeTrap::UpdateSpikes(const float& DeltaTime)
 {
+	if (!HasAuthority())
+	{
+		return;
+	}
+	
 	if (SpikeStatus == ESpikeStatus::Closed || SpikeStatus == ESpikeStatus::Shown)
 	{
 		return;
@@ -86,6 +113,7 @@ void ASpikeTrap::UpdateSpikes(const float& DeltaTime)
 	}
 
 	NewSpikeLocation.Z = CurrentZValue;
+	NewRelativeLocation = NewSpikeLocation;
 	SpikeMeshComponent->SetRelativeLocation(NewSpikeLocation);
 }
 
@@ -114,4 +142,9 @@ void ASpikeTrap::OnSpikeHit(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	{
 		PushActorAway(OtherActor);
 	}
+}
+
+void ASpikeTrap::OnRep_NewRelativeLocation()
+{
+	SpikeMeshComponent->SetRelativeLocation(NewRelativeLocation);
 }
