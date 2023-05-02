@@ -64,6 +64,9 @@ protected:
 	UFUNCTION()
 	void OnCharacterRegenHealth(ACharacter* InstigatorCharacter, const float RegenAmount, const float NewHealthValue);
 
+	UFUNCTION()
+	void InitializeMappingContext();
+
 protected:
 	void InitializeHud();
 	void InitializeHudDelegates();

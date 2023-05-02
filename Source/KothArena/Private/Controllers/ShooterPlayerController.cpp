@@ -61,12 +61,8 @@ void AShooterPlayerController::SetupInputComponent()
 			EnhancedInputComponent->BindAction(ChangeWeaponFourthSlotAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestChangeWeaponFourthSlot);
 
 			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestInteract);
-			
-			UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-			if (EnhancedInputLocalPlayerSubsystem)
-			{
-				EnhancedInputLocalPlayerSubsystem->AddMappingContext(MappingContext, 0);
-			}
+
+			InitializeMappingContext();
 		}
 	}
 }
@@ -135,6 +131,15 @@ void AShooterPlayerController::OnCharacterRegenHealth(ACharacter* InstigatorChar
 	if (PlayerHudRef)
 	{
 		PlayerHudRef->OnRegenHealth(RegenAmount, NewHealthValue);
+	}
+}
+
+void AShooterPlayerController::InitializeMappingContext()
+{
+	UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (EnhancedInputLocalPlayerSubsystem)
+	{
+		EnhancedInputLocalPlayerSubsystem->AddMappingContext(MappingContext, 0);
 	}
 }
 
