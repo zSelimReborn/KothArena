@@ -28,7 +28,7 @@ void UShieldComponent::BeginPlay()
 
 void UShieldComponent::OnRep_CurrentShield(const float OldShieldValue)
 {
-	if (!BaseCharacterRef)
+	if (!BaseCharacterRef || !BaseCharacterRef->IsLocallyControlled())
 	{
 		return;
 	}

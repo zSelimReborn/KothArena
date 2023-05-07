@@ -39,7 +39,7 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void UHealthComponent::OnRep_CurrentHealth(const float OldHealthValue)
 {
-	if (!BaseCharacterRef)
+	if (!BaseCharacterRef || !BaseCharacterRef->IsLocallyControlled())
 	{
 		return;
 	}

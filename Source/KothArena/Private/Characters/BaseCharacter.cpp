@@ -425,38 +425,26 @@ EAmmoType ABaseCharacter::GetCurrentWeaponAmmoType() const
 
 void ABaseCharacter::NotifyShieldDamage(const float DamageAbsorbed, const float NewShield)
 {
-	if (IsLocallyControlled())
-	{
-		// Updates UI
-		AbsorbShieldDamageDelegate.Broadcast(this, DamageAbsorbed, NewShield);
-	}
+	ensure(IsLocallyControlled());
+	AbsorbShieldDamageDelegate.Broadcast(this, DamageAbsorbed, NewShield);
 }
 
 void ABaseCharacter::NotifyShieldRegen(const float Amount, const float NewShield)
 {
-	if (IsLocallyControlled())
-	{
-		// Updates UI
-		RegenShieldDelegate.Broadcast(this, Amount, NewShield);
-	}
+	ensure(IsLocallyControlled());
+	RegenShieldDelegate.Broadcast(this, Amount, NewShield);
 }
 
 void ABaseCharacter::NotifyHealthDamage(const float DamageAbsorbed, const float NewHealth)
 {
-	if (IsLocallyControlled())
-	{
-		// Updates UI
-		TakeHealthDamageDelegate.Broadcast(this, DamageAbsorbed, NewHealth);
-	}
+	ensure(IsLocallyControlled());
+	TakeHealthDamageDelegate.Broadcast(this, DamageAbsorbed, NewHealth);
 }
 
 void ABaseCharacter::NotifyHealthRegen(const float Amount, const float NewHealth)
 {
-	if (IsLocallyControlled())
-	{
-		// Updates UI
-		RegenHealthDelegate.Broadcast(this, Amount, NewHealth);
-	}
+	ensure(IsLocallyControlled());
+	RegenHealthDelegate.Broadcast(this, Amount, NewHealth);
 }
 
 void ABaseCharacter::OnNewItemFound(const FHitResult& HitResult, AActor* ItemFound)
