@@ -8,6 +8,8 @@
 
 ASpikeTrap::ASpikeTrap()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	SpikeMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Spike Mesh Component"));
 	SpikeMeshComponent->SetupAttachment(BaseMeshComponent);
 
@@ -15,15 +17,6 @@ ASpikeTrap::ASpikeTrap()
 	TriggerVolume->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	TriggerVolume->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Overlap);
 	TriggerVolume->SetupAttachment(SpikeMeshComponent);
-
-	if (HasAuthority())
-	{
-		PrimaryActorTick.bCanEverTick = true;
-	}
-	else
-	{
-		PrimaryActorTick.bCanEverTick = false;
-	}
 }
 
 void ASpikeTrap::BeginPlay()
@@ -44,6 +37,10 @@ void ASpikeTrap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateSpikes(DeltaTime);
+	if (HasAuthority())
+	{
+		CurrentTimeSyncAccumulator += DeltaTime;
+	}
 }
 
 void ASpikeTrap::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -51,7 +48,7 @@ void ASpikeTrap::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASpikeTrap, SpikeStatus);
-	DOREPLIFETIME(ASpikeTrap, NewRelativeLocation);
+	DOREPLIFETIME(ASpikeTrap, ServerTimeAccumulator);
 }
 
 void ASpikeTrap::StartTimerToCloseSpikes()
@@ -66,21 +63,14 @@ void ASpikeTrap::StartTimerToShowSpikes()
 	GetWorldTimerManager().SetTimer(ShowSpikeTimerHandle, this, &ASpikeTrap::SetSpikesToShow, TimeToShowSpikesAfterClosing, false);
 }
 
-void ASpikeTrap::UpdateSpikes(const float& DeltaTime)
+FVector ASpikeTrap::ComputeNextRelativeLocation()
 {
-	if (!HasAuthority())
-	{
-		return;
-	}
-	
-	if (SpikeStatus == ESpikeStatus::Closed || SpikeStatus == ESpikeStatus::Shown)
-	{
-		return;
-	}
-	
 	FVector NewSpikeLocation = SpikeMeshComponent->GetRelativeLocation();
-
-	CurrentTimeAccumulator += DeltaTime;
+	if (HasAuthority() && CurrentTimeSyncAccumulator > TimeToSyncAccumulator)
+	{
+		ServerTimeAccumulator = CurrentTimeAccumulator;
+		CurrentTimeSyncAccumulator = 0.f;
+	}
 	
 	const float ShowTimeRatio = FMath::Clamp(CurrentTimeAccumulator / TimeToShow, 0.f, 1.f);
 	const float ShowCurveValue = ShowSpikesCurve.GetRichCurveConst()->Eval(ShowTimeRatio);
@@ -113,8 +103,17 @@ void ASpikeTrap::UpdateSpikes(const float& DeltaTime)
 	}
 
 	NewSpikeLocation.Z = CurrentZValue;
-	NewRelativeLocation = NewSpikeLocation;
-	SpikeMeshComponent->SetRelativeLocation(NewSpikeLocation);
+	return NewSpikeLocation;
+}
+
+void ASpikeTrap::UpdateSpikes(const float& DeltaTime)
+{
+	if (SpikeStatus == ESpikeStatus::Closing || SpikeStatus == ESpikeStatus::Showing)
+	{
+		CurrentTimeAccumulator += DeltaTime;
+		const FVector NewSpikeLocation = ComputeNextRelativeLocation();
+		SpikeMeshComponent->SetRelativeLocation(NewSpikeLocation);
+	}
 }
 
 void ASpikeTrap::SetSpikesToClose()
@@ -144,7 +143,7 @@ void ASpikeTrap::OnSpikeHit(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	}
 }
 
-void ASpikeTrap::OnRep_NewRelativeLocation()
+void ASpikeTrap::OnRep_ServerAccumulatorTime()
 {
-	SpikeMeshComponent->SetRelativeLocation(NewRelativeLocation);
+	CurrentTimeAccumulator = ServerTimeAccumulator;		
 }

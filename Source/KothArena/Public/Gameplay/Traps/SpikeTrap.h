@@ -37,6 +37,7 @@ protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void StartTimerToCloseSpikes();
 	void StartTimerToShowSpikes();
+	FVector ComputeNextRelativeLocation();
 	void UpdateSpikes(const float&);
 
 // Callbacks
@@ -48,7 +49,7 @@ protected:
 	void OnSpikeHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-	void OnRep_NewRelativeLocation();
+	void OnRep_ServerAccumulatorTime();
 
 // Components
 protected:
@@ -87,9 +88,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Spike")
 	float CurrentTimeAccumulator = 0.f;
 
+	UPROPERTY(VisibleAnywhere, Category="Spike|Network", ReplicatedUsing=OnRep_ServerAccumulatorTime)
+	float ServerTimeAccumulator = 0.f;
+	
+	UPROPERTY(EditAnywhere, Category="Spike|Network")
+	float TimeToSyncAccumulator = 0.2f;
+
+	float CurrentTimeSyncAccumulator = 0.f;
+
 	UPROPERTY(VisibleAnywhere, Category="Spike", Replicated)
 	ESpikeStatus SpikeStatus = ESpikeStatus::Closed;
-
-	UPROPERTY(VisibleAnywhere, Category="Spike", ReplicatedUsing=OnRep_NewRelativeLocation)
-	FVector NewRelativeLocation = FVector::ZeroVector;
 };
