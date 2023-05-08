@@ -41,17 +41,55 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void SpawnHitParticle(const FVector& Location, const FRotator& Rotation) const;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpawnHitParticle(const FVector& Location, const FRotator& Rotation) const;
+	
 	virtual void ApplyDamage(AActor* HitActor, const float Damage) const;
 	void DeductAmmo();
+
+	/**
+	 * Spawn particles and sounds just for owning client
+	 */
+	void HandleWeaponShot();
+
+	/**
+	 * Spawn particles and sounds just for owning client
+	 */
+	void HandleWeaponHit(const float BaseDamage, AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName, const bool bPlaySound) const;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlaySound(USoundCue* Sound, const FVector& Location, const FRotator& Rotation) const;
+	
 	void PlaySound(USoundCue* Sound, const FVector& Location, const FRotator& Rotation) const;
+
+	virtual void HandlePullTrigger();
+	virtual void HandleReleaseTrigger();
+	virtual void HandleReload(const int32 Amount);
+
+	/**
+	 * Spawn particles for every client and deduct ammo
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerHandleWeaponShot();
+
+	/**
+	 * Spawn particles for every client and deals actual damage
+	 */
+	UFUNCTION(Server, Reliable)
+	void ServerHandleWeaponHit(const float BaseDamage, AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName, const bool bPlaySound);
+	
+	UFUNCTION(Server, Reliable)
+	void ServerReload(const int32 Amount);
 
 // Weapon interface
 public:
-	virtual void PullTrigger();
-	virtual void ReleaseTrigger();
-	virtual void Reload(const int32 Amount);
+	void PullTrigger();
+	void ReleaseTrigger();
+	void Reload(const int32 Amount);
 	void EnableHighlight() const;
 	void DisableHighlight() const;
 	void DisableCollision() const;
@@ -154,7 +192,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Weapon|Ammo")
 	int32 MagCapacity = 25;
 
-	UPROPERTY(VisibleAnywhere, Category="Weapon|Ammo")
+	UPROPERTY(VisibleAnywhere, Category="Weapon|Ammo", Replicated)
 	int32 CurrentMag = 0;
 
 	UPROPERTY(EditAnywhere, Category="Weapon|Ammo")

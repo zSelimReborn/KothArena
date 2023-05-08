@@ -53,6 +53,10 @@ protected:
 	void StartBurstFire();
 	void StartConeSpreadShot();
 	void StartSpawnProjectile();
+	
+	void HandleStartFire();
+	
+	void HandleStopFire();
 
 // Callback
 protected:

@@ -21,6 +21,7 @@ UWeaponFireComponent::UWeaponFireComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -245,13 +246,7 @@ void UWeaponFireComponent::StartSpawnProjectile()
 	}
 }
 
-void UWeaponFireComponent::ProjectileHitSomething(AActor* ProjectileInstigator, AActor* OtherActor, const FHitResult& Hit)
-{
-	const FVector HitLocation = (ProjectileInstigator)? ProjectileInstigator->GetActorLocation() : Hit.Location;
-	WeaponHitDelegate.Broadcast(OtherActor, HitLocation, Hit.BoneName);
-}
-
-void UWeaponFireComponent::StartFire()
+void UWeaponFireComponent::HandleStartFire()
 {
 	FillControllerOwner();
 	switch (WeaponFireType)
@@ -276,12 +271,28 @@ void UWeaponFireComponent::StartFire()
 	}
 }
 
-void UWeaponFireComponent::StopFire()
+void UWeaponFireComponent::HandleStopFire()
 {
 	if (WeaponFireType == EWeaponFireType::Automatic)
 	{
 		StopAutomaticFire();
 	}
+}
+
+void UWeaponFireComponent::ProjectileHitSomething(AActor* ProjectileInstigator, AActor* OtherActor, const FHitResult& Hit)
+{
+	const FVector HitLocation = (ProjectileInstigator)? ProjectileInstigator->GetActorLocation() : Hit.Location;
+	WeaponHitDelegate.Broadcast(OtherActor, HitLocation, Hit.BoneName);
+}
+
+void UWeaponFireComponent::StartFire()
+{
+	HandleStartFire();
+}
+
+void UWeaponFireComponent::StopFire()
+{
+	HandleStopFire();
 }
 
 AController* UWeaponFireComponent::FillControllerOwner()

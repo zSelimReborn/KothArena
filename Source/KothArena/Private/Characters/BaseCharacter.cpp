@@ -423,6 +423,16 @@ EAmmoType ABaseCharacter::GetCurrentWeaponAmmoType() const
 	return EAmmoType::Default;
 }
 
+ABaseWeapon* ABaseCharacter::GetCurrentWeapon() const
+{
+	if (WeaponInventoryComponent)
+	{
+		return WeaponInventoryComponent->GetCurrentWeapon();
+	}
+
+	return nullptr;
+}
+
 void ABaseCharacter::NotifyShieldDamage(const float DamageAbsorbed, const float NewShield)
 {
 	ensure(IsLocallyControlled());
@@ -452,6 +462,11 @@ void ABaseCharacter::OnNewItemFound(const FHitResult& HitResult, AActor* ItemFou
 	ABaseWeapon* NewWeapon = Cast<ABaseWeapon>(ItemFound);
 	if (NewWeapon)
 	{
+		if (NewWeapon == GetCurrentWeapon())
+		{
+			return;
+		}
+		
 		if (WeaponFoundRef)
 		{
 			WeaponFoundRef->DisableHighlight();

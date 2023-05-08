@@ -111,6 +111,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	EAmmoType GetCurrentWeaponAmmoType() const;
 
+	UFUNCTION(BlueprintPure)
+	ABaseWeapon* GetCurrentWeapon() const;
+
 	void NotifyShieldDamage(const float DamageAbsorbed, const float NewShield);
 	void NotifyShieldRegen(const float Amount, const float NewShield);
 	void NotifyHealthDamage(const float DamageAbsorbed, const float NewHealth);

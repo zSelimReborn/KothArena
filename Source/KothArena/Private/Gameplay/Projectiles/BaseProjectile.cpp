@@ -33,7 +33,10 @@ void ABaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ABaseProjectile::OnProjectileHit);
+	if (HasAuthority())
+	{
+		TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ABaseProjectile::OnProjectileHit);
+	}
 }
 
 void ABaseProjectile::OnProjectileHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
