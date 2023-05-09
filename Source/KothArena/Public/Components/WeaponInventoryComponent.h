@@ -21,8 +21,6 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-	bool EquipDefaultWeapon();
 	
 	void UnEquipCurrentWeapon();
 
@@ -34,6 +32,8 @@ public:
 
 // Weapon Inventory Interface
 public:
+	ABaseWeapon* SpawnDefaultWeapon();
+
 	UFUNCTION(BlueprintCallable)
 	bool EquipWeapon(ABaseWeapon* Weapon);
 
@@ -47,6 +47,9 @@ public:
 	void ReleaseTrigger();
 
 	FORCEINLINE ABaseWeapon* GetCurrentWeapon() { return CurrentWeaponRef; };
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool ShouldSpawnDefaultWeaponOnBeginPlay() const { return bEquipDefaultWeaponOnBegin; }
 	
 // Properties
 protected:

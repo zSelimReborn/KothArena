@@ -12,6 +12,7 @@ UWeaponInventoryComponent::UWeaponInventoryComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -21,13 +22,9 @@ void UWeaponInventoryComponent::BeginPlay()
 	Super::BeginPlay();
 
 	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
-	if (bEquipDefaultWeaponOnBegin)
-	{
-		EquipDefaultWeapon();
-	}
 }
 
-bool UWeaponInventoryComponent::EquipDefaultWeapon()
+ABaseWeapon* UWeaponInventoryComponent::SpawnDefaultWeapon()
 {
 	if (DefaultWeaponClass)
 	{
@@ -41,10 +38,11 @@ bool UWeaponInventoryComponent::EquipDefaultWeapon()
 			WeaponSpawnParams
 		);
 
-		return EquipWeapon(DefaultWeapon);
+		return DefaultWeapon;
+		//return EquipWeapon(DefaultWeapon);
 	}
 
-	return false;
+	return nullptr;
 }
 
 void UWeaponInventoryComponent::UnEquipCurrentWeapon()
@@ -81,6 +79,11 @@ void UWeaponInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 bool UWeaponInventoryComponent::EquipWeapon(ABaseWeapon* Weapon)
 {
+	if (Weapon == CurrentWeaponRef)
+	{
+		return false;
+	}
+	
 	if (Weapon && BaseCharacterRef)
 	{
 		UnEquipCurrentWeapon();

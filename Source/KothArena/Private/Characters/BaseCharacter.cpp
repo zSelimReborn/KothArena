@@ -46,6 +46,14 @@ void ABaseCharacter::BeginPlay()
 		SearchItemComponent->OnNewItemFound().AddDynamic(this, &ABaseCharacter::OnNewItemFound);
 		SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
 	}
+
+	if (WeaponInventoryComponent)
+	{
+		if (WeaponInventoryComponent->ShouldSpawnDefaultWeaponOnBeginPlay())
+		{
+			RequestEquipDefaultWeapon();
+		}
+	}
 	
 	CharacterReadyDelegate.Broadcast(this);
 }
@@ -116,6 +124,37 @@ void ABaseCharacter::OnDeath()
 	else
 	{
 		Destroy();
+	}
+}
+
+void ABaseCharacter::RequestEquipDefaultWeapon()
+{
+	if (WeaponInventoryComponent && HasAuthority())
+	{
+		ABaseWeapon* DefaultWeapon = WeaponInventoryComponent->SpawnDefaultWeapon();
+		MulticastRequestEquipWeapon(DefaultWeapon);
+	}
+}
+
+void ABaseCharacter::RequestEquipWeapon(ABaseWeapon* NewWeapon)
+{
+	if (WeaponInventoryComponent)
+	{
+		WeaponInventoryComponent->EquipWeapon(NewWeapon);
+		ServerRequestEquipWeapon(NewWeapon);
+	}
+}
+
+void ABaseCharacter::ServerRequestEquipWeapon_Implementation(ABaseWeapon* NewWeapon)
+{
+	MulticastRequestEquipWeapon(NewWeapon);
+}
+
+void ABaseCharacter::MulticastRequestEquipWeapon_Implementation(ABaseWeapon* NewWeapon)
+{
+	if (WeaponInventoryComponent)
+	{
+		WeaponInventoryComponent->EquipWeapon(NewWeapon);
 	}
 }
 
@@ -274,9 +313,9 @@ void ABaseCharacter::RequestChangeWeapon(const int32 WeaponIndex) const
 
 void ABaseCharacter::RequestInteract()
 {
-	if (WeaponInventoryComponent && WeaponFoundRef)
+	if (WeaponFoundRef)
 	{
-		WeaponInventoryComponent->EquipWeapon(WeaponFoundRef);
+		RequestEquipWeapon(WeaponFoundRef);
 	}
 }
 

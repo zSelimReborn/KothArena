@@ -52,6 +52,15 @@ protected:
 
 	void OnDeath();
 
+	void RequestEquipDefaultWeapon();
+	void RequestEquipWeapon(ABaseWeapon* NewWeapon);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestEquipWeapon(ABaseWeapon* NewWeapon);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRequestEquipWeapon(ABaseWeapon* NewWeapon);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
