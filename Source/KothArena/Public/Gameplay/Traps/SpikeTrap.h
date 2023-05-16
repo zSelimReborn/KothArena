@@ -51,6 +51,9 @@ protected:
 	UFUNCTION()
 	void OnRep_ServerAccumulatorTime();
 
+	UFUNCTION(Server, Reliable)
+	void SynchronizeAccumulator();
+
 // Components
 protected:
 	UPROPERTY(VisibleAnywhere, NoClear)
@@ -91,11 +94,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Spike|Network", ReplicatedUsing=OnRep_ServerAccumulatorTime)
 	float ServerTimeAccumulator = 0.f;
 	
-	UPROPERTY(EditAnywhere, Category="Spike|Network")
-	float TimeToSyncAccumulator = 0.2f;
-
-	float CurrentTimeSyncAccumulator = 0.f;
-
 	UPROPERTY(VisibleAnywhere, Category="Spike", Replicated)
 	ESpikeStatus SpikeStatus = ESpikeStatus::Closed;
 };

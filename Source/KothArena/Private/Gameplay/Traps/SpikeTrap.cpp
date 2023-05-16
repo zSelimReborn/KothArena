@@ -9,6 +9,8 @@
 ASpikeTrap::ASpikeTrap()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	SetReplicateMovement(true);
 	
 	SpikeMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Spike Mesh Component"));
 	SpikeMeshComponent->SetupAttachment(BaseMeshComponent);
@@ -30,6 +32,11 @@ void ASpikeTrap::BeginPlay()
 	
 	InitialZValueSpikes = SpikeMeshComponent->GetRelativeLocation().Z;
 	StartTimerToShowSpikes();
+
+	if (!HasAuthority())
+	{
+		SynchronizeAccumulator();
+	}
 }
 
 void ASpikeTrap::Tick(float DeltaTime)
@@ -37,10 +44,6 @@ void ASpikeTrap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateSpikes(DeltaTime);
-	if (HasAuthority())
-	{
-		CurrentTimeSyncAccumulator += DeltaTime;
-	}
 }
 
 void ASpikeTrap::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -66,11 +69,6 @@ void ASpikeTrap::StartTimerToShowSpikes()
 FVector ASpikeTrap::ComputeNextRelativeLocation()
 {
 	FVector NewSpikeLocation = SpikeMeshComponent->GetRelativeLocation();
-	if (HasAuthority() && CurrentTimeSyncAccumulator > TimeToSyncAccumulator)
-	{
-		ServerTimeAccumulator = CurrentTimeAccumulator;
-		CurrentTimeSyncAccumulator = 0.f;
-	}
 	
 	const float ShowTimeRatio = FMath::Clamp(CurrentTimeAccumulator / TimeToShow, 0.f, 1.f);
 	const float ShowCurveValue = ShowSpikesCurve.GetRichCurveConst()->Eval(ShowTimeRatio);
@@ -146,4 +144,9 @@ void ASpikeTrap::OnSpikeHit(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 void ASpikeTrap::OnRep_ServerAccumulatorTime()
 {
 	CurrentTimeAccumulator = ServerTimeAccumulator;		
+}
+
+void ASpikeTrap::SynchronizeAccumulator_Implementation()
+{
+	ServerTimeAccumulator = CurrentTimeAccumulator;
 }
