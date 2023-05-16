@@ -136,7 +136,7 @@ void AShooterPlayerController::InitializeMappingContext()
 	}
 }
 
-void AShooterPlayerController::OnCharacterHitSomeone()
+void AShooterPlayerController::ClientOnCharacterHitSomeone_Implementation()
 {
 	if (PlayerHudRef)
 	{
@@ -144,7 +144,15 @@ void AShooterPlayerController::OnCharacterHitSomeone()
 	}
 }
 
-void AShooterPlayerController::OnCharacterKillSomeone(const int32 NewKillCount)
+void AShooterPlayerController::ClientOnCharacterBrokeShield_Implementation()
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnBrokeShield();
+	}
+}
+
+void AShooterPlayerController::ClientOnCharacterKillSomeone_Implementation(const int32 NewKillCount)
 {
 	KillCount = NewKillCount;
 
@@ -154,12 +162,19 @@ void AShooterPlayerController::OnCharacterKillSomeone(const int32 NewKillCount)
 	}
 }
 
+void AShooterPlayerController::OnCharacterHitSomeone()
+{
+	ClientOnCharacterHitSomeone();
+}
+
+void AShooterPlayerController::OnCharacterKillSomeone(const int32 NewKillCount)
+{
+	ClientOnCharacterKillSomeone(NewKillCount);
+}
+
 void AShooterPlayerController::OnCharacterBrokeShield()
 {
-	if (PlayerHudRef)
-	{
-		PlayerHudRef->OnBrokeShield();
-	}
+	ClientOnCharacterBrokeShield();
 }
 
 void AShooterPlayerController::InitializeHud()

@@ -88,6 +88,17 @@ protected:
 	void RequestChangeWeaponFourthSlot();
 	void RequestChangeWeapon(const int32 Index);
 
+// Net functions
+protected:
+	UFUNCTION(Client, Reliable)
+	void ClientOnCharacterHitSomeone();
+
+	UFUNCTION(Client, Reliable)
+	void ClientOnCharacterBrokeShield();
+
+	UFUNCTION(Client, Reliable)
+	void ClientOnCharacterKillSomeone(const int32 NewKillCount);
+
 public:
 	void OnCharacterHitSomeone();
 

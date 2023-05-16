@@ -66,12 +66,13 @@ void ABaseWeapon::MulticastSpawnHitParticle_Implementation(const FVector& Locati
 	SpawnHitParticle(Location, Rotation);
 }
 
-void ABaseWeapon::ApplyDamage(AActor* HitActor, const float Damage) const
+void ABaseWeapon::ApplyDamage(AActor* HitActor, const float Damage)
 {
 	if (HitActor && HasAuthority())
 	{
 		AActor* InstigatorActor = GetOwner();
-		UGameplayStatics::ApplyDamage(HitActor, Damage, PlayerController, InstigatorActor, WeaponDamageType);
+		AController* InstigatorController = GetControllerOwner(); 
+		UGameplayStatics::ApplyDamage(HitActor, Damage, InstigatorController, InstigatorActor, WeaponDamageType);
 	}
 }
 

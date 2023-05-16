@@ -48,7 +48,7 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpawnHitParticle(const FVector& Location, const FRotator& Rotation) const;
 	
-	virtual void ApplyDamage(AActor* HitActor, const float Damage) const;
+	virtual void ApplyDamage(AActor* HitActor, const float Damage);
 	void DeductAmmo();
 
 	/**
