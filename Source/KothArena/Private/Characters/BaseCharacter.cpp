@@ -132,7 +132,8 @@ void ABaseCharacter::RequestEquipDefaultWeapon()
 	if (WeaponInventoryComponent && HasAuthority())
 	{
 		ABaseWeapon* DefaultWeapon = WeaponInventoryComponent->SpawnDefaultWeapon();
-		MulticastRequestEquipWeapon(DefaultWeapon);
+		RequestEquipWeapon(DefaultWeapon);
+		//MulticastRequestEquipWeapon(DefaultWeapon);
 	}
 }
 
@@ -224,6 +225,17 @@ void ABaseCharacter::RequestLook(const FVector2d& AxisValue)
 }
 
 void ABaseCharacter::RequestToggleSprint() const
+{
+	if (!HasAuthority())
+	{
+		// Sprint just on client
+		HandleToggleSprint();
+	}
+	
+	ServerRequestSprintToggle();
+}
+
+void ABaseCharacter::HandleToggleSprint() const
 {
 	if (GetCharacterMovement()->Velocity.Length() <= 0.f)
 	{
@@ -523,6 +535,11 @@ void ABaseCharacter::OnItemLost(AActor* ItemLost)
 		WeaponFoundRef->DisableHighlight();
 		WeaponFoundRef = nullptr;
 	}
+}
+
+void ABaseCharacter::ServerRequestSprintToggle_Implementation() const
+{
+	HandleToggleSprint();
 }
 
 void ABaseCharacter::OnShieldBroken()

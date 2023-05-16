@@ -55,12 +55,6 @@ protected:
 	void RequestEquipDefaultWeapon();
 	void RequestEquipWeapon(ABaseWeapon* NewWeapon);
 
-	UFUNCTION(Server, Reliable)
-	void ServerRequestEquipWeapon(ABaseWeapon* NewWeapon);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRequestEquipWeapon(ABaseWeapon* NewWeapon);
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -73,6 +67,7 @@ public:
 	void RequestMove(const FVector2d& AxisValue);
 	void RequestLook(const FVector2d& AxisValue);
 	void RequestToggleSprint() const;
+	void HandleToggleSprint() const;
 	void RequestJump();
 	void RequestStopJumping();
 	void RequestWeaponPullTrigger() const;
@@ -136,6 +131,17 @@ protected:
 	UFUNCTION()
 	void OnItemLost(AActor* ItemLost);
 
+// Net functions
+protected:
+	UFUNCTION(Server, Reliable)
+	void ServerRequestEquipWeapon(ABaseWeapon* NewWeapon);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRequestEquipWeapon(ABaseWeapon* NewWeapon);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestSprintToggle() const;
+	
 // Events
 public:
 	FOnCharacterReady& OnCharacterReady() { return CharacterReadyDelegate; }
