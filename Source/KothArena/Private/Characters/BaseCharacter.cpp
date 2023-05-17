@@ -35,28 +35,43 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	ShieldComponent = FindComponentByClass<UShieldComponent>();
-	WeaponInventoryComponent = FindComponentByClass<UWeaponInventoryComponent>();
-	AmmoInventoryComponent = FindComponentByClass<UAmmoInventoryComponent>();
-	SearchItemComponent = FindComponentByClass<USearchItemComponent>();
-
-	if (SearchItemComponent)
-	{
-		SearchItemComponent->OnNewItemFound().AddDynamic(this, &ABaseCharacter::OnNewItemFound);
-		SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
-	}
-
-	if (WeaponInventoryComponent)
-	{
-		if (WeaponInventoryComponent->ShouldSpawnDefaultWeaponOnBeginPlay())
-		{
-			RequestEquipDefaultWeapon();
-		}
-	}
-	
-	CharacterReadyDelegate.Broadcast(this);
 }
+
+void ABaseCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (NewController != nullptr)
+	{
+		ShieldComponent = FindComponentByClass<UShieldComponent>();
+		WeaponInventoryComponent = FindComponentByClass<UWeaponInventoryComponent>();
+		AmmoInventoryComponent = FindComponentByClass<UAmmoInventoryComponent>();
+		SearchItemComponent = FindComponentByClass<USearchItemComponent>();
+
+		if (SearchItemComponent)
+		{
+			SearchItemComponent->OnNewItemFound().AddDynamic(this, &ABaseCharacter::OnNewItemFound);
+			SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
+		}
+
+		if (APlayerController* PlayerController = Cast<APlayerController>(NewController))
+		{
+			PC = PlayerController;
+		}
+
+		if (WeaponInventoryComponent)
+		{
+			if (WeaponInventoryComponent->ShouldSpawnDefaultWeaponOnBeginPlay())
+			{
+				RequestEquipDefaultWeapon();
+			}
+		}
+
+		CharacterReadyDelegate.Broadcast(this);
+	}
+}
+
+// You should also override UnPossesed()
 
 void ABaseCharacter::UpdateSprintStatus() const
 {
@@ -171,11 +186,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		PC = PlayerController;
-	}
 }
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,

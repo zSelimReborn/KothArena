@@ -21,7 +21,7 @@ void UWeaponInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
+	//BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
 }
 
 ABaseWeapon* UWeaponInventoryComponent::SpawnDefaultWeapon()
@@ -84,12 +84,12 @@ bool UWeaponInventoryComponent::EquipWeapon(ABaseWeapon* Weapon)
 		return false;
 	}
 	
-	if (Weapon && BaseCharacterRef)
+	if (Weapon && Cast<ABaseCharacter>(GetOwner()))
 	{
 		UnEquipCurrentWeapon();
-		Weapon->AttachToComponent(BaseCharacterRef->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ShooterSocketAttachName);
+		Weapon->AttachToComponent(Cast<ABaseCharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ShooterSocketAttachName);
 		CurrentWeaponRef = Weapon;
-		CurrentWeaponRef->SetOwner(BaseCharacterRef);
+		CurrentWeaponRef->SetOwner(Cast<ABaseCharacter>(GetOwner()));
 		CurrentWeaponRef->DisableCollision();
 		// TODO Manage weapon collision, visibility and so on using states
 		CurrentWeaponRef->OnEquip();
