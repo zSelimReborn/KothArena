@@ -18,12 +18,7 @@ void AShooterPlayerController::BeginPlay()
 void AShooterPlayerController::AcknowledgePossession(APawn* P)
 {
 	Super::AcknowledgePossession(P);
-	BaseCharacterRef = Cast<ABaseCharacter>(GetCharacter());
-	if (BaseCharacterRef)
-	{
-		OnCharacterReady(BaseCharacterRef);
-		BaseCharacterRef->OnCharacterReady().AddDynamic(this, &AShooterPlayerController::OnCharacterReady);
-	}
+	SetupCharacter(P);
 }
 
 void AShooterPlayerController::SetupInputComponent()
@@ -133,6 +128,19 @@ void AShooterPlayerController::InitializeMappingContext()
 	if (EnhancedInputLocalPlayerSubsystem)
 	{
 		EnhancedInputLocalPlayerSubsystem->AddMappingContext(MappingContext, 0);
+	}
+}
+
+void AShooterPlayerController::SetupCharacter(AActor* NewCharacter)
+{
+	BaseCharacterRef = Cast<ABaseCharacter>(NewCharacter);
+	if (BaseCharacterRef != nullptr)
+	{
+		OnCharacterReady(BaseCharacterRef);
+		if (!BaseCharacterRef->OnCharacterReady().IsAlreadyBound(this, &AShooterPlayerController::OnCharacterReady))
+		{
+			BaseCharacterRef->OnCharacterReady().AddDynamic(this, &AShooterPlayerController::OnCharacterReady);
+		}
 	}
 }
 

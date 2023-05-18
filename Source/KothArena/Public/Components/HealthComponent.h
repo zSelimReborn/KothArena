@@ -18,11 +18,13 @@ class KOTHARENA_API UHealthComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UHealthComponent();
-
-protected:
+	
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
+	
+	virtual void OnRegister() override;
+	
+// Network functions
 public:	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

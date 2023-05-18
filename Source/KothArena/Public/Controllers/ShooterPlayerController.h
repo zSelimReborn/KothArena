@@ -68,6 +68,7 @@ protected:
 	void InitializeMappingContext();
 
 protected:
+	void SetupCharacter(AActor* NewCharacter);
 	void InitializeHud();
 	void InitializeHudDelegates();
 	

@@ -18,11 +18,14 @@ class KOTHARENA_API UShieldComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UShieldComponent();
-
-protected:
+	
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	
+	virtual void OnRegister() override;
 
+// Network functions
+protected:
 	UFUNCTION()
 	void OnRep_CurrentShield(const float OldShieldValue);
 	

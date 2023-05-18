@@ -21,8 +21,16 @@ UShieldComponent::UShieldComponent()
 void UShieldComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	CurrentShield = MaxShield;
+void UShieldComponent::OnRegister()
+{
+	Super::OnRegister();
+	if (GetOwner()->HasAuthority())
+	{
+		CurrentShield = MaxShield;
+	}
+	
 	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
 }
 

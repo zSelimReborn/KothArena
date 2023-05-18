@@ -21,13 +21,18 @@ UHealthComponent::UHealthComponent()
 void UHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UHealthComponent::OnRegister()
+{
+	Super::OnRegister();
 
 	if (GetOwner()->HasAuthority())
 	{
 		CurrentHealth = MaxHealth;
 	}
 	
-	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
+	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());	
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

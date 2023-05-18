@@ -37,38 +37,44 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ABaseCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	InitializeCharacter();
+}
+
 void ABaseCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	if (NewController != nullptr)
+	if (APlayerController* PlayerController = Cast<APlayerController>(NewController))
 	{
-		ShieldComponent = FindComponentByClass<UShieldComponent>();
-		WeaponInventoryComponent = FindComponentByClass<UWeaponInventoryComponent>();
-		AmmoInventoryComponent = FindComponentByClass<UAmmoInventoryComponent>();
-		SearchItemComponent = FindComponentByClass<USearchItemComponent>();
-
-		if (SearchItemComponent)
-		{
-			SearchItemComponent->OnNewItemFound().AddDynamic(this, &ABaseCharacter::OnNewItemFound);
-			SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
-		}
-
-		if (APlayerController* PlayerController = Cast<APlayerController>(NewController))
-		{
-			PC = PlayerController;
-		}
-
-		if (WeaponInventoryComponent)
-		{
-			if (WeaponInventoryComponent->ShouldSpawnDefaultWeaponOnBeginPlay())
-			{
-				RequestEquipDefaultWeapon();
-			}
-		}
-
-		CharacterReadyDelegate.Broadcast(this);
+		PC = PlayerController;
 	}
+}
+
+void ABaseCharacter::InitializeCharacter()
+{
+	ShieldComponent = FindComponentByClass<UShieldComponent>();
+	WeaponInventoryComponent = FindComponentByClass<UWeaponInventoryComponent>();
+	AmmoInventoryComponent = FindComponentByClass<UAmmoInventoryComponent>();
+	SearchItemComponent = FindComponentByClass<USearchItemComponent>();
+
+	if (SearchItemComponent)
+	{
+		SearchItemComponent->OnNewItemFound().AddDynamic(this, &ABaseCharacter::OnNewItemFound);
+		SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
+	}
+
+	if (WeaponInventoryComponent)
+	{
+		if (WeaponInventoryComponent->ShouldSpawnDefaultWeaponOnBeginPlay())
+		{
+			RequestEquipDefaultWeapon();
+		}
+	}
+
+	CharacterReadyDelegate.Broadcast(this);
 }
 
 // You should also override UnPossesed()
