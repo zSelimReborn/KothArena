@@ -84,6 +84,7 @@ void AShooterPlayerController::OnCharacterReady(ACharacter* InstigatorCharacter)
 {
 	InitializeHud();
 	InitializeHudDelegates();
+	FinalizeInitialize();
 }
 
 void AShooterPlayerController::OnCharacterAbsorbShieldDamage(ACharacter* InstigatorCharacter,
@@ -236,6 +237,8 @@ void AShooterPlayerController::InitializeHudDelegates()
 		}
 	}
 }
+
+void AShooterPlayerController::FinalizeInitialize() const {}
 
 void AShooterPlayerController::RequestJumpAction()
 {

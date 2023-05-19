@@ -71,6 +71,7 @@ protected:
 	void SetupCharacter(AActor* NewCharacter);
 	void InitializeHud();
 	void InitializeHudDelegates();
+	void FinalizeInitialize() const;
 	
 // Action functions
 protected:

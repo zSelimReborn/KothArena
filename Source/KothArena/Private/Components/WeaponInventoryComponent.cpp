@@ -5,6 +5,7 @@
 
 #include "Characters/BaseCharacter.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UWeaponInventoryComponent::UWeaponInventoryComponent()
@@ -24,7 +25,8 @@ void UWeaponInventoryComponent::BeginPlay()
 	//BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
 }
 
-ABaseWeapon* UWeaponInventoryComponent::SpawnDefaultWeapon()
+// This one must be called on server
+ABaseWeapon* UWeaponInventoryComponent::EquipDefaultWeapon()
 {
 	if (DefaultWeaponClass)
 	{
@@ -38,8 +40,9 @@ ABaseWeapon* UWeaponInventoryComponent::SpawnDefaultWeapon()
 			WeaponSpawnParams
 		);
 
-		return DefaultWeapon;
-		//return EquipWeapon(DefaultWeapon);
+		DefaultWeaponRef = DefaultWeapon;
+		EquipWeapon(DefaultWeaponRef);
+		return DefaultWeaponRef;
 	}
 
 	return nullptr;
@@ -127,5 +130,17 @@ void UWeaponInventoryComponent::ReleaseTrigger()
 	{
 		CurrentWeaponRef->ReleaseTrigger();
 	}
+}
+
+void UWeaponInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UWeaponInventoryComponent, DefaultWeaponRef);
+}
+
+void UWeaponInventoryComponent::OnRep_DefaultWeaponRef()
+{
+	EquipWeapon(DefaultWeaponRef);
 }
 

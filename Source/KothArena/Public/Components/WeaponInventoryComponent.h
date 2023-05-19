@@ -32,7 +32,7 @@ public:
 
 // Weapon Inventory Interface
 public:
-	ABaseWeapon* SpawnDefaultWeapon();
+	ABaseWeapon* EquipDefaultWeapon();
 
 	UFUNCTION(BlueprintCallable)
 	bool EquipWeapon(ABaseWeapon* Weapon);
@@ -50,6 +50,13 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool ShouldSpawnDefaultWeaponOnBeginPlay() const { return bEquipDefaultWeaponOnBegin; }
+
+// Net functions
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	UFUNCTION()
+	void OnRep_DefaultWeaponRef();
 	
 // Properties
 protected:
@@ -76,4 +83,7 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, Category="Weapon")
 	TArray<TObjectPtr<ABaseWeapon>> WeaponInventory;
+
+	UPROPERTY(Transient, ReplicatedUsing=OnRep_DefaultWeaponRef)
+	TObjectPtr<ABaseWeapon> DefaultWeaponRef;
 };

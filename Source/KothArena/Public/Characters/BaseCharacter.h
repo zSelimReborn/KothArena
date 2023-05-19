@@ -52,8 +52,7 @@ protected:
 	void OnShieldBroken();
 
 	void OnDeath();
-
-	void RequestEquipDefaultWeapon();
+	
 	void RequestEquipWeapon(ABaseWeapon* NewWeapon);
 
 public:	
@@ -128,6 +127,8 @@ public:
 	void NotifyHealthDamage(const float DamageAbsorbed, const float NewHealth);
 	void NotifyHealthRegen(const float Amount, const float NewHealth);
 
+	void RequestEquipDefaultWeapon();
+
 // Callbacks
 protected:
 	UFUNCTION()
@@ -137,6 +138,9 @@ protected:
 	void OnItemLost(AActor* ItemLost);
 
 // Net functions
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 protected:
 	UFUNCTION(Server, Reliable)
 	void ServerRequestEquipWeapon(ABaseWeapon* NewWeapon);
@@ -203,6 +207,9 @@ protected:
 
 	UPROPERTY(Transient)
 	TObjectPtr<AController> LastDamageCauserController;
+
+	UPROPERTY(Transient, Replicated)
+	bool bDefaultWeaponSpawned = false;
 
 // Events
 protected:

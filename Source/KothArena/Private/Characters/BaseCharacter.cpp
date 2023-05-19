@@ -11,6 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/ShieldComponent.h"
 #include "Components/WeaponInventoryComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "UI/PlayerHud.h"
 
 // Sets default values
@@ -43,6 +44,7 @@ void ABaseCharacter::PostInitializeComponents()
 	InitializeCharacter();
 }
 
+// This one is called only on server
 void ABaseCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -51,6 +53,8 @@ void ABaseCharacter::PossessedBy(AController* NewController)
 	{
 		PC = PlayerController;
 	}
+
+	RequestEquipDefaultWeapon();
 }
 
 void ABaseCharacter::InitializeCharacter()
@@ -65,15 +69,7 @@ void ABaseCharacter::InitializeCharacter()
 		SearchItemComponent->OnNewItemFound().AddDynamic(this, &ABaseCharacter::OnNewItemFound);
 		SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
 	}
-
-	if (WeaponInventoryComponent)
-	{
-		if (WeaponInventoryComponent->ShouldSpawnDefaultWeaponOnBeginPlay())
-		{
-			RequestEquipDefaultWeapon();
-		}
-	}
-
+	
 	CharacterReadyDelegate.Broadcast(this);
 }
 
@@ -150,11 +146,20 @@ void ABaseCharacter::OnDeath()
 
 void ABaseCharacter::RequestEquipDefaultWeapon()
 {
-	if (WeaponInventoryComponent && HasAuthority())
+	if (!HasAuthority())
 	{
-		ABaseWeapon* DefaultWeapon = WeaponInventoryComponent->SpawnDefaultWeapon();
-		RequestEquipWeapon(DefaultWeapon);
-		//MulticastRequestEquipWeapon(DefaultWeapon);
+		return;
+	}
+	
+	if (bDefaultWeaponSpawned)
+	{
+		return;
+	}
+	
+	if (WeaponInventoryComponent && WeaponInventoryComponent->ShouldSpawnDefaultWeaponOnBeginPlay())
+	{
+		bDefaultWeaponSpawned = true;
+		WeaponInventoryComponent->EquipDefaultWeapon();
 	}
 }
 
@@ -551,6 +556,13 @@ void ABaseCharacter::OnItemLost(AActor* ItemLost)
 		WeaponFoundRef->DisableHighlight();
 		WeaponFoundRef = nullptr;
 	}
+}
+
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseCharacter, bDefaultWeaponSpawned);
 }
 
 void ABaseCharacter::ServerRequestSprintToggle_Implementation() const
