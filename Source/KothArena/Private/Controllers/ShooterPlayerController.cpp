@@ -50,6 +50,9 @@ void AShooterPlayerController::SetupInputComponent()
 
 			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestInteract);
 
+			EnhancedInputComponent->BindAction(StartAimAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestStartAiming);
+			EnhancedInputComponent->BindAction(EndAimAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestEndAiming);
+
 			InitializeMappingContext();
 		}
 	}
@@ -337,5 +340,21 @@ void AShooterPlayerController::RequestChangeWeapon(const int32 Index)
 	if (BaseCharacterRef)
 	{
 		BaseCharacterRef->RequestChangeWeapon(Index);
+	}
+}
+
+void AShooterPlayerController::RequestStartAiming()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestStartAiming();
+	}
+}
+
+void AShooterPlayerController::RequestEndAiming()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestEndAiming();
 	}
 }

@@ -196,7 +196,6 @@ void ABaseWeapon::ReleaseTrigger()
 void ABaseWeapon::Reload(const int32 Amount)
 {
 	HandleReload(Amount);
-	ServerReload(Amount);
 }
 
 void ABaseWeapon::EnableHighlight() const
