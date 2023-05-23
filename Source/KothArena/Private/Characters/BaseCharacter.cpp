@@ -227,7 +227,8 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 
 void ABaseCharacter::RequestMove(const FVector2d& AxisValue)
 {
-	const FRotator CurrentRotation = GetControlRotation();
+	const FRotator ControlRotation = GetControlRotation();
+	const FRotator CurrentRotation{0.f, ControlRotation.Yaw, 0.f};
 
 	const float ForwardAxisValue = AxisValue.X;
 	const float RightAxisValue = AxisValue.Y;
