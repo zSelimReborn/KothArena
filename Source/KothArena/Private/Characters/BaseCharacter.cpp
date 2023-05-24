@@ -333,6 +333,7 @@ void ABaseCharacter::HandleRequestReload()
 
 	if (AmmoToReload <= 0)
 	{
+		CombatState = ECharacterCombatState::Idle;
 		return;
 	}
 	

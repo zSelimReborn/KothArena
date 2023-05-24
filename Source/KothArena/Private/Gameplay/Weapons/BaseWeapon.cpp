@@ -9,6 +9,7 @@
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 
 ABaseWeapon::ABaseWeapon()
@@ -43,6 +44,7 @@ void ABaseWeapon::BeginPlay()
 		WeaponFireComponent->OnWeaponHitDelegate().AddDynamic(this, &ABaseWeapon::OnWeaponHit);
 		WeaponFireComponent->OnShotgunShotDelegate().AddDynamic(this, &ABaseWeapon::OnShotgunShot);
 		WeaponFireComponent->OnShotgunPelletHitDelegate().AddDynamic(this, &ABaseWeapon::OnShotgunPelletHit);
+		WeaponFireComponent->OnShotgunPelletShotDelegate().AddDynamic(this, &ABaseWeapon::OnShotgunPelletShot);
 	}
 }
 
@@ -58,6 +60,18 @@ void ABaseWeapon::SpawnHitParticle(const FVector& Location, const FRotator& Rota
 	if (HitParticle)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticle, Location, Rotation);
+	}
+}
+
+void ABaseWeapon::SpawnSmokeTrail(const FVector& StartLocation, const FVector& EndLocation) const
+{
+	if (SmokeTrailParticle)
+	{
+		UParticleSystemComponent* NewSmokeTrail = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SmokeTrailParticle, StartLocation);
+		if (NewSmokeTrail)
+		{
+			NewSmokeTrail->SetVectorParameter(FName(TEXT("Target")), EndLocation);
+		}
 	}
 }
 
@@ -183,6 +197,16 @@ void ABaseWeapon::ServerReload_Implementation(const int32 Amount)
 	HandleReload(Amount);
 }
 
+void ABaseWeapon::ServerSpawnSmokeTrail_Implementation(const FVector& StartLocation, const FVector& EndLocation) const
+{
+	MulticastSpawnSmokeTrail(StartLocation, EndLocation);
+}
+
+void ABaseWeapon::MulticastSpawnSmokeTrail_Implementation(const FVector& StartLocation, const FVector& EndLocation) const
+{
+	SpawnSmokeTrail(StartLocation, EndLocation);
+}
+
 void ABaseWeapon::PullTrigger()
 {
 	HandlePullTrigger();
@@ -272,9 +296,9 @@ AController* ABaseWeapon::GetControllerOwner()
 
 void ABaseWeapon::OnWeaponShot(const FHitResult& ShotResult, const FVector& EndShotLocation)
 {
-	// TODO Beam emitter
 	HandleWeaponShot();
 	ServerHandleWeaponShot();
+	ServerSpawnSmokeTrail(GetMuzzleLocation(), EndShotLocation);
 }
 
 void ABaseWeapon::OnWeaponProjectileShot(ABaseProjectile* NewProjectile)
@@ -301,4 +325,9 @@ void ABaseWeapon::OnShotgunPelletHit(AActor* HitActor, const FVector& HitLocatio
 	const float ShotgunBaseDamage = WeaponBaseDamage / NumOfPellets;
 	HandleWeaponHit(ShotgunBaseDamage, HitActor, HitLocation, HitBoneName, false);
 	ServerHandleWeaponHit(ShotgunBaseDamage, HitActor, HitLocation, HitBoneName, false);
+}
+
+void ABaseWeapon::OnShotgunPelletShot(const FHitResult& HitResult, const FVector& EndShotLocation, const int32 NumOfPellets)
+{
+	ServerSpawnSmokeTrail(GetMuzzleLocation(), EndShotLocation);
 }

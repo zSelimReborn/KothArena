@@ -113,29 +113,27 @@ void UWeaponFireComponent::StartSingleShot() const
 		return;
 	}
 	
-	FHitResult ShotResult;
-	FHitResult WeaponMuzzleResult;
-	FVector EndShotTrace;
-	const bool bHit = TraceUnderScreenCenter(ShotResult, EndShotTrace);
-	WeaponShotDelegate.Broadcast(ShotResult, EndShotTrace);
-	if (bHit)
+	FVector CenterLocation, CenterDirection;
+	if (ComputeScreenCenterAndDirection(CenterLocation, CenterDirection))
 	{
-		AActor* HitActor = ShotResult.GetActor();
-		FVector HitLocation = ShotResult.Location;
-		FName HitBoneName = ShotResult.BoneName;
+		FHitResult WeaponMuzzleResult;
+		FVector EndShotTrace = CenterLocation + CenterDirection * GetWeaponRangeInMeters();
 		if (TraceFromWeaponMuzzle(EndShotTrace, WeaponMuzzleResult))
 		{
-			HitActor = WeaponMuzzleResult.GetActor();
-			HitLocation = WeaponMuzzleResult.Location;
-			HitBoneName = WeaponMuzzleResult.BoneName;
+			AActor* HitActor = WeaponMuzzleResult.GetActor();
+			const FVector HitLocation = WeaponMuzzleResult.Location;
+			const FName HitBoneName = WeaponMuzzleResult.BoneName;
+			EndShotTrace = HitLocation;
+			
+			WeaponHitDelegate.Broadcast(HitActor, HitLocation, HitBoneName);
 		}
-
-		WeaponHitDelegate.Broadcast(HitActor, HitLocation, HitBoneName);
 
 		if (CVarDebugWeaponFire->GetBool())
 		{
-			DrawDebugDirectionalArrow(GetWorld(), WeaponRef->GetMuzzleLocation(), HitLocation, 5.f, FColor::Red, false, 10.f);
+			DrawDebugDirectionalArrow(GetWorld(), WeaponRef->GetMuzzleLocation(), EndShotTrace, 5.f, FColor::Red, false, 10.f);
 		}
+	
+		WeaponShotDelegate.Broadcast(WeaponMuzzleResult, EndShotTrace);
 	}
 }
 
@@ -188,6 +186,7 @@ void UWeaponFireComponent::StartConeSpreadShot()
 
 		const FVector PelletDirection = Noise.RotateVector(StraightShotLocation);
 		const FVector EndPelletLocation = MuzzleLocation + (PelletDirection * GetWeaponRangeInMeters());
+		FVector EndShotLocation = EndPelletLocation;
 
 		FCollisionQueryParams ShotgunQueryParams{TEXT("StartConeSpreadShot")};
 		ShotgunQueryParams.AddIgnoredActor(GetOwnerToIgnore());
@@ -202,8 +201,11 @@ void UWeaponFireComponent::StartConeSpreadShot()
 
 		if (bHitSomething)
 		{
+			EndShotLocation = PelletHitResult.Location;
 			ShotgunPelletHitDelegate.Broadcast(PelletHitResult.GetActor(), PelletHitResult.Location, PelletHitResult.BoneName, NumOfPellets);
 		}
+		
+		ShotgunPelletShotDelegate.Broadcast(PelletHitResult, EndShotLocation, NumOfPellets);
 
 		if (CVarDebugWeaponFire->GetBool())
 		{

@@ -41,14 +41,13 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void SpawnHitParticle(const FVector& Location, const FRotator& Rotation) const;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSpawnHitParticle(const FVector& Location, const FRotator& Rotation) const;
+	void SpawnSmokeTrail(const FVector& StartLocation, const FVector& EndLocation) const;
 	
 	virtual void ApplyDamage(AActor* HitActor, const float Damage);
+	
 	void DeductAmmo();
 
 	/**
@@ -61,15 +60,16 @@ protected:
 	 */
 	void HandleWeaponHit(const float BaseDamage, AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName, const bool bPlaySound) const;
 	
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastPlaySound(USoundCue* Sound, const FVector& Location, const FRotator& Rotation) const;
-	
 	void PlaySound(USoundCue* Sound, const FVector& Location, const FRotator& Rotation) const;
 
 	virtual void HandlePullTrigger();
 	virtual void HandleReleaseTrigger();
 	virtual void HandleReload(const int32 Amount);
-
+	
+// Net functions
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	/**
 	 * Spawn particles for every client and deduct ammo
 	 */
@@ -85,6 +85,18 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerReload(const int32 Amount);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlaySound(USoundCue* Sound, const FVector& Location, const FRotator& Rotation) const;
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpawnHitParticle(const FVector& Location, const FRotator& Rotation) const;
+
+	UFUNCTION(Server, Reliable)
+	void ServerSpawnSmokeTrail(const FVector& StartLocation, const FVector& EndLocation) const;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpawnSmokeTrail(const FVector& StartLocation, const FVector& EndLocation) const;
+	
 // Weapon interface
 public:
 	void PullTrigger();
@@ -141,6 +153,9 @@ protected:
 
 	UFUNCTION()
 	void OnShotgunPelletHit(AActor* HitActor, const FVector& HitLocation, const FName& HitBoneName, const int32 NumOfPellets);
+
+	UFUNCTION()
+	void OnShotgunPelletShot(const FHitResult& HitResult, const FVector& EndShotLocation, const int32 NumOfPellets);
 	
 // Components
 protected:
@@ -158,7 +173,6 @@ protected:
 
 // Properties
 protected:
-
 	UPROPERTY(Transient)
 	TObjectPtr<ABaseCharacter> BaseCharacterRef;
 
@@ -206,4 +220,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Weapon|Sounds")
 	TObjectPtr<USoundCue> SoundNoAmmo;
+
+	UPROPERTY(EditAnywhere, Category="Weapon|Effects")
+	TObjectPtr<UParticleSystem> SmokeTrailParticle;
 };

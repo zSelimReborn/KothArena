@@ -16,6 +16,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponShotDelegate, const FHitRe
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponShotProjectileDelegate, ABaseProjectile*, NewProjectile);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnWeaponHitDelegate, AActor*, HitActor, const FVector&, HitLocation, const FName&, HitBoneName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnShotgunShotDelegate, const FVector&, IdealShotDirection, const int32, NumOfPellets);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnShotgunPelletShotDelegate, const FHitResult&, HitResult, const FVector&, EndShotLocation, const int32, NumOfPellets);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnShotgunPelletHitDelegate, AActor*, HitActor, const FVector&, HitLocation, const FName&, HitBoneName, const int32, NumOfPellets);
 
 UENUM()
@@ -72,6 +73,7 @@ public:
 	FOnWeaponHitDelegate& OnWeaponHitDelegate() { return WeaponHitDelegate; }
 	FOnShotgunShotDelegate& OnShotgunShotDelegate() { return ShotgunShotDelegate; }
 	FOnShotgunPelletHitDelegate& OnShotgunPelletHitDelegate() { return ShotgunPelletHitDelegate; }
+	FOnShotgunPelletShotDelegate& OnShotgunPelletShotDelegate() { return ShotgunPelletShotDelegate; }
 	
 	FORCEINLINE float GetWeaponRangeInMeters() const { return WeaponRange * 100.f; }
 	FORCEINLINE EWeaponFireType GetWeaponFireType() const { return WeaponFireType; }
@@ -135,4 +137,6 @@ protected:
 	FOnShotgunShotDelegate ShotgunShotDelegate;
 
 	FOnShotgunPelletHitDelegate ShotgunPelletHitDelegate;
+
+	FOnShotgunPelletShotDelegate ShotgunPelletShotDelegate;
 };
