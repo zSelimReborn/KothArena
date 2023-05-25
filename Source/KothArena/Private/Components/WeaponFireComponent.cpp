@@ -7,6 +7,7 @@
 #include "Gameplay/Projectiles/BaseProjectile.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 static TAutoConsoleVariable<bool> CVarDebugWeaponFire(
 	TEXT("KothArena.WeaponFire.ShowDebugTraces"),
@@ -50,12 +51,19 @@ bool UWeaponFireComponent::ComputeScreenCenterAndDirection(FVector& CenterLocati
 		return false;
 	}
 
-	FRotator ViewPointRotator;
-	PlayerControllerRef->GetActorEyesViewPoint(CenterLocation, ViewPointRotator);
-	CenterDirection = ViewPointRotator.Vector();
+	if (PlayerControllerRef->PlayerCameraManager == nullptr)
+	{
+		FRotator ViewpointDirection;
+		PlayerControllerRef->GetActorEyesViewPoint(CenterLocation, ViewpointDirection);
+		CenterDirection = ViewpointDirection.Vector();
+	}
+	else
+	{
+		CenterLocation = PlayerControllerRef->PlayerCameraManager->GetCameraLocation();
+		CenterDirection = PlayerControllerRef->GetControlRotation().Vector();
+	}
 
 	return true;
-	//return UGameplayStatics::DeprojectScreenToWorld(PlayerControllerRef, ViewportCenter, CenterLocation, CenterDirection);
 }
 
 bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVector& TraceEndLocation) const
