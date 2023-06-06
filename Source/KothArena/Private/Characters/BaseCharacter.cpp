@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/ShieldComponent.h"
+#include "Components/ThrowComponent.h"
 #include "Components/WeaponInventoryComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/PlayerHud.h"
@@ -63,6 +64,7 @@ void ABaseCharacter::InitializeCharacter()
 	WeaponInventoryComponent = FindComponentByClass<UWeaponInventoryComponent>();
 	AmmoInventoryComponent = FindComponentByClass<UAmmoInventoryComponent>();
 	SearchItemComponent = FindComponentByClass<USearchItemComponent>();
+	ThrowComponent = FindComponentByClass<UThrowComponent>();
 
 	if (SearchItemComponent)
 	{
@@ -420,6 +422,22 @@ void ABaseCharacter::RequestEndAiming()
 {
 	HandleRequestEndAiming();
 	ServerRequestEndAiming();
+}
+
+void ABaseCharacter::RequestStartThrowing()
+{
+	if (ThrowComponent)
+	{
+		ThrowComponent->StartThrowing();
+	}
+}
+
+void ABaseCharacter::RequestFinishThrowing()
+{
+	if (ThrowComponent)
+	{
+		ThrowComponent->FinishThrowing();
+	}
 }
 
 float ABaseCharacter::GetMaxHealth() const

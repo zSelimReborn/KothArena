@@ -39,8 +39,8 @@ void AShooterPlayerController::SetupInputComponent()
 
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestSprintAction);
 
-			EnhancedInputComponent->BindAction(PullTriggerAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestWeaponPullTriggerAction);
-			EnhancedInputComponent->BindAction(ReleaseTriggerAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestWeaponReleaseTriggerAction);
+			EnhancedInputComponent->BindAction(PullTriggerAction, ETriggerEvent::Started, this, &AShooterPlayerController::RequestWeaponPullTriggerAction);
+			EnhancedInputComponent->BindAction(PullTriggerAction, ETriggerEvent::Completed, this, &AShooterPlayerController::RequestWeaponReleaseTriggerAction);
 
 			EnhancedInputComponent->BindAction(ReloadWeaponAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestReloadWeapon);
 			EnhancedInputComponent->BindAction(ChangeWeaponFirstSlotAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestChangeWeaponFirstSlot);
@@ -50,8 +50,11 @@ void AShooterPlayerController::SetupInputComponent()
 
 			EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestInteract);
 
-			EnhancedInputComponent->BindAction(StartAimAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestStartAiming);
-			EnhancedInputComponent->BindAction(EndAimAction, ETriggerEvent::Triggered, this, &AShooterPlayerController::RequestEndAiming);
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &AShooterPlayerController::RequestStartAiming);
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Completed, this, &AShooterPlayerController::RequestEndAiming);
+
+			EnhancedInputComponent->BindAction(ThrowAction, ETriggerEvent::Started, this, &AShooterPlayerController::RequestStartThrowing);
+			EnhancedInputComponent->BindAction(ThrowAction, ETriggerEvent::Completed, this, &AShooterPlayerController::RequestFinishThrowing);
 
 			InitializeMappingContext();
 		}
@@ -356,5 +359,21 @@ void AShooterPlayerController::RequestEndAiming()
 	if (BaseCharacterRef)
 	{
 		BaseCharacterRef->RequestEndAiming();
+	}
+}
+
+void AShooterPlayerController::RequestStartThrowing()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestStartThrowing();
+	}
+}
+
+void AShooterPlayerController::RequestFinishThrowing()
+{
+	if (BaseCharacterRef)
+	{
+		BaseCharacterRef->RequestFinishThrowing();
 	}
 }

@@ -14,6 +14,7 @@ class UShieldComponent;
 class UWeaponInventoryComponent;
 class UAmmoInventoryComponent;
 class USearchItemComponent;
+class UThrowComponent;
 class UPlayerHud;
 class ABaseWeapon;
 
@@ -98,6 +99,8 @@ public:
 	void RequestInteract();
 	void RequestStartAiming();
 	void RequestEndAiming();
+	void RequestStartThrowing();
+	void RequestFinishThrowing();
 
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const;
@@ -152,6 +155,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	float GetLookRightRate() const;
+
+	UFUNCTION(BlueprintPure)
+	FName GetThrowableSocketName() const { return ThrowableSocketName; }
 
 	void NotifyShieldDamage(const float DamageAbsorbed, const float NewShield);
 	void NotifyShieldRegen(const float Amount, const float NewShield);
@@ -224,6 +230,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<USearchItemComponent> SearchItemComponent;
+
+	UPROPERTY()
+	TObjectPtr<UThrowComponent> ThrowComponent;
 	
 // Properties
 protected:
@@ -253,6 +262,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Aiming")
 	float AimingWalkSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere, Category="Throwable")
+	FName ThrowableSocketName = NAME_None;
 
 	UPROPERTY(Transient)
 	float IdleFov = 90.f;
