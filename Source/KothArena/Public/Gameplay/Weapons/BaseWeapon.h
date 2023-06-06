@@ -102,8 +102,8 @@ public:
 	void PullTrigger();
 	void ReleaseTrigger();
 	void Reload(const int32 Amount);
-	void EnableHighlight() const;
-	void DisableHighlight() const;
+	virtual void EnableHighlight() const override;
+	virtual void DisableHighlight() const override;
 	void DisableCollision() const;
 	
 	void OnEquip();

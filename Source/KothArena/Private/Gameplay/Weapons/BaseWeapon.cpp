@@ -224,12 +224,14 @@ void ABaseWeapon::Reload(const int32 Amount)
 
 void ABaseWeapon::EnableHighlight() const
 {
+	Super::EnableHighlight();
 	WeaponSkeletalMeshComponent->SetRenderCustomDepth(true);
 	PickupWeaponWidgetComponent->SetVisibility(true);
 }
 
 void ABaseWeapon::DisableHighlight() const
 {
+	Super::DisableHighlight();
 	WeaponSkeletalMeshComponent->SetRenderCustomDepth(false);
 	PickupWeaponWidgetComponent->SetVisibility(false);
 }

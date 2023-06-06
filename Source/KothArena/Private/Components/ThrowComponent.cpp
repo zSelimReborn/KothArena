@@ -74,7 +74,7 @@ ABaseThrowable* UThrowComponent::SpawnAndAttachThrowable() const
 	{
 		if (BaseCharacterRef != nullptr)
 		{
-			NewThrowable->AttachToComponent(BaseCharacterRef->GetMesh(), FAttachmentTransformRules::KeepWorldTransform, BaseCharacterRef->GetThrowableSocketName());
+			NewThrowable->AttachToComponent(BaseCharacterRef->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, BaseCharacterRef->GetThrowableSocketName());
 		}
 		else
 		{
@@ -121,9 +121,21 @@ void UThrowComponent::FinishThrowing()
 	}
 }
 
-void UThrowComponent::ChangeThrowable(const TSubclassOf<ABaseThrowable> NewThrowableClass)
+void UThrowComponent::AddQuantity(const int32 Quantity)
 {
-	ThrowableClass = NewThrowableClass;
-	ThrowableInventory = 0;
+	ThrowableInventory += Quantity;
+}
+
+void UThrowComponent::ChangeThrowable(const TSubclassOf<ABaseThrowable> NewThrowableClass, const int32 Quantity)
+{
+	if (ThrowableClass == NewThrowableClass)
+	{
+		AddQuantity(Quantity);
+	}
+	else
+	{
+		ThrowableClass = NewThrowableClass;
+		ThrowableInventory = Quantity;
+	}
 }
 

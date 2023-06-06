@@ -50,7 +50,13 @@ public:
 	void FinishThrowing();
 
 	UFUNCTION(BlueprintCallable)
-	void ChangeThrowable(const TSubclassOf<ABaseThrowable> NewThrowableClass);
+	void ChangeThrowable(const TSubclassOf<ABaseThrowable> NewThrowableClass, const int32 Quantity);
+
+	UFUNCTION(BlueprintCallable)
+	void AddQuantity(const int32 Quantity);
+
+	UFUNCTION(BlueprintPure)
+	TSubclassOf<ABaseThrowable> GetCurrentThrowable() const { return ThrowableClass; }
 
 // Properties
 protected:

@@ -17,13 +17,17 @@ class USearchItemComponent;
 class UThrowComponent;
 class UPlayerHud;
 class ABaseWeapon;
+class ABaseItem;
+class AThrowableItem;
+class ABaseThrowable;
 
 UENUM(BlueprintType)
 enum class ECharacterCombatState : uint8
 {
 	Idle,
 	Aiming,
-	Reloading
+	Reloading,
+	Throwing
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterReady, ACharacter*, InstigatorCharacter);
@@ -101,6 +105,8 @@ public:
 	void RequestEndAiming();
 	void RequestStartThrowing();
 	void RequestFinishThrowing();
+	void RequestChangeThrowable(const TSubclassOf<ABaseThrowable>& NewThrowableClass, const int32 Quantity);
+	void RequestAddThrowableQuantity(const int32 Quantity);
 
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const;
@@ -158,6 +164,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FName GetThrowableSocketName() const { return ThrowableSocketName; }
+
+	UFUNCTION(BlueprintPure)
+	TSubclassOf<ABaseThrowable> GetCurrentThrowable() const;
 
 	void NotifyShieldDamage(const float DamageAbsorbed, const float NewShield);
 	void NotifyShieldRegen(const float Amount, const float NewShield);
@@ -276,7 +285,13 @@ protected:
 	TObjectPtr<APlayerController> PC;
 
 	UPROPERTY(Transient)
+	TObjectPtr<ABaseItem> ItemFoundRef;
+	
+	UPROPERTY(Transient)
 	TObjectPtr<ABaseWeapon> WeaponFoundRef;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AThrowableItem> ThrowableItemFoundRef;
 
 	UPROPERTY(Transient)
 	TObjectPtr<AController> LastDamageCauserController;

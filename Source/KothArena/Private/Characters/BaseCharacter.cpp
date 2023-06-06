@@ -12,6 +12,7 @@
 #include "Components/ShieldComponent.h"
 #include "Components/ThrowComponent.h"
 #include "Components/WeaponInventoryComponent.h"
+#include "Gameplay/Items/ThrowableItem.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/PlayerHud.h"
 
@@ -409,6 +410,10 @@ void ABaseCharacter::RequestInteract()
 	if (WeaponFoundRef)
 	{
 		RequestEquipWeapon(WeaponFoundRef);
+	} else if (ThrowableItemFoundRef)
+	{
+		RequestChangeThrowable(ThrowableItemFoundRef->GetThrowableClass(), ThrowableItemFoundRef->GetQuantity());
+		ThrowableItemFoundRef->Destroy();
 	}
 }
 
@@ -428,6 +433,7 @@ void ABaseCharacter::RequestStartThrowing()
 {
 	if (ThrowComponent)
 	{
+		CombatState = ECharacterCombatState::Throwing;
 		ThrowComponent->StartThrowing();
 	}
 }
@@ -436,7 +442,24 @@ void ABaseCharacter::RequestFinishThrowing()
 {
 	if (ThrowComponent)
 	{
+		CombatState = ECharacterCombatState::Idle;
 		ThrowComponent->FinishThrowing();
+	}
+}
+
+void ABaseCharacter::RequestChangeThrowable(const TSubclassOf<ABaseThrowable>& NewThrowableClass, const int32 Quantity)
+{
+	if (ThrowComponent)
+	{
+		ThrowComponent->ChangeThrowable(NewThrowableClass, Quantity);
+	}
+}
+
+void ABaseCharacter::RequestAddThrowableQuantity(const int32 Quantity)
+{
+	if (ThrowComponent)
+	{
+		ThrowComponent->AddQuantity(Quantity);
 	}
 }
 
@@ -603,6 +626,16 @@ float ABaseCharacter::GetLookRightRate() const
 	return (IsAiming())? AimingLookRightRate : BaseLookRightRate;
 }
 
+TSubclassOf<ABaseThrowable> ABaseCharacter::GetCurrentThrowable() const
+{
+	if (ThrowComponent)
+	{
+		return ThrowComponent->GetCurrentThrowable();
+	}
+
+	return nullptr;
+}
+
 void ABaseCharacter::NotifyShieldDamage(const float DamageAbsorbed, const float NewShield)
 {
 	ensure(IsLocallyControlled());
@@ -629,30 +662,41 @@ void ABaseCharacter::NotifyHealthRegen(const float Amount, const float NewHealth
 
 void ABaseCharacter::OnNewItemFound(const FHitResult& HitResult, AActor* ItemFound)
 {
-	ABaseWeapon* NewWeapon = Cast<ABaseWeapon>(ItemFound);
-	if (NewWeapon)
+	ABaseItem* NewItem = Cast<ABaseItem>(ItemFound);
+	if (NewItem)
+	{
+		if (ItemFoundRef)
+		{
+			ItemFoundRef->DisableHighlight();
+		}
+		
+		NewItem->EnableHighlight();
+		ItemFoundRef = NewItem;
+	}
+
+	if (ABaseWeapon* NewWeapon = Cast<ABaseWeapon>(ItemFound))
 	{
 		if (NewWeapon == GetCurrentWeapon())
 		{
 			return;
 		}
 		
-		if (WeaponFoundRef)
-		{
-			WeaponFoundRef->DisableHighlight();
-		}
-
 		WeaponFoundRef = NewWeapon;
-		WeaponFoundRef->EnableHighlight();
+	}
+	else if (AThrowableItem* NewThrowable = Cast<AThrowableItem>(ItemFound))
+	{
+		ThrowableItemFoundRef = NewThrowable;	
 	}
 }
 
 void ABaseCharacter::OnItemLost(AActor* ItemLost)
 {
-	if (WeaponFoundRef)
+	if (ItemFoundRef != nullptr)
 	{
-		WeaponFoundRef->DisableHighlight();
+		ItemFoundRef->DisableHighlight();
+		ItemFoundRef = nullptr;
 		WeaponFoundRef = nullptr;
+		ThrowableItemFoundRef = nullptr;
 	}
 }
 

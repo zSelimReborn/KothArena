@@ -26,3 +26,11 @@ void ABaseItem::Tick(float DeltaTime)
 
 }
 
+void ABaseItem::EnableHighlight() const
+{
+}
+
+void ABaseItem::DisableHighlight() const
+{
+}
+
