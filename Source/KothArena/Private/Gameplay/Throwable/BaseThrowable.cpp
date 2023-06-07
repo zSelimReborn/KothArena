@@ -32,6 +32,7 @@ void ABaseThrowable::BeginPlay()
 	Super::BeginPlay();
 	if (HasAuthority())
 	{
+		MeshComponent->IgnoreActorWhenMoving(GetOwner(), true);
 		TriggerVolume->IgnoreActorWhenMoving(GetOwner(), true);
 		TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ABaseThrowable::OnBeginOverlap);
 	}
@@ -109,7 +110,7 @@ void ABaseThrowable::Explode()
 	Destroy();
 }
 
-void ABaseThrowable::Stick(AActor* ActorToStick, UPrimitiveComponent* ComponentToStick)
+void ABaseThrowable::Stick(AActor* ActorToStick, UPrimitiveComponent* ComponentToStick, const FName& BoneName)
 {
 	if (!ActorToStick || !ComponentToStick)
 	{
@@ -117,7 +118,7 @@ void ABaseThrowable::Stick(AActor* ActorToStick, UPrimitiveComponent* ComponentT
 	}
 
 	const FAttachmentTransformRules StickAttach = FAttachmentTransformRules::KeepWorldTransform;
-	AttachToComponent(ComponentToStick, StickAttach);
+	AttachToComponent(ComponentToStick, StickAttach, BoneName);
 	ComponentToStick->IgnoreActorWhenMoving(this, true);
 
 	ProjectileMovementComponent->Deactivate();

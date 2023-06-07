@@ -42,7 +42,7 @@ public:
 	void Explode();
 
 	UFUNCTION(BlueprintCallable)
-	void Stick(AActor* ActorToStick, UPrimitiveComponent* ComponentToStick);
+	void Stick(AActor* ActorToStick, UPrimitiveComponent* ComponentToStick, const FName& BoneName);
 
 // Events
 public:

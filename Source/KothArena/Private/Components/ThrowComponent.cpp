@@ -75,6 +75,7 @@ ABaseThrowable* UThrowComponent::SpawnAndAttachThrowable() const
 		if (BaseCharacterRef != nullptr)
 		{
 			NewThrowable->AttachToComponent(BaseCharacterRef->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, BaseCharacterRef->GetThrowableSocketName());
+			BaseCharacterRef->MoveIgnoreActorAdd(NewThrowable);
 		}
 		else
 		{
