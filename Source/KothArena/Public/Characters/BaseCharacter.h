@@ -17,7 +17,6 @@ class USearchItemComponent;
 class UThrowComponent;
 class UPlayerHud;
 class ABaseWeapon;
-class ABaseItem;
 class AThrowableItem;
 class ABaseThrowable;
 
@@ -285,7 +284,7 @@ protected:
 	TObjectPtr<APlayerController> PC;
 
 	UPROPERTY(Transient)
-	TObjectPtr<ABaseItem> ItemFoundRef;
+	TObjectPtr<AActor> ItemFoundRef;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<ABaseWeapon> WeaponFoundRef;

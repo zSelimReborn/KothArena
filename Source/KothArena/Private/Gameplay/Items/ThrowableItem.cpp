@@ -36,19 +36,3 @@ bool AThrowableItem::ConsumeItem(AActor* InstigatorActor)
 
 	return false;
 }
-
-void AThrowableItem::EnableHighlight() const
-{
-	Super::EnableHighlight();
-
-	BaseMeshComponent->SetRenderCustomDepth(true);
-	PickupThrowableWidgetComponent->SetVisibility(true);
-}
-
-void AThrowableItem::DisableHighlight() const
-{
-	Super::DisableHighlight();
-
-	BaseMeshComponent->SetRenderCustomDepth(false);
-	PickupThrowableWidgetComponent->SetVisibility(false);
-}

@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/AmmoInventoryComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/HighlightComponent.h"
 #include "Components/SearchItemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -662,16 +663,24 @@ void ABaseCharacter::NotifyHealthRegen(const float Amount, const float NewHealth
 
 void ABaseCharacter::OnNewItemFound(const FHitResult& HitResult, AActor* ItemFound)
 {
-	ABaseItem* NewItem = Cast<ABaseItem>(ItemFound);
-	if (NewItem)
+	// If there's a new item
+	if (ItemFound != nullptr)
 	{
-		if (ItemFoundRef)
+		// Disable highlight on older item
+		if (ItemFoundRef != nullptr)
 		{
-			ItemFoundRef->DisableHighlight();
+			if (UHighlightComponent* OldHighlight = ItemFoundRef->FindComponentByClass<UHighlightComponent>())
+			{
+				OldHighlight->DisableHighlight();
+			}
 		}
-		
-		NewItem->EnableHighlight();
-		ItemFoundRef = NewItem;
+
+		// Highlight new item found
+		if (UHighlightComponent* NewHighlightComponent = ItemFound->FindComponentByClass<UHighlightComponent>())
+		{
+			NewHighlightComponent->EnableHighlight();
+			ItemFoundRef = ItemFound;
+		}
 	}
 
 	if (ABaseWeapon* NewWeapon = Cast<ABaseWeapon>(ItemFound))
@@ -693,7 +702,12 @@ void ABaseCharacter::OnItemLost(AActor* ItemLost)
 {
 	if (ItemFoundRef != nullptr)
 	{
-		ItemFoundRef->DisableHighlight();
+		// Disable highlight on older item
+		if (UHighlightComponent* OldHighlight = ItemFoundRef->FindComponentByClass<UHighlightComponent>())
+		{
+			OldHighlight->DisableHighlight();
+		}
+		
 		ItemFoundRef = nullptr;
 		WeaponFoundRef = nullptr;
 		ThrowableItemFoundRef = nullptr;

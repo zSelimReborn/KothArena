@@ -25,12 +25,3 @@ void ABaseItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-
-void ABaseItem::EnableHighlight() const
-{
-}
-
-void ABaseItem::DisableHighlight() const
-{
-}
-

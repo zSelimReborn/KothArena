@@ -22,9 +22,7 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual bool ConsumeItem(AActor* InstigatorActor) override;
-	virtual void EnableHighlight() const override;
-	virtual void DisableHighlight() const override;
-
+	
 	TSubclassOf<ABaseThrowable> GetThrowableClass() const { return ThrowableClass; }
 	int32 GetQuantity() const { return Quantity; }
 

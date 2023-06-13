@@ -5,6 +5,7 @@
 
 #include "Characters/BaseCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/HighlightComponent.h"
 #include "Components/WeaponFireComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -33,7 +34,6 @@ void ABaseWeapon::BeginPlay()
 
 	CurrentMag = MagCapacity;
 
-	DisableHighlight();
 	BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
 	PlayerController = (BaseCharacterRef)? Cast<APlayerController>(BaseCharacterRef->GetController()) : GetWorld()->GetFirstPlayerController();
 	WeaponFireComponent = FindComponentByClass<UWeaponFireComponent>();
@@ -45,6 +45,11 @@ void ABaseWeapon::BeginPlay()
 		WeaponFireComponent->OnShotgunShotDelegate().AddDynamic(this, &ABaseWeapon::OnShotgunShot);
 		WeaponFireComponent->OnShotgunPelletHitDelegate().AddDynamic(this, &ABaseWeapon::OnShotgunPelletHit);
 		WeaponFireComponent->OnShotgunPelletShotDelegate().AddDynamic(this, &ABaseWeapon::OnShotgunPelletShot);
+	}
+
+	if (UHighlightComponent* HighlightComponent = FindComponentByClass<UHighlightComponent>())
+	{
+		HighlightComponent->DisableHighlight();
 	}
 }
 
@@ -220,20 +225,6 @@ void ABaseWeapon::ReleaseTrigger()
 void ABaseWeapon::Reload(const int32 Amount)
 {
 	HandleReload(Amount);
-}
-
-void ABaseWeapon::EnableHighlight() const
-{
-	Super::EnableHighlight();
-	WeaponSkeletalMeshComponent->SetRenderCustomDepth(true);
-	PickupWeaponWidgetComponent->SetVisibility(true);
-}
-
-void ABaseWeapon::DisableHighlight() const
-{
-	Super::DisableHighlight();
-	WeaponSkeletalMeshComponent->SetRenderCustomDepth(false);
-	PickupWeaponWidgetComponent->SetVisibility(false);
 }
 
 void ABaseWeapon::DisableCollision() const
