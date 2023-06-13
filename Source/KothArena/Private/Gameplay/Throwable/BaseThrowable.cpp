@@ -35,6 +35,7 @@ void ABaseThrowable::BeginPlay()
 		MeshComponent->IgnoreActorWhenMoving(GetOwner(), true);
 		TriggerVolume->IgnoreActorWhenMoving(GetOwner(), true);
 		TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ABaseThrowable::OnBeginOverlap);
+		ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &ABaseThrowable::OnProjectileBounce);
 	}
 
 	if (HasAuthority() && bShouldDetonate)
@@ -139,4 +140,9 @@ void ABaseThrowable::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 void ABaseThrowable::FireDetonateEvent()
 {
 	OnEndDetonateTimerEvent();
+}
+
+void ABaseThrowable::OnProjectileBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
+{
+	OnProjectileBounceEvent(ImpactResult, ImpactVelocity);
 }

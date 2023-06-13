@@ -52,6 +52,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnEndDetonateTimerEvent();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnProjectileBounceEvent(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
+
 // Callbacks
 protected:
 	UFUNCTION()
@@ -59,6 +62,9 @@ protected:
 
 	UFUNCTION()
 	void FireDetonateEvent();
+
+	UFUNCTION()
+	void OnProjectileBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
 
 // Components
 protected:

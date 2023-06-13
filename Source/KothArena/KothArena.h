@@ -4,3 +4,4 @@
 
 #include "CoreMinimal.h"
 
+#define COLLISION_ATTACHABLE ECC_GameTraceChannel1
