@@ -4,6 +4,7 @@
 #include "Components/SearchItemComponent.h"
 
 #include "Utils/MathUtils.h"
+#include "Utils/PlayerUtils.h"
 
 // Sets default values for this component's properties
 USearchItemComponent::USearchItemComponent()
@@ -26,15 +27,18 @@ void USearchItemComponent::SearchForItems()
 {
 	if (bShouldSearchForItems && OwnerPawn && OwnerPawn->GetController())
 	{
-		FVector CameraLocation; FRotator CameraRotation;
-		OwnerPawn->GetController()->GetPlayerViewPoint(CameraLocation, CameraRotation);
+		FVector CameraLocation, CameraDirection;
+		if (!UPlayerUtils::ComputeScreenCenterAndDirection(OwnerPawn->GetController<APlayerController>(), CameraLocation, CameraDirection))
+		{
+			return;
+		}
 
+		const FVector CharacterLocation = OwnerPawn->GetActorLocation();
 		const FVector CharacterForward = OwnerPawn->GetActorForwardVector();
 
-		const FVector CameraForward = CameraRotation.Vector();
-		const FVector EndTrace = CameraLocation + (CameraForward * SearchTraceLength);
+		const FVector EndTrace = CameraLocation + CameraDirection * SearchTraceLength;
 
-		if (UMathUtils::GetAngleBetweenVectors(CameraForward, CharacterForward) > SearchMaxFOV)
+		if (UMathUtils::GetAngleBetweenVectors(CameraDirection, CharacterForward) > SearchMaxFOV)
 		{
 			if (ItemFoundRef)
 			{
@@ -44,7 +48,7 @@ void USearchItemComponent::SearchForItems()
 			return;
 		}
 
-		FCollisionShape Sphere = FCollisionShape::MakeSphere(100.f);
+		FCollisionShape Sphere = FCollisionShape::MakeSphere(SphereSearchRadius);
 
 		FCollisionQueryParams QueryParams{TEXT("KOTHArena::SearchItemComponent")};
 		QueryParams.AddIgnoredActor(OwnerPawn);
@@ -52,7 +56,7 @@ void USearchItemComponent::SearchForItems()
 		FHitResult TraceResult;
 		const bool bHitSomething = GetWorld()->SweepSingleByChannel(
 			TraceResult,
-			CameraLocation,
+			CharacterLocation,
 			EndTrace,
 			FQuat::Identity,
 			ECollisionChannel::ECC_WorldDynamic,

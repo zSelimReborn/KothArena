@@ -44,6 +44,9 @@ protected:
 	float SearchMaxFOV = 90.f;
 
 	UPROPERTY(EditAnywhere, Category="Trace")
+	float SphereSearchRadius = 50.f;
+
+	UPROPERTY(EditAnywhere, Category="Trace")
 	TSubclassOf<AActor> ActorClassToSearch;
 	
 	UPROPERTY(Transient, VisibleAnywhere, Category="Trace")
