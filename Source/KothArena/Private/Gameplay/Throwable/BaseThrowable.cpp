@@ -60,7 +60,12 @@ void ABaseThrowable::SpawnExplodeParticle() const
 {
 	if (ExplodeParticle)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplodeParticle, GetActorLocation());
+		UParticleSystemComponent* NewParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplodeParticle, GetActorLocation());
+		if (NewParticle)
+		{
+			const FVector ParticleSize = NewParticle->GetComponentScale() * ExplodeParticleScale;
+			NewParticle->SetWorldScale3D(ParticleSize);
+		}
 	}
 }
 
