@@ -58,12 +58,25 @@ public:
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<ABaseThrowable> GetCurrentThrowable() const { return ThrowableClass; }
 
+	UFUNCTION(BlueprintPure)
+	int32 GetQuantity() const { return ThrowableInventory; }
+
+// Net functions
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION()
+	void OnRep_ThrowableClass();
+
+	UFUNCTION()
+	void OnRep_ThrowableInventory();
+
 // Properties
 protected:
-	UPROPERTY(EditAnywhere, Category="Throwable")
+	UPROPERTY(EditAnywhere, Category="Throwable", ReplicatedUsing=OnRep_ThrowableClass)
 	TSubclassOf<ABaseThrowable> ThrowableClass;
 
-	UPROPERTY(EditAnywhere, Category="Throwable")
+	UPROPERTY(EditAnywhere, Category="Throwable", ReplicatedUsing=OnRep_ThrowableInventory)
 	int32 ThrowableInventory = 0;
 
 	UPROPERTY()

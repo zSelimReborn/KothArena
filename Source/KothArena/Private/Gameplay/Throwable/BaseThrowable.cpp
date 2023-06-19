@@ -56,7 +56,12 @@ void ABaseThrowable::StartDetonateTimer()
 	GetWorldTimerManager().SetTimer(DetonateTimerHandle, this, &ABaseThrowable::FireDetonateEvent, TimeToDetonate, false);
 }
 
-void ABaseThrowable::SpawnExplodeParticle() const
+void ABaseThrowable::SpawnExplodeParticle()
+{
+	MulticastSpawnExplodeParticle();
+}
+
+void ABaseThrowable::HandleSpawnExplodeParticle() const
 {
 	if (ExplodeParticle)
 	{
@@ -150,4 +155,9 @@ void ABaseThrowable::FireDetonateEvent()
 void ABaseThrowable::OnProjectileBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
 	OnProjectileBounceEvent(ImpactResult, ImpactVelocity);
+}
+
+void ABaseThrowable::MulticastSpawnExplodeParticle_Implementation()
+{
+	HandleSpawnExplodeParticle();
 }

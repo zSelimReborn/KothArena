@@ -5,6 +5,7 @@
 
 #include "Characters/BaseCharacter.h"
 #include "Gameplay/Throwable/BaseThrowable.h"
+#include "Net/UnrealNetwork.h"
 #include "Utils/PlayerUtils.h"
 
 // Sets default values for this component's properties
@@ -13,6 +14,7 @@ UThrowComponent::UThrowComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -49,6 +51,11 @@ APlayerController* UThrowComponent::GetPlayerController()
 
 void UThrowComponent::UpdateCharge(const float DeltaTime)
 {
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	
 	if (ActionState == EThrowActionState::Charge)
 	{
 		CurrentSpeedAccumulator = FMath::Clamp(CurrentSpeedAccumulator + DeltaTime, 0.f, SpeedToReachMaxMagnitude);
@@ -124,11 +131,39 @@ void UThrowComponent::FinishThrowing()
 
 void UThrowComponent::AddQuantity(const int32 Quantity)
 {
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	
 	ThrowableInventory += Quantity;
+}
+
+void UThrowComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UThrowComponent, ThrowableClass);
+	DOREPLIFETIME(UThrowComponent, ThrowableInventory);
+}
+
+void UThrowComponent::OnRep_ThrowableClass()
+{
+	// TODO UI Update
+}
+
+void UThrowComponent::OnRep_ThrowableInventory()
+{
+	// TODO UI Update
 }
 
 void UThrowComponent::ChangeThrowable(const TSubclassOf<ABaseThrowable> NewThrowableClass, const int32 Quantity)
 {
+	if (!GetOwner()->HasAuthority())
+	{
+		return;
+	}
+	
 	if (ThrowableClass == NewThrowableClass)
 	{
 		AddQuantity(Quantity);

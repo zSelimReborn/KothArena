@@ -13,6 +13,7 @@
 #include "Components/ShieldComponent.h"
 #include "Components/ThrowComponent.h"
 #include "Components/WeaponInventoryComponent.h"
+#include "Gameplay/Throwable/BaseThrowable.h"
 #include "Gameplay/Items/ThrowableItem.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/PlayerHud.h"
@@ -366,6 +367,22 @@ void ABaseCharacter::UpdateAim(const float DeltaTime)
 	CameraComponent->FieldOfView = NewFov;
 }
 
+void ABaseCharacter::HandleRequestChangeThrowable(const AThrowableItem* NewThrowableClass, const int32 Quantity)
+{
+	if (ThrowComponent && NewThrowableClass)
+	{
+		ThrowComponent->ChangeThrowable(NewThrowableClass->GetThrowableClass(), Quantity);
+	}
+}
+
+void ABaseCharacter::HandleRequestAddThrowableQuantity(const int32 Quantity)
+{
+	if (ThrowComponent)
+	{
+		ThrowComponent->AddQuantity(Quantity);
+	}
+}
+
 void ABaseCharacter::RequestJump()
 {
 	Jump();
@@ -411,10 +428,10 @@ void ABaseCharacter::RequestInteract()
 	if (WeaponFoundRef)
 	{
 		RequestEquipWeapon(WeaponFoundRef);
-	} else if (ThrowableItemFoundRef)
+	}
+	else if (ThrowableItemFoundRef)
 	{
-		RequestChangeThrowable(ThrowableItemFoundRef->GetThrowableClass(), ThrowableItemFoundRef->GetQuantity());
-		ThrowableItemFoundRef->Destroy();
+		ServerRequestChangeThrowable(ThrowableItemFoundRef, ThrowableItemFoundRef->GetQuantity());
 	}
 }
 
@@ -432,36 +449,22 @@ void ABaseCharacter::RequestEndAiming()
 
 void ABaseCharacter::RequestStartThrowing()
 {
-	if (ThrowComponent)
-	{
-		CombatState = ECharacterCombatState::Throwing;
-		ThrowComponent->StartThrowing();
-	}
+	ServerRequestStartThrowing();
 }
 
 void ABaseCharacter::RequestFinishThrowing()
 {
-	if (ThrowComponent)
-	{
-		CombatState = ECharacterCombatState::Idle;
-		ThrowComponent->FinishThrowing();
-	}
-}
-
-void ABaseCharacter::RequestChangeThrowable(const TSubclassOf<ABaseThrowable>& NewThrowableClass, const int32 Quantity)
-{
-	if (ThrowComponent)
-	{
-		ThrowComponent->ChangeThrowable(NewThrowableClass, Quantity);
-	}
+	ServerRequestFinishThrowing();
 }
 
 void ABaseCharacter::RequestAddThrowableQuantity(const int32 Quantity)
 {
-	if (ThrowComponent)
+	if (!HasAuthority())
 	{
-		ThrowComponent->AddQuantity(Quantity);
+		return;
 	}
+
+	HandleRequestAddThrowableQuantity(Quantity);
 }
 
 float ABaseCharacter::GetMaxHealth() const
@@ -720,6 +723,39 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 	DOREPLIFETIME(ABaseCharacter, bDefaultWeaponSpawned);
 	DOREPLIFETIME(ABaseCharacter, CombatState);
+}
+
+void ABaseCharacter::ServerRequestAddThrowableQuantity_Implementation(const int32 Quantity)
+{
+	HandleRequestAddThrowableQuantity(Quantity);
+}
+
+void ABaseCharacter::ServerRequestChangeThrowable_Implementation(const AThrowableItem* NewThrowableClass,
+	const int32 Quantity)
+{
+	HandleRequestChangeThrowable(NewThrowableClass, Quantity);
+	if (ThrowableItemFoundRef)
+	{
+		ThrowableItemFoundRef->Destroy();
+	}
+}
+
+void ABaseCharacter::ServerRequestStartThrowing_Implementation()
+{
+	if (ThrowComponent)
+	{
+		CombatState = ECharacterCombatState::Throwing;
+		ThrowComponent->StartThrowing();
+	}
+}
+
+void ABaseCharacter::ServerRequestFinishThrowing_Implementation()
+{
+	if (ThrowComponent)
+	{
+		CombatState = ECharacterCombatState::Idle;
+		ThrowComponent->FinishThrowing();
+	}
 }
 
 void ABaseCharacter::ServerRequestReload_Implementation()

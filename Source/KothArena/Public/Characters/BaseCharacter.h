@@ -76,6 +76,10 @@ protected:
 	void HandleRequestReload();
 
 	void UpdateAim(const float);
+
+	void HandleRequestChangeThrowable(const AThrowableItem* NewThrowableClass, const int32 Quantity);
+
+	void HandleRequestAddThrowableQuantity(const int32 Quantity);
 	
 public:	
 	// Called every frame
@@ -104,7 +108,6 @@ public:
 	void RequestEndAiming();
 	void RequestStartThrowing();
 	void RequestFinishThrowing();
-	void RequestChangeThrowable(const TSubclassOf<ABaseThrowable>& NewThrowableClass, const int32 Quantity);
 	void RequestAddThrowableQuantity(const int32 Quantity);
 
 	UFUNCTION(BlueprintPure)
@@ -204,6 +207,18 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRequestReload();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestChangeThrowable(const AThrowableItem* NewThrowableClass, const int32 Quantity);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestAddThrowableQuantity(const int32 Quantity);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestStartThrowing();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRequestFinishThrowing();
 	
 // Events
 public:
