@@ -28,9 +28,13 @@ void AConsumableItem::BeginPlay()
 	Super::BeginPlay();
 
 	bIsItemEnabled = bIsItemEnabledOnBeginPlay;
+
+	if (HasAuthority())
+	{
+		TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AConsumableItem::OnBeginOverlap);
+		TriggerVolume->OnComponentEndOverlap.AddDynamic(this, &AConsumableItem::OnEndOverlap);
+	}
 	
-	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &AConsumableItem::OnBeginOverlap);
-	TriggerVolume->OnComponentEndOverlap.AddDynamic(this, &AConsumableItem::OnEndOverlap);
 	RotatingMovementComponent->SetUpdatedComponent(BaseMeshComponent);
 }
 
@@ -38,7 +42,11 @@ void AConsumableItem::RequestConsumeItem(AActor* InstigatorActor)
 {
 	if (ConsumeItem(InstigatorActor))
 	{
-		ServerAfterConsumeItem(InstigatorActor);
+		MulticastAfterConsumeItem(InstigatorActor);
+		if (bDestroyOnConsume)
+		{
+			Destroy();
+		}
 	}
 }
 
@@ -51,10 +59,6 @@ void AConsumableItem::MulticastAfterConsumeItem_Implementation(AActor* Instigato
 {
 	OnConsumeItem(this, InstigatorActor);
 	ItemUsedDelegate.Broadcast(this, InstigatorActor);
-	if (bDestroyOnConsume)
-	{
-		Destroy();
-	}
 }
 
 void AConsumableItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
