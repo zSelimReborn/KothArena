@@ -25,7 +25,7 @@ void USearchItemComponent::BeginPlay()
 
 void USearchItemComponent::SearchForItems()
 {
-	if (bShouldSearchForItems && OwnerPawn && OwnerPawn->GetController())
+	if (bShouldSearchForItems && OwnerPawn && OwnerPawn->GetController() && OwnerPawn->IsLocallyControlled())
 	{
 		FVector CameraLocation, CameraDirection;
 		if (!UPlayerUtils::ComputeScreenCenterAndDirection(OwnerPawn->GetController<APlayerController>(), CameraLocation, CameraDirection))
@@ -67,8 +67,11 @@ void USearchItemComponent::SearchForItems()
 		AActor* FoundItem = (TraceResult.GetActor());
 		if (bHitSomething && FoundItem && FoundItem->IsA(ActorClassToSearch))
 		{
-			NewItemFoundDelegate.Broadcast(TraceResult, FoundItem);
-			ItemFoundRef = FoundItem;
+			if (FoundItem != ItemFoundRef)
+			{
+				NewItemFoundDelegate.Broadcast(TraceResult, FoundItem);
+				ItemFoundRef = FoundItem;
+			}
 		}
 		else
 		{
