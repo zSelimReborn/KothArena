@@ -10,9 +10,9 @@ ASpikeTrap::ASpikeTrap()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	SetReplicateMovement(true);
 	
 	SpikeMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Spike Mesh Component"));
+	SpikeMeshComponent->SetIsReplicated(true);
 	SpikeMeshComponent->SetupAttachment(BaseMeshComponent);
 
 	TriggerVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger Volume"));
@@ -28,14 +28,8 @@ void ASpikeTrap::BeginPlay()
 	if (HasAuthority())
 	{
 		TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ASpikeTrap::OnSpikeHit);
-	}
-	
-	InitialZValueSpikes = SpikeMeshComponent->GetRelativeLocation().Z;
-	StartTimerToShowSpikes();
-
-	if (!HasAuthority())
-	{
-		SynchronizeAccumulator();
+		InitialZValueSpikes = SpikeMeshComponent->GetRelativeLocation().Z;
+		StartTimerToShowSpikes();
 	}
 }
 
@@ -43,7 +37,10 @@ void ASpikeTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateSpikes(DeltaTime);
+	if (HasAuthority())
+	{
+		UpdateSpikes(DeltaTime);
+	}
 }
 
 void ASpikeTrap::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

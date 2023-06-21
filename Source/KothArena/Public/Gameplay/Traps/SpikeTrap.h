@@ -47,12 +47,29 @@ protected:
 
 	UFUNCTION()
 	void OnSpikeHit(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+	
+// Net functions
+protected:
 	UFUNCTION()
 	void OnRep_ServerAccumulatorTime();
 
 	UFUNCTION(Server, Reliable)
 	void SynchronizeAccumulator();
+
+// Public interface
+public:
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetTimeToShow(const float NewTimeToShow) { TimeToShow = NewTimeToShow; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetTimeToClose(const float NewTimeToClose) { TimeToClose = NewTimeToClose; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetTimeToResetSpikesAfterShowing(const float NewTime) { TimeToResetSpikesAfterShowing = NewTime; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetTimeToShowSpikesAfterClosing(const float NewTime) { TimeToShowSpikesAfterClosing = NewTime; }
+
 
 // Components
 protected:
