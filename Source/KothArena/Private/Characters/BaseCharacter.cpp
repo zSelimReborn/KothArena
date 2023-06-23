@@ -75,6 +75,12 @@ void ABaseCharacter::InitializeCharacter()
 		SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
 	}
 
+	if (ThrowComponent)
+	{
+		ThrowComponent->OnChangeThrowable().AddDynamic(this, &ABaseCharacter::OnChangeThrowable);
+		ThrowComponent->OnChangeQuantity().AddDynamic(this, &ABaseCharacter::OnChangeThrowableQuantity);
+	}
+
 	WalkSpeed = (GetCharacterMovement())? GetCharacterMovement()->MaxWalkSpeed : WalkSpeed;
 	IdleFov = (CameraComponent)? CameraComponent->FieldOfView : IdleFov;
 	CharacterReadyDelegate.Broadcast(this);
@@ -717,6 +723,16 @@ void ABaseCharacter::OnItemLost(AActor* ItemLost)
 	}
 }
 
+void ABaseCharacter::OnChangeThrowable(TSubclassOf<ABaseThrowable> NewThrowableClass, const int32 Quantity)
+{
+	CharacterChangeThrowableDelegate.Broadcast(NewThrowableClass, Quantity);
+}
+
+void ABaseCharacter::OnChangeThrowableQuantity(const int32 NewQuantity)
+{
+	CharacterChangeThrowableQuantityDelegate.Broadcast(NewQuantity);
+}
+
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -730,14 +746,11 @@ void ABaseCharacter::ServerRequestAddThrowableQuantity_Implementation(const int3
 	HandleRequestAddThrowableQuantity(Quantity);
 }
 
-void ABaseCharacter::ServerRequestChangeThrowable_Implementation(const AThrowableItem* NewThrowableClass,
+void ABaseCharacter::ServerRequestChangeThrowable_Implementation(AThrowableItem* NewThrowableClass,
 	const int32 Quantity)
 {
 	HandleRequestChangeThrowable(NewThrowableClass, Quantity);
-	if (ThrowableItemFoundRef)
-	{
-		ThrowableItemFoundRef->Destroy();
-	}
+	NewThrowableClass->Destroy();
 }
 
 void ABaseCharacter::ServerRequestStartThrowing_Implementation()

@@ -122,6 +122,7 @@ void UThrowComponent::FinishThrowing()
 		
 		CurrentThrowable = nullptr;
 		ThrowableInventory--;
+		OnChangeQuantityDelegate.Broadcast(ThrowableInventory);
 		
 		ActionState = EThrowActionState::Idle;
 		CurrentSpeedAccumulator = 0.f;
@@ -137,6 +138,7 @@ void UThrowComponent::AddQuantity(const int32 Quantity)
 	}
 	
 	ThrowableInventory += Quantity;
+	OnChangeQuantityDelegate.Broadcast(ThrowableInventory);
 }
 
 void UThrowComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -149,12 +151,12 @@ void UThrowComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void UThrowComponent::OnRep_ThrowableClass()
 {
-	// TODO UI Update
+	OnChangeThrowableDelegate.Broadcast(ThrowableClass, ThrowableInventory);
 }
 
 void UThrowComponent::OnRep_ThrowableInventory()
 {
-	// TODO UI Update
+	OnChangeQuantityDelegate.Broadcast(ThrowableInventory);
 }
 
 void UThrowComponent::ChangeThrowable(const TSubclassOf<ABaseThrowable> NewThrowableClass, const int32 Quantity)
@@ -172,6 +174,7 @@ void UThrowComponent::ChangeThrowable(const TSubclassOf<ABaseThrowable> NewThrow
 	{
 		ThrowableClass = NewThrowableClass;
 		ThrowableInventory = Quantity;
+		OnChangeThrowableDelegate.Broadcast(NewThrowableClass, Quantity);
 	}
 }
 

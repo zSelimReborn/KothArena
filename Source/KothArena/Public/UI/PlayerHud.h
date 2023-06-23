@@ -44,4 +44,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBrokeShield();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnChangeThrowable(const FName& Name, const UTexture2D* Thumbnail, const int32 Quantity);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnChangeThrowableQuantity(const int32 Quantity);
 };

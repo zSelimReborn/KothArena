@@ -40,6 +40,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTakeDamageDelegate, AController*
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterDeathDelegate, ACharacter*, DeadCharacter, AController*, KillerController);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCharacterShieldBrokenDelegate, ACharacter*, DamagedCharacter, AController*, ControllerCauser);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
+	FOnCharacterChangeThrowableDelegate,
+	TSubclassOf<ABaseThrowable>, NewThrowableClass, const int32, Quantity
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnCharacterChangeThrowableQuantityDelegate,
+	const int32, NewQuantity
+);
+
 UCLASS()
 class KOTHARENA_API ABaseCharacter : public ACharacter
 {
@@ -185,6 +195,12 @@ protected:
 	UFUNCTION()
 	void OnItemLost(AActor* ItemLost);
 
+	UFUNCTION()
+	void OnChangeThrowable(TSubclassOf<ABaseThrowable> NewThrowableClass, const int32 Quantity);
+
+	UFUNCTION()
+	void OnChangeThrowableQuantity(const int32 NewQuantity);
+
 // Net functions
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -209,7 +225,7 @@ protected:
 	void ServerRequestReload();
 
 	UFUNCTION(Server, Reliable)
-	void ServerRequestChangeThrowable(const AThrowableItem* NewThrowableClass, const int32 Quantity);
+	void ServerRequestChangeThrowable(AThrowableItem* NewThrowableClass, const int32 Quantity);
 
 	UFUNCTION(Server, Reliable)
 	void ServerRequestAddThrowableQuantity(const int32 Quantity);
@@ -230,6 +246,8 @@ public:
 	FOnTakeDamageDelegate& OnTakeDamage() { return TakeDamageDelegate; }
 	FOnCharacterDeathDelegate& OnCharacterDeath() { return CharacterDeathDelegate; }
 	FOnCharacterShieldBrokenDelegate& OnCharacterShieldBroken() { return CharacterShieldBrokenDelegate; }
+	FOnCharacterChangeThrowableDelegate& OnCharacterChangeThrowable() { return CharacterChangeThrowableDelegate; }
+	FOnCharacterChangeThrowableQuantityDelegate& OnCharacterChangeThrowableQuantity() { return CharacterChangeThrowableQuantityDelegate; }
 	
 // Components
 protected:
@@ -341,4 +359,10 @@ protected:
 
 	UPROPERTY()
 	FOnCharacterShieldBrokenDelegate CharacterShieldBrokenDelegate;
+
+	UPROPERTY()
+	FOnCharacterChangeThrowableDelegate CharacterChangeThrowableDelegate;
+
+	UPROPERTY()
+	FOnCharacterChangeThrowableQuantityDelegate CharacterChangeThrowableQuantityDelegate;
 };

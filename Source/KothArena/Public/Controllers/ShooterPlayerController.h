@@ -13,6 +13,7 @@ class UInputAction;
 class UPlayerHud;
 class AKothArenaGameModeBase;
 class UInputMappingContext;
+class ABaseThrowable;
 
 /**
  * 
@@ -65,9 +66,13 @@ protected:
 	void OnCharacterRegenHealth(ACharacter* InstigatorCharacter, const float RegenAmount, const float NewHealthValue);
 
 	UFUNCTION()
-	void InitializeMappingContext();
+	void OnCharacterChangeThrowable(TSubclassOf<ABaseThrowable> NewThrowableClass, const int32 Quantity);
+
+	UFUNCTION()
+	void OnCharacterChangeThrowableQuantity(const int32 NewQuantity);
 
 protected:
+	void InitializeMappingContext();
 	void SetupCharacter(AActor* NewCharacter);
 	void InitializeHud();
 	void InitializeHudDelegates();

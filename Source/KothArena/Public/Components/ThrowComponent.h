@@ -16,6 +16,16 @@ enum class EThrowActionState : uint8
 	Charge
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
+	FOnChangeThrowableDelegate,
+	TSubclassOf<ABaseThrowable>, NewThrowableClass, const int32, Quantity
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnChangeQuantityDelegate,
+	const int32, NewQuantity
+);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class KOTHARENA_API UThrowComponent : public UActorComponent
 {
@@ -61,6 +71,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	int32 GetQuantity() const { return ThrowableInventory; }
 
+// Events
+public:
+	FOnChangeThrowableDelegate& OnChangeThrowable() { return OnChangeThrowableDelegate; }
+	FOnChangeQuantityDelegate& OnChangeQuantity() { return OnChangeQuantityDelegate; }
+	
 // Net functions
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -105,4 +120,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<APlayerController> PC;
+
+// Delegates
+protected:
+	FOnChangeThrowableDelegate OnChangeThrowableDelegate;
+	FOnChangeQuantityDelegate OnChangeQuantityDelegate;
 };
