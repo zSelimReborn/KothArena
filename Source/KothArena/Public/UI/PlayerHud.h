@@ -50,4 +50,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnChangeThrowableQuantity(const int32 Quantity);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayerMove(const float AxisXValue, const float AxisYValue);
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCameraMove(const float AxisXValue, const float AxisYValue);
 };

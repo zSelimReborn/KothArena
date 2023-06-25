@@ -295,17 +295,29 @@ void AShooterPlayerController::RequestStopJumpAction()
 
 void AShooterPlayerController::RequestMoveAction(const FInputActionValue& Value)
 {
+	const FVector2d MoveValue = Value.Get<FVector2d>();
 	if (BaseCharacterRef)
 	{
 		BaseCharacterRef->RequestMove(Value.Get<FVector2d>());
+	}
+
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnPlayerMove(MoveValue.X, MoveValue.Y);
 	}
 }
 
 void AShooterPlayerController::RequestLookAction(const FInputActionValue& Value)
 {
+	const FVector2d CameraMoveValue = Value.Get<FVector2d>();
 	if (BaseCharacterRef)
 	{
-		BaseCharacterRef->RequestLook(Value.Get<FVector2d>());
+		BaseCharacterRef->RequestLook(CameraMoveValue);
+	}
+
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnCameraMove(CameraMoveValue.X, CameraMoveValue.Y);
 	}
 }
 
