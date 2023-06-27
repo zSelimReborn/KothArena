@@ -19,6 +19,9 @@ class UPlayerHud;
 class ABaseWeapon;
 class AThrowableItem;
 class ABaseThrowable;
+class UAimComponent;
+class UChildActorComponent;
+class ACameraActor;
 
 UENUM(BlueprintType)
 enum class ECharacterCombatState : uint8
@@ -187,6 +190,12 @@ public:
 
 	void RequestEquipDefaultWeapon();
 
+	void SetAimingState();
+	void UnsetAimingState();
+
+	UFUNCTION(BlueprintPure)
+	ACameraActor* GetAimCamera() const;
+
 // Callbacks
 protected:
 	UFUNCTION()
@@ -258,6 +267,12 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, NoClear)
+	TObjectPtr<USpringArmComponent> AimCameraBoom;
+	
+	UPROPERTY(VisibleAnywhere, NoClear)
+	TObjectPtr<UChildActorComponent> ChildAimCameraComponent;
+
+	UPROPERTY(VisibleAnywhere, NoClear)
 	TObjectPtr<UHealthComponent> HealthComponent;
 
 	UPROPERTY(VisibleAnywhere)
@@ -274,6 +289,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UThrowComponent> ThrowComponent;
+
+	UPROPERTY()
+	TObjectPtr<UAimComponent> AimComponent;
 	
 // Properties
 protected:

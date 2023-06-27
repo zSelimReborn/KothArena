@@ -3,7 +3,9 @@
 
 #include "Characters/BaseCharacter.h"
 
+#include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AimComponent.h"
 #include "Components/AmmoInventoryComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/HighlightComponent.h"
@@ -16,12 +18,10 @@
 #include "Gameplay/Throwable/BaseThrowable.h"
 #include "Gameplay/Items/ThrowableItem.h"
 #include "Net/UnrealNetwork.h"
-#include "UI/PlayerHud.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
@@ -29,6 +29,13 @@ ABaseCharacter::ABaseCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
 	CameraComponent->SetupAttachment(CameraBoom);
+
+	AimCameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("Aim Camera Boom"));
+	AimCameraBoom->SetupAttachment(GetRootComponent());
+	
+	ChildAimCameraComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("Child Aim Camera"));
+	ChildAimCameraComponent->SetChildActorClass(ACameraActor::StaticClass());
+	ChildAimCameraComponent->SetupAttachment(AimCameraBoom);
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 
@@ -68,6 +75,7 @@ void ABaseCharacter::InitializeCharacter()
 	AmmoInventoryComponent = FindComponentByClass<UAmmoInventoryComponent>();
 	SearchItemComponent = FindComponentByClass<USearchItemComponent>();
 	ThrowComponent = FindComponentByClass<UThrowComponent>();
+	AimComponent = FindComponentByClass<UAimComponent>();
 
 	if (SearchItemComponent)
 	{
@@ -79,6 +87,11 @@ void ABaseCharacter::InitializeCharacter()
 	{
 		ThrowComponent->OnChangeThrowable().AddDynamic(this, &ABaseCharacter::OnChangeThrowable);
 		ThrowComponent->OnChangeQuantity().AddDynamic(this, &ABaseCharacter::OnChangeThrowableQuantity);
+	}
+
+	if (ChildAimCameraComponent->GetChildActor())
+	{
+		ChildAimCameraComponent->GetChildActor()->SetOwner(this);
 	}
 
 	WalkSpeed = (GetCharacterMovement())? GetCharacterMovement()->MaxWalkSpeed : WalkSpeed;
@@ -176,6 +189,25 @@ void ABaseCharacter::RequestEquipDefaultWeapon()
 	}
 }
 
+void ABaseCharacter::SetAimingState()
+{
+	CombatState = ECharacterCombatState::Aiming;
+	bUseControllerRotationYaw = true;
+	GetCharacterMovement()->MaxWalkSpeed = AimingWalkSpeed;
+}
+
+void ABaseCharacter::UnsetAimingState()
+{
+	CombatState = ECharacterCombatState::Idle;
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+}
+
+ACameraActor* ABaseCharacter::GetAimCamera() const
+{
+	return Cast<ACameraActor>(ChildAimCameraComponent->GetChildActor());
+}
+
 void ABaseCharacter::RequestEquipWeapon(ABaseWeapon* NewWeapon)
 {
 	if (WeaponInventoryComponent)
@@ -204,7 +236,7 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateSprintStatus();
-	UpdateAim(DeltaTime);
+	//UpdateAim(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -293,9 +325,10 @@ void ABaseCharacter::HandleRequestStartAiming()
 {
 	if (CombatState != ECharacterCombatState::Reloading)
 	{
-		CombatState = ECharacterCombatState::Aiming;
-		bUseControllerRotationYaw = true;
-		GetCharacterMovement()->MaxWalkSpeed = AimingWalkSpeed;
+		if (AimComponent)
+		{
+			AimComponent->StartAiming();
+		}
 	}
 }
 
@@ -303,9 +336,10 @@ void ABaseCharacter::HandleRequestEndAiming()
 {
 	if (CombatState == ECharacterCombatState::Aiming)
 	{
-		CombatState = ECharacterCombatState::Idle;
-		bUseControllerRotationYaw = false;
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		if (AimComponent)
+		{
+			AimComponent->FinishAiming();
+		}
 	}
 }
 
