@@ -236,7 +236,6 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateSprintStatus();
-	//UpdateAim(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -384,27 +383,6 @@ void ABaseCharacter::HandleRequestReload()
 	
 	CurrentWeapon->Reload(AmmoToReload);
 	CombatState = ECharacterCombatState::Idle;
-}
-
-void ABaseCharacter::UpdateAim(const float DeltaTime)
-{
-	if (!CameraComponent)
-	{
-		return;	
-	}
-
-	if (IsAiming())
-	{
-		CurrentTimeAiming = FMath::Clamp(CurrentTimeAiming + DeltaTime, 0.f, TimeToAim);
-	}
-	else
-	{
-		CurrentTimeAiming = FMath::Clamp(CurrentTimeAiming - DeltaTime, 0.f, TimeToAim);
-	}
-
-	const float TimeRatio = FMath::Clamp(CurrentTimeAiming / TimeToAim, 0.f, 1.f);
-	const float NewFov = FMath::Lerp(IdleFov, AimingFov, TimeRatio);
-	CameraComponent->FieldOfView = NewFov;
 }
 
 void ABaseCharacter::HandleRequestChangeThrowable(const AThrowableItem* NewThrowableClass, const int32 Quantity)

@@ -303,16 +303,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Sprint", meta=(ClampMin="0", UIMin="0", ForceUnits="cm/s"))
 	float SprintSpeed = 900.f;
-
-	UPROPERTY(EditAnywhere, Category="Aiming")
-	float AimingFov = 50.f;
-
-	UPROPERTY(EditAnywhere, Category="Aiming")
-	float TimeToAim = 1.f;
-
-	UPROPERTY(VisibleAnywhere, Category="Aiming")
-	float CurrentTimeAiming = 0.f;
-
+	
 	UPROPERTY(EditAnywhere, Category="Aiming")
 	float AimingLookUpRate = 50.f;
 
