@@ -640,12 +640,16 @@ ABaseWeapon* ABaseCharacter::GetCurrentWeapon() const
 
 float ABaseCharacter::GetLookUpRate() const
 {
-	return (IsAiming())? AimingLookUpRate : BaseLookUpRate;
+	const bool bAimAssistActive = (AimComponent != nullptr && AimComponent->IsAimAssistActive());
+	
+	return IsAiming() && bAimAssistActive ? AimAssistLookUpRate : IsAiming() ? AimingLookUpRate : BaseLookUpRate;
 }
 
 float ABaseCharacter::GetLookRightRate() const
 {
-	return (IsAiming())? AimingLookRightRate : BaseLookRightRate;
+	const bool bAimAssistActive = (AimComponent != nullptr && AimComponent->IsAimAssistActive());
+
+	return IsAiming() && bAimAssistActive ? AimAssistLookRightRate : IsAiming() ? AimingLookRightRate : BaseLookRightRate;
 }
 
 TSubclassOf<ABaseThrowable> ABaseCharacter::GetCurrentThrowable() const

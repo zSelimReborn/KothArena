@@ -87,9 +87,7 @@ protected:
 	void HandleRequestEndAiming();
 
 	void HandleRequestReload();
-
-	void UpdateAim(const float);
-
+	
 	void HandleRequestChangeThrowable(const AThrowableItem* NewThrowableClass, const int32 Quantity);
 
 	void HandleRequestAddThrowableQuantity(const int32 Quantity);
@@ -192,7 +190,7 @@ public:
 
 	void SetAimingState();
 	void UnsetAimingState();
-
+	
 	UFUNCTION(BlueprintPure)
 	ACameraActor* GetAimCamera() const;
 
@@ -309,6 +307,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Aiming")
 	float AimingLookRightRate = 50.f;
+
+	UPROPERTY(EditAnywhere, Category="Aiming")
+	float AimAssistLookUpRate = 25.f;
+
+	UPROPERTY(EditAnywhere, Category="Aiming")
+	float AimAssistLookRightRate = 25.f;
 
 	UPROPERTY(EditAnywhere, Category="Aiming")
 	float AimingWalkSpeed = 250.f;

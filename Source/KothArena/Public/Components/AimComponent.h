@@ -27,10 +27,14 @@ protected:
 	void SwitchToAim();
 	void SwitchToHipFire();
 
+	void UpdateAimAssist();
+
 	void StartCooldown();
 	
 	UFUNCTION()
 	void FinishCooldown();
+
+	bool ShouldActivateAimAssist(const AActor* Enemy, const FVector& CameraLocation, const FVector& CameraDirection) const;
 	
 public:	
 	// Called every frame
@@ -40,6 +44,7 @@ public:
 public:
 	void StartAiming();
 	void FinishAiming();
+	FORCEINLINE bool IsAimAssistActive() const { return bAimAssistActive; };
 	
 // Properties
 protected:
@@ -64,8 +69,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Camera|Aim")
 	float TimeToCooldown = 0.2f;
 
+	UPROPERTY(EditAnywhere, Category="Camera|Aim")
+	bool bAimAssistEnabled = true;
+
+	UPROPERTY(EditAnywhere, Category="Camera|Aim")
+	float AimAssistDistanceThreshold = 5000.f;
+
+	UPROPERTY(EditAnywhere, Category="Camera|Aim")
+	float AimAssistDotThreshold = 0.99f;
+	
 	UPROPERTY(VisibleAnywhere, Transient)
 	bool bCanAim = true;
+
+	UPROPERTY(VisibleAnywhere, Transient)
+	bool bAimAssistActive = false;
+
+	UPROPERTY(Transient)
+	TWeakObjectPtr<const AActor> AimAssistEnemy = nullptr;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<ABaseCharacter> BaseCharacterRef;
