@@ -34,6 +34,8 @@ public:
 	FOnProjectileHitDelegate& OnProjectileHit() { return ProjectileHitDelegate; }
 	void Fire(const FVector& Direction);
 
+	FORCEINLINE UCapsuleComponent* GetTriggerVolume() { return TriggerVolume; }
+
 // Components
 protected:
 	UPROPERTY(VisibleAnywhere, NoClear)

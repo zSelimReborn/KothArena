@@ -12,18 +12,15 @@ ABaseProjectile::ABaseProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	DefaultSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Default Scene Component"));
-	SetRootComponent(DefaultSceneComponent);
+	
+	TriggerVolume = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Trigger Volume"));
+	SetRootComponent(TriggerVolume);
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
-	MeshComponent->SetupAttachment(DefaultSceneComponent);
-
-	TriggerVolume = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Trigger Volume"));
-	TriggerVolume->SetupAttachment(DefaultSceneComponent);
-
+	MeshComponent->SetupAttachment(TriggerVolume);
+	
 	ParticleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle System Component"));
-	ParticleSystemComponent->SetupAttachment(DefaultSceneComponent);
+	ParticleSystemComponent->SetupAttachment(TriggerVolume);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
 }
@@ -35,6 +32,7 @@ void ABaseProjectile::BeginPlay()
 
 	if (HasAuthority())
 	{
+		ProjectileMovementComponent->SetUpdatedComponent(TriggerVolume);
 		TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ABaseProjectile::OnProjectileHit);
 	}
 }

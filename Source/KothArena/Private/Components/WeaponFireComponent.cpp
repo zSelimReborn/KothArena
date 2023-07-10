@@ -4,10 +4,10 @@
 #include "Components/WeaponFireComponent.h"
 
 #include "Characters/BaseCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Gameplay/Projectiles/BaseProjectile.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Utils/PlayerUtils.h"
 
 static TAutoConsoleVariable<bool> CVarDebugWeaponFire(
@@ -216,18 +216,25 @@ void UWeaponFireComponent::StartSpawnProjectile()
 {
 	if (ProjectileClass && WeaponRef)
 	{
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Owner = GetOwner();
+		const FTransform ProjectileTransform{FRotator::ZeroRotator, WeaponRef->GetMuzzleLocation() + ProjectileSpawningPointOffset};
 		
-		ABaseProjectile* NewProjectile = GetWorld()->SpawnActor<ABaseProjectile>(
-			ProjectileClass,
-			WeaponRef->GetMuzzleLocation() + ProjectileSpawningPointOffset,
-			FRotator::ZeroRotator,
-			SpawnParameters
+		ABaseProjectile* NewProjectile = Cast<ABaseProjectile>(
+			UGameplayStatics::BeginDeferredActorSpawnFromClass(
+				this,
+				ProjectileClass,
+				ProjectileTransform,
+				ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn,
+				GetOwner()
+			)
 		);
 
 		if (NewProjectile)
 		{
+			NewProjectile->GetTriggerVolume()->MoveIgnoreActors.Add(GetOwnerToIgnore());
+			NewProjectile->GetTriggerVolume()->MoveIgnoreActors.Add(WeaponRef);
+
+			UGameplayStatics::FinishSpawningActor(NewProjectile, ProjectileTransform);
+			
 			WeaponShotProjectileDelegate.Broadcast(NewProjectile);
 			NewProjectile->OnProjectileHit().AddDynamic(this, &UWeaponFireComponent::ProjectileHitSomething);
 			
