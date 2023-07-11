@@ -4,8 +4,11 @@
 
 ### Concept Art
 
+#### Main character
 ![MainCharacter Design.png](Concept/MainCharacter_Design.png)
 
+
+#### Zombies
 ![Zombie Design.png](Concept/Zombie_Design.png)
 
 ### Overview
