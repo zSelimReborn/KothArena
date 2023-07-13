@@ -104,28 +104,45 @@ void UWeaponFireComponent::StartSingleShot() const
 	{
 		return;
 	}
-	
-	FVector CenterLocation, CenterDirection;
-	if (ComputeScreenCenterAndDirection(CenterLocation, CenterDirection))
-	{
-		FHitResult WeaponMuzzleResult;
-		FVector EndShotTrace = CenterLocation + CenterDirection * GetWeaponRangeInMeters();
-		if (TraceFromWeaponMuzzle(EndShotTrace, WeaponMuzzleResult))
-		{
-			AActor* HitActor = WeaponMuzzleResult.GetActor();
-			const FVector HitLocation = WeaponMuzzleResult.Location;
-			const FName HitBoneName = WeaponMuzzleResult.BoneName;
-			EndShotTrace = HitLocation;
-			
-			WeaponHitDelegate.Broadcast(HitActor, HitLocation, HitBoneName);
-		}
 
-		if (CVarDebugWeaponFire->GetBool())
-		{
-			DrawDebugDirectionalArrow(GetWorld(), WeaponRef->GetMuzzleLocation(), EndShotTrace, 5.f, FColor::Red, false, 10.f);
-		}
+	AActor* HitActor = nullptr;
+	FVector HitLocation, ShotEndLocation;
+	FName HitBoneName;
+	FHitResult HitResult, WeaponShotResult;
+	bool bHitSomething = false;
 	
-		WeaponShotDelegate.Broadcast(WeaponMuzzleResult, EndShotTrace);
+	if (TraceUnderScreenCenter(HitResult, ShotEndLocation))
+	{
+		HitActor = HitResult.GetActor();
+		HitLocation = HitResult.Location;
+		HitBoneName = HitResult.BoneName;
+		ShotEndLocation = HitLocation;
+		bHitSomething = true;
+	}
+	
+	if (TraceFromWeaponMuzzle(ShotEndLocation, WeaponShotResult))
+	{
+		if (HitActor != WeaponShotResult.GetActor())
+		{
+			HitActor = WeaponShotResult.GetActor();
+			HitLocation = WeaponShotResult.Location;
+			HitBoneName = WeaponShotResult.BoneName;
+			ShotEndLocation = HitLocation;
+			HitResult = WeaponShotResult;
+			bHitSomething = true;
+		}
+	}
+
+	if (bHitSomething)
+	{
+		WeaponHitDelegate.Broadcast(HitActor, HitLocation, HitBoneName);
+	}
+
+	WeaponShotDelegate.Broadcast(HitResult, ShotEndLocation);
+
+	if (CVarDebugWeaponFire->GetBool())
+	{
+		DrawDebugDirectionalArrow(GetWorld(), WeaponRef->GetMuzzleLocation(), ShotEndLocation, 5.f, FColor::Red, false, 10.f);
 	}
 }
 
