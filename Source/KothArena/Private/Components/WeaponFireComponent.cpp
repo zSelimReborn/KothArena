@@ -258,7 +258,11 @@ void UWeaponFireComponent::StartSpawnProjectile()
 			FVector CenterLocation, CenterDirection;
 			if (ComputeScreenCenterAndDirection(CenterLocation, CenterDirection))
 			{
-				NewProjectile->Fire(CenterDirection);
+				const FVector CenterDestination = CenterLocation + CenterDirection * GetWeaponRangeInMeters();
+				FVector ToCenter = CenterDestination - ProjectileTransform.GetLocation();
+				ToCenter.Normalize();
+				
+				NewProjectile->Fire(ToCenter);
 			}
 		}
 	}
