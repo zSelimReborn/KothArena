@@ -44,7 +44,7 @@ Different kinds of agents (mesh) using different kinds of weapons.
 
 ### Shooting
 
-[Showcase video](https://youtu.be/oDkQOcMElqI)
+[Showcase video](https://youtu.be/O-YrZh5ycQ4)
 
 Guns implemented: 
 * Pistol (single-shot)
@@ -56,9 +56,11 @@ Guns implemented:
 I've implemented shooting by creating a component, UWeaponFireComponent, which can be easily configured by designers. 
 By configuring its properties you can create multiple kind of weapons without modifying any code.
 
+![WeaponFireComponent.png](Screenshots/WeaponFireComponent.png)
+
 ### Throwable
 
-[Showcase video](https://youtu.be/YF2Qy8baKjg)
+[Showcase video](https://youtu.be/8iAP2KqI-EE)
 
 Throwable objects implemented:
 * Grenades, which explodes after few seconds
@@ -68,9 +70,16 @@ Throwable objects implemented:
 I created a base throwable class with some helper functions such as "Stick" and "Explode". 
 The actual gameplay effects can be driven by designers using the Blueprint editor and some events I've exposed.
 
+To help the player to throw objects I've implemented a visible trajectory to show where the object will lands.
+
+Here's an example of how sticky bombs have been implemented. I launch an event when the bomb hit something and I call the **Stick** function exposed to blueprint from code.
+Simultaneously, when the bomb is spawned, I start a timer and when it reaches the end the bombs "**detonate**". I launch an event and I call the **Explode** function to deal damage to near actors. 
+
+![StickyBombExample.png](Screenshots/StickyBombExample.png)
+
 ### Aiming
 
-[Showcase video](https://youtu.be/mwVtD8l_KqA)
+[Showcase video](https://youtu.be/7kycP5l3eZE)
 
 In the first version I implemented aiming by simply increasing the FOV of the character camera but the result wasn't so satisfying so I decided to change it.
 
@@ -80,6 +89,8 @@ Using this method I can change camera properties simply using blueprint and not 
 
 I've also added other properties to give control to designers to change how much time is needed to aim and to return to hip fire. 
 You can also specify a curve to switch between aiming and hip fire more gently.
+
+![AimingConfiguration.png](Screenshots/AimingConfiguration.png)
 
 ### Aim assist
 
@@ -117,6 +128,7 @@ UI responds accordingly to player and camera movement by floating around the scr
 * Gun inventory
 * Ammo management
 * Multiple throwable objects
+* Predict trajectory for throwable objects
 * Pickable objects on overlap, such as ammo, regen
 * Pickable objects on interact, such as weapons and throwable objects
 * UI health, shield, weapons, throwable objects, ammo, hit marker and kill count
