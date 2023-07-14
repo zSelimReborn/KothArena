@@ -39,6 +39,9 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	FVector ComputeLaunchVelocity(const APlayerController*, const FVector& StartLocation) const;
+	FVector GetHandLocation() const;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -48,6 +51,7 @@ protected:
 	APlayerController* GetPlayerController();
 	
 	void UpdateCharge(const float DeltaTime);
+	void UpdateTrajectory();
 
 	ABaseThrowable* SpawnAndAttachThrowable() const;
 	
@@ -109,10 +113,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category="Throwable")
 	float CurrentSpeedAccumulator = 0.f;
 
-	UPROPERTY(VisibleAnywhere, Category="Throwable")
+	UPROPERTY(VisibleAnywhere, Category="Throwable", Replicated)
 	float CurrentMagnitude = MinThrowMagnitude;
 
-	UPROPERTY(VisibleAnywhere, Category="Throwable")
+	UPROPERTY(EditAnywhere, Category="Throwable")
+	float ZValueModifierPercentage = 1.3f;
+
+	UPROPERTY(EditAnywhere, Category="Throwable")
+	bool bShowTrajectory = true;
+
+	UPROPERTY(VisibleAnywhere, Category="Throwable", Replicated)
 	EThrowActionState ActionState = EThrowActionState::Idle;
 	
 	UPROPERTY()
