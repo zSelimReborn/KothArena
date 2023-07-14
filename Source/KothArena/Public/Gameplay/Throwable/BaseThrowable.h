@@ -124,6 +124,9 @@ protected:
 
 	UPROPERTY(Transient)
 	TWeakObjectPtr<AController> OwnerController;
+
+	UPROPERTY(Transient)
+	float CachedLifeSpan = InitialLifeSpan;
 	
 	FTimerHandle DetonateTimerHandle;
 };

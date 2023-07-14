@@ -36,6 +36,12 @@ void ABaseThrowable::BeginPlay()
 		TriggerVolume->IgnoreActorWhenMoving(GetOwner(), true);
 		TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ABaseThrowable::OnBeginOverlap);
 		ProjectileMovementComponent->OnProjectileBounce.AddDynamic(this, &ABaseThrowable::OnProjectileBounce);
+
+		CachedLifeSpan = InitialLifeSpan;
+		// A player can hold a throwable in the hand for a certain amount of time
+		// So this item should not disappear.
+		// LifeSpan will be restored after an element has been thrown (or detonates)
+		SetLifeSpan(0.f);
 	}
 
 	if (HasAuthority() && bShouldDetonate)
@@ -112,6 +118,7 @@ void ABaseThrowable::Launch(const FVector& Direction)
 
 	ProjectileMovementComponent->Activate();
 	ProjectileMovementComponent->Velocity = Direction;
+	SetLifeSpan(CachedLifeSpan);
 }
 
 void ABaseThrowable::Explode()
