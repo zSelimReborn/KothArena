@@ -45,10 +45,10 @@ protected:
 	AActor* GetOwnerToIgnore() const;
 	
 	bool ComputeScreenCenterAndDirection(OUT FVector& CenterLocation, OUT FVector& CenterDirection) const;
-	bool TraceUnderScreenCenter(OUT FHitResult& ShotResult, OUT FVector& TraceEndLocation) const;
+	bool TraceUnderScreenCenter(OUT FHitResult& ShotResult, OUT FVector& TraceEndLocation, bool bShouldUseRecoil) const;
 	bool TraceFromWeaponMuzzle(const FVector ShotEndLocation, OUT FHitResult& ShotResult) const;
 	
-	void StartSingleShot() const;
+	void StartSingleShot();
 	void StartAutomaticFire();
 	void StopAutomaticFire();
 	void StartBurstFire();
@@ -56,13 +56,19 @@ protected:
 	void StartSpawnProjectile();
 	
 	void HandleStartFire();
-	
 	void HandleStopFire();
+
+	void AddRecoil();
+	FVector ComputeDirectionUsingRecoil(const FVector& ShotDirection) const;
+	void UpdateRecoil(const float DeltaTime);
 
 // Callback
 protected:
 	UFUNCTION()
 	void ProjectileHitSomething(AActor* ProjectileInstigator, AActor* OtherActor, const FHitResult& Hit);
+
+	UFUNCTION()
+	void OnFinishBurstFire();
 	
 public:	
 	void StartFire();
@@ -80,6 +86,8 @@ public:
 
 	AController* FillControllerOwner();
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 // Properties
 protected:
 	UPROPERTY(Transient)
@@ -123,6 +131,22 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="Weapon Fire|Projectile")
 	FVector ProjectileSpawningPointOffset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Recoil")
+	bool bRecoilEnabled = false;
+
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Recoil")
+	float RecoilMaxAngle = 10.f;
+	
+	UPROPERTY(EditAnywhere, Category="Weapon Fire|Recoil")
+	float RecoilVelocity = 0.1f;
+	
+	UPROPERTY(VisibleAnywhere, Category="Weapon Fire|Recoil")
+	float RecoilCurrentAngle = 0.f;
+
+	// TODO: will use states from owner weapon
+	UPROPERTY(VisibleAnywhere, Category="Weapon Fire")
+	bool bIsShooting = false;
 	
 	FTimerHandle AutomaticFireTimerHandle;
 

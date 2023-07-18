@@ -124,6 +124,7 @@ UI responds accordingly to player and camera movement by floating around the scr
 * Player basic movement (move, look, jump, sprint)
 * Player health and shield
 * Shooting with various guns
+* Recoil for different guns
 * Aiming and aim assist
 * Gun inventory
 * Ammo management
@@ -138,11 +139,10 @@ UI responds accordingly to player and camera movement by floating around the scr
 
 ## Currently WiP
 
-* Recoil; spread the bullets by a given max angle.
+* Reticule for guns.
 
 ## Upcoming
 
-* Reticule for guns
 * AI for Zombies (melee)
 * AI for Agents (shooting)
 * New kind of traps

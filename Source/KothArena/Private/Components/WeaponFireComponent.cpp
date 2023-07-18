@@ -22,7 +22,7 @@ UWeaponFireComponent::UWeaponFireComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 }
 
@@ -50,11 +50,16 @@ bool UWeaponFireComponent::ComputeScreenCenterAndDirection(FVector& CenterLocati
 	return UPlayerUtils::ComputeScreenCenterAndDirection(PlayerControllerRef, CenterLocation, CenterDirection);
 }
 
-bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVector& TraceEndLocation) const
+bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVector& TraceEndLocation, bool bShouldUseRecoil) const
 {
 	FVector CenterLocation, CenterDirection;
 	if (ComputeScreenCenterAndDirection(CenterLocation, CenterDirection))
 	{
+		if (bRecoilEnabled && bShouldUseRecoil)
+		{
+			CenterDirection = ComputeDirectionUsingRecoil(CenterDirection);	
+		}
+		
 		FCollisionQueryParams ShotQueryParams{TEXT("StartSingleShot|Screen")};
 		const FVector StartShotTrace = CenterLocation;
 		const FVector EndShotTrace = CenterLocation + CenterDirection * GetWeaponRangeInMeters();
@@ -98,10 +103,11 @@ bool UWeaponFireComponent::TraceFromWeaponMuzzle(const FVector ShotEndLocation, 
 	return false;
 }
 
-void UWeaponFireComponent::StartSingleShot() const
+void UWeaponFireComponent::StartSingleShot()
 {
 	if (WeaponRef && !WeaponRef->CanShoot())
 	{
+		bIsShooting = false;
 		return;
 	}
 
@@ -110,8 +116,9 @@ void UWeaponFireComponent::StartSingleShot() const
 	FName HitBoneName;
 	FHitResult HitResult, WeaponShotResult;
 	bool bHitSomething = false;
-	
-	if (TraceUnderScreenCenter(HitResult, ShotEndLocation))
+
+	AddRecoil();
+	if (TraceUnderScreenCenter(HitResult, ShotEndLocation, true))
 	{
 		HitActor = HitResult.GetActor();
 		HitLocation = HitResult.Location;
@@ -148,6 +155,7 @@ void UWeaponFireComponent::StartSingleShot() const
 
 void UWeaponFireComponent::StartAutomaticFire()
 {
+	bIsShooting = true;
 	GetOwner()->GetWorldTimerManager().SetTimer(AutomaticFireTimerHandle, this, &UWeaponFireComponent::StartSingleShot, AutomaticFireRate, true, 0);
 }
 
@@ -158,7 +166,12 @@ void UWeaponFireComponent::StopAutomaticFire()
 
 void UWeaponFireComponent::StartBurstFire()
 {
-	// TODO Check if already shooting
+	if (bIsShooting)
+	{
+		return;
+	}
+
+	bIsShooting = true;
 	StartSingleShot();
 	float AccumulatedBurstTime = BurstFireRate;
 	for (int8 BurstBullet = 1; BurstBullet < BurstNumOfBullets; ++BurstBullet)
@@ -167,6 +180,9 @@ void UWeaponFireComponent::StartBurstFire()
 		GetOwner()->GetWorldTimerManager().SetTimer(BurstFireSingleBulletTimerHandle, this, &UWeaponFireComponent::StartSingleShot, AccumulatedBurstTime, false);
 		AccumulatedBurstTime += BurstFireRate;
 	}
+
+	FTimerHandle FinishBurstFireTimerHandle;
+	GetOwner()->GetWorldTimerManager().SetTimer(FinishBurstFireTimerHandle, this, &UWeaponFireComponent::OnFinishBurstFire, AccumulatedBurstTime, false);
 }
 
 void UWeaponFireComponent::StartConeSpreadShot()
@@ -178,7 +194,8 @@ void UWeaponFireComponent::StartConeSpreadShot()
 	
 	FHitResult ShotResult;
 	FVector EndShotTrace, MuzzleLocation = WeaponRef->GetMuzzleLocation();
-	TraceUnderScreenCenter(ShotResult, EndShotTrace);
+	AddRecoil();
+	TraceUnderScreenCenter(ShotResult, EndShotTrace, false);
 
 	FVector StraightShotLocation = (EndShotTrace - MuzzleLocation);
 	StraightShotLocation.Normalize();
@@ -188,7 +205,7 @@ void UWeaponFireComponent::StartConeSpreadShot()
 	for (int32 CurrentPellet = 0; CurrentPellet < NumOfPellets; ++CurrentPellet)
 	{
 		const float BulletSpreadOffset = BulletSpreadCurve.GetRichCurveConst()->Eval(FMath::RandRange(0.f, 1.f));
-		const float RandomAngle = BulletSpreadOffset * NoiseAngle;
+		const float RandomAngle = BulletSpreadOffset * (NoiseAngle + RecoilCurrentAngle);
 		const float PitchNoiseAngle = FMath::RandRange(-RandomAngle, RandomAngle);
 		const float YawNoiseAngle = FMath::RandRange(-RandomAngle, RandomAngle);
 		const FRotator Noise{PitchNoiseAngle, YawNoiseAngle, 0.f};
@@ -271,6 +288,7 @@ void UWeaponFireComponent::StartSpawnProjectile()
 void UWeaponFireComponent::HandleStartFire()
 {
 	FillControllerOwner();
+	
 	switch (WeaponFireType)
 	{
 	case EWeaponFireType::Burst:
@@ -286,8 +304,6 @@ void UWeaponFireComponent::HandleStartFire()
 		StartSpawnProjectile();
 		break;
 	case EWeaponFireType::Single:
-		StartSingleShot();
-		break;
 	default:
 		StartSingleShot();
 	}
@@ -299,12 +315,49 @@ void UWeaponFireComponent::HandleStopFire()
 	{
 		StopAutomaticFire();
 	}
+
+	// Burst gets handled by another timer. You cannot spam burst fire
+	if (WeaponFireType != EWeaponFireType::Burst)
+	{
+		bIsShooting = false;
+	}
+}
+
+void UWeaponFireComponent::AddRecoil()
+{
+	RecoilCurrentAngle = FMath::Clamp(RecoilCurrentAngle + RecoilVelocity, 0.f, RecoilMaxAngle);
+}
+
+FVector UWeaponFireComponent::ComputeDirectionUsingRecoil(const FVector& ShotDirection) const
+{
+	const FVector ShotDirectionNormalized = ShotDirection.GetSafeNormal();
+	FVector ShotAfterRecoil = ShotDirection;
+	
+	const float PitchNoise = FMath::RandRange(-RecoilCurrentAngle, RecoilCurrentAngle);
+	const float YawNoise = FMath::RandRange(-RecoilCurrentAngle, RecoilCurrentAngle);
+	const FRotator RecoilNoise{PitchNoise, YawNoise, 0.f};
+	ShotAfterRecoil = RecoilNoise.RotateVector(ShotDirectionNormalized);
+	
+	return ShotAfterRecoil;
+}
+
+void UWeaponFireComponent::UpdateRecoil(const float DeltaTime)
+{
+	if (!bIsShooting && bRecoilEnabled)
+	{
+		RecoilCurrentAngle = FMath::Clamp(RecoilCurrentAngle - DeltaTime, 0.f, RecoilMaxAngle);
+	}
 }
 
 void UWeaponFireComponent::ProjectileHitSomething(AActor* ProjectileInstigator, AActor* OtherActor, const FHitResult& Hit)
 {
 	const FVector HitLocation = (ProjectileInstigator)? ProjectileInstigator->GetActorLocation() : Hit.Location;
 	WeaponHitDelegate.Broadcast(OtherActor, HitLocation, Hit.BoneName);
+}
+
+void UWeaponFireComponent::OnFinishBurstFire()
+{
+	bIsShooting = false;
 }
 
 void UWeaponFireComponent::StartFire()
@@ -328,4 +381,11 @@ AController* UWeaponFireComponent::FillControllerOwner()
 	PlayerControllerRef = Cast<APlayerController>(ControllerRef);
 	AIControllerRef = Cast<AAIController>(ControllerRef);
 	return ControllerRef;
+}
+
+void UWeaponFireComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	UpdateRecoil(DeltaTime);
 }
