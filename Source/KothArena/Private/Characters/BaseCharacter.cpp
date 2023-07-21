@@ -416,19 +416,24 @@ void ABaseCharacter::RequestStopJumping()
 	StopJumping();
 }
 
-void ABaseCharacter::RequestWeaponPullTrigger() const
+void ABaseCharacter::RequestWeaponPullTrigger()
 {
 	if (WeaponInventoryComponent)
 	{
 		WeaponInventoryComponent->PullTrigger();
+		bUseControllerRotationYaw = true;
 	}
 }
 
-void ABaseCharacter::RequestWeaponReleaseTrigger() const
+void ABaseCharacter::RequestWeaponReleaseTrigger()
 {
 	if (WeaponInventoryComponent)
 	{
 		WeaponInventoryComponent->ReleaseTrigger();
+		if (!IsAiming())
+		{
+			bUseControllerRotationYaw = false;
+		}
 	}
 }
 

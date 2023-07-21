@@ -123,8 +123,8 @@ public:
 	void RequestToggleSprint();
 	void RequestJump();
 	void RequestStopJumping();
-	void RequestWeaponPullTrigger() const;
-	void RequestWeaponReleaseTrigger() const;
+	void RequestWeaponPullTrigger();
+	void RequestWeaponReleaseTrigger();
 	void RequestReloadCurrentWeapon();
 	void RequestChangeWeapon(const int32 WeaponIndex) const;
 	void RequestInteract();
