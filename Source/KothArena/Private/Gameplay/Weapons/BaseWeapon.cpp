@@ -287,6 +287,16 @@ AController* ABaseWeapon::GetControllerOwner()
 	return ControllerOwner;
 }
 
+float ABaseWeapon::GetRecoilCurrentAngle() const
+{
+	if (WeaponFireComponent)
+	{
+		return WeaponFireComponent->GetRecoilCurrentAngle();
+	}
+
+	return 0.f;
+}
+
 void ABaseWeapon::OnWeaponShot(const FHitResult& ShotResult, const FVector& EndShotLocation)
 {
 	HandleWeaponShot();

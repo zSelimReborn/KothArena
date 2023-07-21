@@ -152,6 +152,22 @@ void AShooterPlayerController::OnCharacterChangeThrowableQuantity(const int32 Ne
 	}
 }
 
+void AShooterPlayerController::OnCharacterEquipWeapon(ABaseWeapon* EquippedWeapon)
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnEquipWeapon(EquippedWeapon);
+	}
+}
+
+void AShooterPlayerController::OnCharacterChangeWeapon(ABaseWeapon* CurrentWeapon)
+{
+	if (PlayerHudRef)
+	{
+		PlayerHudRef->OnChangeWeapon(CurrentWeapon);
+	}
+}
+
 void AShooterPlayerController::InitializeMappingContext()
 {
 	UEnhancedInputLocalPlayerSubsystem* EnhancedInputLocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
@@ -171,6 +187,8 @@ void AShooterPlayerController::SetupCharacter(AActor* NewCharacter)
 		{
 			BaseCharacterRef->OnCharacterReady().AddDynamic(this, &AShooterPlayerController::OnCharacterReady);
 		}
+
+		ServerPrepareForBattle();
 	}
 }
 
@@ -197,6 +215,15 @@ void AShooterPlayerController::ClientOnCharacterKillSomeone_Implementation(const
 	if (PlayerHudRef)
 	{
 		PlayerHudRef->OnKillSomeone(KillCount);
+	}
+}
+
+void AShooterPlayerController::ServerPrepareForBattle_Implementation()
+{
+	BaseCharacterRef = Cast<ABaseCharacter>(GetCharacter());
+	if (BaseCharacterRef != nullptr)
+	{
+		BaseCharacterRef->PrepareForBattle();
 	}
 }
 
@@ -271,6 +298,14 @@ void AShooterPlayerController::InitializeHudDelegates()
 		if (!BaseCharacterRef->OnCharacterChangeThrowableQuantity().IsAlreadyBound(this, &AShooterPlayerController::OnCharacterChangeThrowableQuantity))
 		{
 			BaseCharacterRef->OnCharacterChangeThrowableQuantity().AddDynamic(this, &AShooterPlayerController::OnCharacterChangeThrowableQuantity);
+		}
+		if (!BaseCharacterRef->OnCharacterEquipWeapon().IsAlreadyBound(this, &AShooterPlayerController::OnCharacterEquipWeapon))
+		{
+			BaseCharacterRef->OnCharacterEquipWeapon().AddDynamic(this, &AShooterPlayerController::OnCharacterEquipWeapon);
+		}
+		if (!BaseCharacterRef->OnCharacterChangeWeapon().IsAlreadyBound(this, &AShooterPlayerController::OnCharacterChangeWeapon))
+		{
+			BaseCharacterRef->OnCharacterChangeWeapon().AddDynamic(this, &AShooterPlayerController::OnCharacterChangeWeapon);
 		}
 	}
 }

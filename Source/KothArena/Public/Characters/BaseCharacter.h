@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Gameplay/Items/AmmoItem.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
 #include "BaseCharacter.generated.h"
 
 class USpringArmComponent;
@@ -51,6 +52,18 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
 	FOnCharacterChangeThrowableQuantityDelegate,
 	const int32, NewQuantity
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnCharacterEquipWeaponDelegate,
+	ABaseWeapon*,
+	EquippedWeapon
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+	FOnCharacterChangeWeaponDelegate,
+	ABaseWeapon*,
+	EquippedWeapon
 );
 
 UCLASS()
@@ -121,6 +134,8 @@ public:
 	void RequestFinishThrowing();
 	void RequestAddThrowableQuantity(const int32 Quantity);
 
+	void PrepareForBattle();
+
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const;
 
@@ -162,6 +177,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	ABaseWeapon* GetCurrentWeapon() const;
+
+	UFUNCTION(BlueprintPure)
+	EWeaponType GetCurrentWeaponType() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetCurrentWeaponRecoilAngle() const;
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE ECharacterCombatState GetCharacterCombatState() const { return CombatState; };
@@ -207,6 +228,12 @@ protected:
 
 	UFUNCTION()
 	void OnChangeThrowableQuantity(const int32 NewQuantity);
+
+	UFUNCTION()
+	void OnEquipWeapon(ABaseWeapon* EquippedWeapon);
+
+	UFUNCTION()
+	void OnChangeWeapon(ABaseWeapon* NewWeapon);
 
 // Net functions
 public:
@@ -255,6 +282,8 @@ public:
 	FOnCharacterShieldBrokenDelegate& OnCharacterShieldBroken() { return CharacterShieldBrokenDelegate; }
 	FOnCharacterChangeThrowableDelegate& OnCharacterChangeThrowable() { return CharacterChangeThrowableDelegate; }
 	FOnCharacterChangeThrowableQuantityDelegate& OnCharacterChangeThrowableQuantity() { return CharacterChangeThrowableQuantityDelegate; }
+	FOnCharacterEquipWeaponDelegate& OnCharacterEquipWeapon() { return CharacterEquipWeaponDelegate; }
+	FOnCharacterChangeWeaponDelegate& OnCharacterChangeWeapon() { return CharacterChangeWeaponDelegate; }
 	
 // Components
 protected:
@@ -378,4 +407,10 @@ protected:
 
 	UPROPERTY()
 	FOnCharacterChangeThrowableQuantityDelegate CharacterChangeThrowableQuantityDelegate;
+
+	UPROPERTY()
+	FOnCharacterEquipWeaponDelegate CharacterEquipWeaponDelegate;
+
+	UPROPERTY()
+	FOnCharacterChangeWeaponDelegate CharacterChangeWeaponDelegate;
 };

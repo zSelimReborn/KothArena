@@ -15,6 +15,7 @@
 #include "Components/ShieldComponent.h"
 #include "Components/ThrowComponent.h"
 #include "Components/WeaponInventoryComponent.h"
+#include "Controllers/ShooterPlayerController.h"
 #include "Gameplay/Throwable/BaseThrowable.h"
 #include "Gameplay/Items/ThrowableItem.h"
 #include "Net/UnrealNetwork.h"
@@ -59,13 +60,11 @@ void ABaseCharacter::PostInitializeComponents()
 void ABaseCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	if (APlayerController* PlayerController = Cast<APlayerController>(NewController))
+	
+	if (AShooterPlayerController* ShooterPlayerController = Cast<AShooterPlayerController>(NewController))
 	{
-		PC = PlayerController;
+		PC = ShooterPlayerController;
 	}
-
-	RequestEquipDefaultWeapon();
 }
 
 void ABaseCharacter::InitializeCharacter()
@@ -77,13 +76,13 @@ void ABaseCharacter::InitializeCharacter()
 	ThrowComponent = FindComponentByClass<UThrowComponent>();
 	AimComponent = FindComponentByClass<UAimComponent>();
 
-	if (SearchItemComponent)
+	if (SearchItemComponent != nullptr)
 	{
 		SearchItemComponent->OnNewItemFound().AddDynamic(this, &ABaseCharacter::OnNewItemFound);
 		SearchItemComponent->OnItemLost().AddDynamic(this, &ABaseCharacter::OnItemLost);
 	}
 
-	if (ThrowComponent)
+	if (ThrowComponent != nullptr)
 	{
 		ThrowComponent->OnChangeThrowable().AddDynamic(this, &ABaseCharacter::OnChangeThrowable);
 		ThrowComponent->OnChangeQuantity().AddDynamic(this, &ABaseCharacter::OnChangeThrowableQuantity);
@@ -92,6 +91,12 @@ void ABaseCharacter::InitializeCharacter()
 	if (ChildAimCameraComponent->GetChildActor())
 	{
 		ChildAimCameraComponent->GetChildActor()->SetOwner(this);
+	}
+
+	if (WeaponInventoryComponent != nullptr)
+	{
+		WeaponInventoryComponent->OnEquipWeapon().AddDynamic(this, &ABaseCharacter::OnEquipWeapon);
+		WeaponInventoryComponent->OnChangeWeapon().AddDynamic(this, &ABaseCharacter::OnChangeWeapon);
 	}
 
 	WalkSpeed = (GetCharacterMovement())? GetCharacterMovement()->MaxWalkSpeed : WalkSpeed;
@@ -485,6 +490,11 @@ void ABaseCharacter::RequestAddThrowableQuantity(const int32 Quantity)
 	HandleRequestAddThrowableQuantity(Quantity);
 }
 
+void ABaseCharacter::PrepareForBattle()
+{
+	RequestEquipDefaultWeapon();
+}
+
 float ABaseCharacter::GetMaxHealth() const
 {
 	return HealthComponent->GetMaxHealth();
@@ -638,6 +648,28 @@ ABaseWeapon* ABaseCharacter::GetCurrentWeapon() const
 	return nullptr;
 }
 
+EWeaponType ABaseCharacter::GetCurrentWeaponType() const
+{
+	ABaseWeapon* CurrentWeapon = GetCurrentWeapon();
+	if (CurrentWeapon)
+	{
+		return CurrentWeapon->GetWeaponType();
+	}
+
+	return EWeaponType::Pistol;
+}
+
+float ABaseCharacter::GetCurrentWeaponRecoilAngle() const
+{
+	ABaseWeapon* CurrentWeapon = GetCurrentWeapon();
+	if (CurrentWeapon)
+	{
+		return CurrentWeapon->GetRecoilCurrentAngle();
+	}
+
+	return 0.f;
+}
+
 float ABaseCharacter::GetLookUpRate() const
 {
 	const bool bAimAssistActive = (AimComponent != nullptr && AimComponent->IsAimAssistActive());
@@ -747,6 +779,16 @@ void ABaseCharacter::OnChangeThrowable(TSubclassOf<ABaseThrowable> NewThrowableC
 void ABaseCharacter::OnChangeThrowableQuantity(const int32 NewQuantity)
 {
 	CharacterChangeThrowableQuantityDelegate.Broadcast(NewQuantity);
+}
+
+void ABaseCharacter::OnEquipWeapon(ABaseWeapon* EquippedWeapon)
+{
+	CharacterEquipWeaponDelegate.Broadcast(EquippedWeapon);
+}
+
+void ABaseCharacter::OnChangeWeapon(ABaseWeapon* NewWeapon)
+{
+	CharacterChangeWeaponDelegate.Broadcast(NewWeapon);
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -17,8 +17,8 @@ class USoundCue;
 class ABaseProjectile;
 class ABaseCharacter;
 
-UENUM()
-enum class EWeaponType
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
 {
 	Rifle		UMETA(DisplayName="Rifle"),
 	SMG			UMETA(DisplayName="SubMachine-Gun"),
@@ -134,6 +134,9 @@ public:
 	FORCEINLINE ABaseCharacter* GetCharacterOwner() const { return BaseCharacterRef; };
 
 	AController* GetControllerOwner();
+
+	UFUNCTION(BlueprintPure)
+	float GetRecoilCurrentAngle() const;
 
 // Callbacks
 protected:

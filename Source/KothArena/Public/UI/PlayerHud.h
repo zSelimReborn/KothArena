@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/WeaponFireComponent.h"
 #include "PlayerHud.generated.h"
+
+class ABaseWeapon;
 
 /**
  * 
@@ -56,4 +59,10 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnCameraMove(const float AxisXValue, const float AxisYValue);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEquipWeapon(const ABaseWeapon* EquippedWeapon);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnChangeWeapon(const ABaseWeapon* CurrentWeapon);
 };

@@ -14,6 +14,7 @@ class UPlayerHud;
 class AKothArenaGameModeBase;
 class UInputMappingContext;
 class ABaseThrowable;
+class ABaseWeapon;
 
 /**
  * 
@@ -48,6 +49,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	EAmmoType GetCurrentWeaponAmmoType() const;
 
+	void SetupCharacter(AActor* NewCharacter);
+
 // Callbacks
 protected:
 	UFUNCTION()
@@ -71,9 +74,14 @@ protected:
 	UFUNCTION()
 	void OnCharacterChangeThrowableQuantity(const int32 NewQuantity);
 
+	UFUNCTION()
+	void OnCharacterEquipWeapon(ABaseWeapon* EquippedWeapon);
+
+	UFUNCTION()
+	void OnCharacterChangeWeapon(ABaseWeapon* CurrentWeapon);
+
 protected:
 	void InitializeMappingContext();
-	void SetupCharacter(AActor* NewCharacter);
 	void InitializeHud();
 	void InitializeHudDelegates();
 	void FinalizeInitialize() const;
@@ -109,6 +117,9 @@ protected:
 
 	UFUNCTION(Client, Reliable)
 	void ClientOnCharacterKillSomeone(const int32 NewKillCount);
+
+	UFUNCTION(Server, Reliable)
+	void ServerPrepareForBattle();
 
 public:
 	void OnCharacterHitSomeone();

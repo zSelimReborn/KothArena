@@ -83,6 +83,7 @@ public:
 	
 	FORCEINLINE float GetWeaponRangeInMeters() const { return WeaponRange * 100.f; }
 	FORCEINLINE EWeaponFireType GetWeaponFireType() const { return WeaponFireType; }
+	FORCEINLINE float GetRecoilCurrentAngle() const { return RecoilCurrentAngle; }
 
 	AController* FillControllerOwner();
 

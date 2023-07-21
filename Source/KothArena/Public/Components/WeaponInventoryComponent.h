@@ -9,6 +9,9 @@
 class ABaseCharacter;
 class ABaseWeapon;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEquipWeaponDelegate, ABaseWeapon*, EquippedWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChangeWeaponDelegate, ABaseWeapon*, CurrentWeapon);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class KOTHARENA_API UWeaponInventoryComponent : public UActorComponent
 {
@@ -51,6 +54,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool ShouldSpawnDefaultWeaponOnBeginPlay() const { return bEquipDefaultWeaponOnBegin; }
 
+// Events
+public:
+	FOnEquipWeaponDelegate& OnEquipWeapon() { return EquipWeaponDelegate; }
+	FOnChangeWeaponDelegate& OnChangeWeapon() { return ChangeWeaponDelegate; }
+
 // Net functions
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -86,4 +94,12 @@ protected:
 
 	UPROPERTY(Transient, ReplicatedUsing=OnRep_DefaultWeaponRef)
 	TObjectPtr<ABaseWeapon> DefaultWeaponRef;
+
+// Delegates
+protected:
+	UPROPERTY()
+	FOnEquipWeaponDelegate EquipWeaponDelegate;
+
+	UPROPERTY()
+	FOnChangeWeaponDelegate ChangeWeaponDelegate;
 };

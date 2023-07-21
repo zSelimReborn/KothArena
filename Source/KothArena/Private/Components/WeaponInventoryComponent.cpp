@@ -21,8 +21,6 @@ UWeaponInventoryComponent::UWeaponInventoryComponent()
 void UWeaponInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//BaseCharacterRef = Cast<ABaseCharacter>(GetOwner());
 }
 
 // This one must be called on server
@@ -97,6 +95,8 @@ bool UWeaponInventoryComponent::EquipWeapon(ABaseWeapon* Weapon)
 		// TODO Manage weapon collision, visibility and so on using states
 		CurrentWeaponRef->OnEquip();
 		CurrentWeaponIndex = AddWeapon(Weapon);
+
+		EquipWeaponDelegate.Broadcast(CurrentWeaponRef);
 		return true;
 	}
 
@@ -111,6 +111,8 @@ bool UWeaponInventoryComponent::ChangeWeapon(const int32 WeaponIndex)
 		CurrentWeaponRef = WeaponInventory[WeaponIndex];
 		CurrentWeaponIndex = WeaponIndex;
 		CurrentWeaponRef->SetActorHiddenInGame(false);
+
+		ChangeWeaponDelegate.Broadcast(CurrentWeaponRef);
 	}
 
 	return false;
