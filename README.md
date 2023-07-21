@@ -139,7 +139,7 @@ UI responds accordingly to player and camera movement by floating around the scr
 
 ## Currently WiP
 
-* Reticule for guns.
+* Reticles for guns.
 
 ## Upcoming
 
