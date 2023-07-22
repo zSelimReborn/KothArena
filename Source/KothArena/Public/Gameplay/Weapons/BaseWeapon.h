@@ -138,6 +138,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetRecoilCurrentAngle() const;
 
+	UFUNCTION(BlueprintPure)
+	float GetShotgunMaxAngle() const;
+
 // Callbacks
 protected:
 	UFUNCTION()
