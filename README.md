@@ -115,6 +115,24 @@ Features working on multiplayer:
 
 UI responds accordingly to player and camera movement by floating around the screen, giving a feel of an alive interface (Ratchet and Clank: Rift Apart as inspiration).
 
+### Recoil
+
+[Showcase video](https://youtu.be/OYuq1V44fMU)
+
+For guns like pistols and rifles every shot add a bits of recoil which causes a small deviation for the shot from the middle of the screen.
+For shotguns recoil widens the angle which pellets will be spread.
+
+Here's some of the properties which can be tuned.
+
+* Recoil can be turned off/on
+* Recoil Max Angle: 
+  * Maximum angle within which shots can be deviated from the center of the screen
+  * Maximum angle added to shotgun noise angle which pellets will be spread.
+* Recoil Velocity: angle quantity added for each shot
+
+![RecoilConfiguration.png](Screenshots/RecoilConfiguration.png)
+
+
 ## Features improvement
 
 * Aim assist refinement; transitioning between aim assist active or not active using a curve to interpolate between rates of camera movement.
@@ -125,6 +143,7 @@ UI responds accordingly to player and camera movement by floating around the scr
 * Player health and shield
 * Shooting with various guns
 * Recoil for different guns
+* Different reticles for guns.
 * Aiming and aim assist
 * Gun inventory
 * Ammo management
@@ -139,11 +158,10 @@ UI responds accordingly to player and camera movement by floating around the scr
 
 ## Currently WiP
 
-* Reticles for guns.
+* AI for Zombies (melee)
 
 ## Upcoming
 
-* AI for Zombies (melee)
 * AI for Agents (shooting)
 * New kind of traps
 * Stands for directional sprints/jump
