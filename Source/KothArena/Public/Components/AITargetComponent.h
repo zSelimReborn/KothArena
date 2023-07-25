@@ -7,6 +7,7 @@
 #include "AITargetComponent.generated.h"
 
 class UBlackboardComponent;
+class ABaseCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class KOTHARENA_API UAITargetComponent : public UActorComponent
@@ -23,6 +24,8 @@ protected:
 
 	void SelectTarget(const float);
 	void PublishTargetInformation() const;
+
+	AActor* FindNearestTarget() const;
 	
 public:	
 	// Called every frame
@@ -37,8 +40,14 @@ protected:
 	TObjectPtr<APawn> PossessedPawn;
 
 	UPROPERTY(Transient)
+	TObjectPtr<ABaseCharacter> CharacterRef;
+
+	UPROPERTY(Transient)
 	TObjectPtr<UBlackboardComponent> BlackboardComponent;
 
+	UPROPERTY(EditAnywhere, Category="Target")
+	float DistanceToHitTarget = 100.f;
+	
 	UPROPERTY(EditAnywhere, Category="Target")
 	float TimeToUpdateTarget = 1.f;
 

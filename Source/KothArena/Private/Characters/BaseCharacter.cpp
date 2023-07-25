@@ -213,6 +213,16 @@ ACameraActor* ABaseCharacter::GetAimCamera() const
 	return Cast<ACameraActor>(ChildAimCameraComponent->GetChildActor());
 }
 
+AActor* ABaseCharacter::GetLastDamageCauser() const
+{
+	if (LastDamageCauserController == nullptr)
+	{
+		return nullptr;
+	}
+
+	return LastDamageCauserController->GetPawn();
+}
+
 void ABaseCharacter::RequestEquipWeapon(ABaseWeapon* NewWeapon)
 {
 	if (WeaponInventoryComponent)

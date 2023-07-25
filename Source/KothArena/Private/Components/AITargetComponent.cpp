@@ -4,6 +4,7 @@
 #include "Components/AITargetComponent.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/BaseCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
@@ -26,6 +27,7 @@ void UAITargetComponent::BeginPlay()
 	if (OwnerController)
 	{
 		PossessedPawn = OwnerController->GetPawn();
+		CharacterRef = Cast<ABaseCharacter>(PossessedPawn);
 		BlackboardComponent = OwnerController->FindComponentByClass<UBlackboardComponent>();
 	}
 }
@@ -37,7 +39,28 @@ void UAITargetComponent::SelectTarget(const float DeltaTime)
 	{
 		CurrentTimeUpdateTarget = 0.f;
 
-		SelectedTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+		AActor* CandidateTarget = FindNearestTarget();
+		if (CharacterRef != nullptr)
+		{
+			AActor* DamageCauserTarget = CharacterRef->GetLastDamageCauser();
+			if (CandidateTarget == nullptr)
+			{
+				CandidateTarget = DamageCauserTarget;
+			}
+			else if (DamageCauserTarget && CandidateTarget != DamageCauserTarget)
+			{
+				const float DistanceToNearestTarget = FVector::Dist(CandidateTarget->GetActorLocation(), PossessedPawn->GetActorLocation());
+				// Whomever causes me damage has priority on nearest target
+				// But only if I'm too far from him
+				// If nearest target it's near me enough that I can hit him, I will prefer him
+				if (DistanceToNearestTarget > DistanceToHitTarget)
+				{
+					CandidateTarget = DamageCauserTarget;
+				}
+			}
+		}
+		
+		SelectedTarget = CandidateTarget;
 	}
 }
 
@@ -53,6 +76,39 @@ void UAITargetComponent::PublishTargetInformation() const
 		BlackboardComponent->SetValueAsVector(TargetLocationBlackboardKey, TargetLocation);
 		BlackboardComponent->SetValueAsFloat(TargetDistanceBlackboardKey, DistanceToTarget);
 	}
+}
+
+AActor* UAITargetComponent::FindNearestTarget() const
+{
+	if (PossessedPawn == nullptr)
+	{
+		return nullptr;
+	}
+	
+	AActor* Target = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (Target == nullptr)
+	{
+		return nullptr;
+	}
+
+	float MinDistance = FVector::Dist(PossessedPawn->GetActorLocation(), Target->GetActorLocation());
+		
+	const int32 NumOfPlayers = UGameplayStatics::GetNumPlayerControllers(GetWorld());
+	for (int32 PlayerIndex = 1; PlayerIndex < NumOfPlayers; ++PlayerIndex)
+	{
+		AActor* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), PlayerIndex);
+		if (Player != nullptr)
+		{
+			const float DistanceToPlayer = FVector::Dist(PossessedPawn->GetActorLocation(), Player->GetActorLocation());
+			if (DistanceToPlayer < MinDistance)
+			{
+				MinDistance = DistanceToPlayer;
+				Target = Player;
+			}
+		}
+	}
+
+	return Target;
 }
 
 

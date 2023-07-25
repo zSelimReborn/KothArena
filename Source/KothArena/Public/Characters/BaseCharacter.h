@@ -215,6 +215,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	ACameraActor* GetAimCamera() const;
 
+	UFUNCTION(BlueprintPure)
+	AActor* GetLastDamageCauser() const;
+
 // Callbacks
 protected:
 	UFUNCTION()
