@@ -274,7 +274,11 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		return 0.f;
 	}
 
-	LastDamageCauserController = EventInstigator;
+	if (EventInstigator != nullptr)
+	{
+		LastDamageCauserController = EventInstigator;
+	}
+	
 	TakeDamageDelegate.Broadcast(GetController(), LastDamageCauserController);
 	const float ShieldAbsorbedDamage = AbsorbShieldDamage(DamageAmount);
 	const float RemainingDamage = (DamageAmount - ShieldAbsorbedDamage <= 0.f)? 0.f : DamageAmount - ShieldAbsorbedDamage;
