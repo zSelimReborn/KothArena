@@ -45,6 +45,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Trap")
 	bool bPushPlayerAfterDamage = true;
 
-	UPROPERTY(EditAnywhere, Category="Trap")
-	FVector PushForce = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, Category="Trap", meta=(ClampMin=0.f, ClampMax=1000.f))
+	float PushForce = 800.f;
+
+	UPROPERTY(EditAnywhere, Category="Trap", meta=(ClampMin=0.f, ClampMax=1.f))
+	float PushZValue = 0.2f;
 };

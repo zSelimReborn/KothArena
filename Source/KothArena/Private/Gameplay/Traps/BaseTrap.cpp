@@ -4,6 +4,7 @@
 #include "Gameplay/Traps/BaseTrap.h"
 
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -36,11 +37,14 @@ void ABaseTrap::PushActorAway(AActor* Actor)
 {
 	if (Actor)
 	{
+		const FVector ActorDirection = Actor->GetActorForwardVector();
+		const FVector ActorOppositeDirection = -ActorDirection;
+		const FVector ImpulseActor{ActorOppositeDirection.X, ActorOppositeDirection.Y, PushZValue};
+
 		ACharacter* Character = Cast<ACharacter>(Actor);
 		if (Character)
 		{
-			const FVector LaunchVector = PushForce;
-			Character->LaunchCharacter(LaunchVector, false, false);
+			Character->GetCharacterMovement()->AddImpulse(ImpulseActor * PushForce, true);
 		}
 	}
 }
