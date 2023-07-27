@@ -21,6 +21,7 @@ public:
 
 protected:
 	FHitResult PerformAttack(const AController* OwnerController, const APawn* ControlledPawn) const;
+	bool TargetIsVisible(const APawn* ControlledPawn, const AActor* Target) const;
 	static void RotateToTarget(APawn* ControlledPawn, const AActor* Target);
 
 	void ApplyDamage(AActor* HitActor, AController* Instigator, AActor* Causer) const;
@@ -34,6 +35,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Trace")
 	float SphereRadius = 25.f;
+
+	UPROPERTY(EditAnywhere, Category="Trace")
+	float VisibilityCapsuleRadius = 34.f;
+
+	UPROPERTY(EditAnywhere, Category="Trace")
+	float VisibilityCapsuleHalfHeight = 88.f;
 
 	UPROPERTY(EditAnywhere, Category="Attack|Damage")
 	float MinDamage = 10.f;

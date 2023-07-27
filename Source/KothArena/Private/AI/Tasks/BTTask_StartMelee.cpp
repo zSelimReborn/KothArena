@@ -34,6 +34,11 @@ EBTNodeResult::Type UBTTask_StartMelee::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	const AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKeyTargetActor));
 	RotateToTarget(ControlledPawn, Target);
+
+	if (!TargetIsVisible(ControlledPawn, Target))
+	{
+		return EBTNodeResult::Failed;
+	}
 	
 	const FHitResult AttackResult = PerformAttack(Controller, ControlledPawn);
 	if (AttackResult.bBlockingHit)
@@ -88,6 +93,43 @@ FHitResult UBTTask_StartMelee::PerformAttack(const AController* OwnerController,
 	);
 
 	return MeleeHit;
+}
+
+bool UBTTask_StartMelee::TargetIsVisible(const APawn* ControlledPawn, const AActor* Target) const
+{
+	if (ControlledPawn == nullptr || Target == nullptr)
+	{
+		return false;
+	}
+	
+	const FVector PawnLocation = ControlledPawn->GetActorLocation();
+	const FVector TargetLocation = Target->GetActorLocation();
+	
+	FCollisionShape Capsule = FCollisionShape::MakeCapsule(VisibilityCapsuleRadius, VisibilityCapsuleHalfHeight);
+
+	if (CVarDebugMeleeAttack->GetBool())
+	{
+		DrawDebugCapsule(GetWorld(), PawnLocation, VisibilityCapsuleHalfHeight, VisibilityCapsuleRadius, FRotator::ZeroRotator.Quaternion(), FColor::Blue, true);
+		DrawDebugCapsule(GetWorld(), TargetLocation, VisibilityCapsuleHalfHeight, VisibilityCapsuleRadius, FRotator::ZeroRotator.Quaternion(), FColor::Red, true);
+	}
+
+	FCollisionQueryParams QueryParams{TEXT("MeleeVisiblityCheck")};
+	QueryParams.AddIgnoredActor(ControlledPawn);
+	QueryParams.AddIgnoredActor(Target);
+	
+	FHitResult SomethingBlocking;
+	const bool bHit = GetWorld()->SweepSingleByChannel(
+		SomethingBlocking,
+		PawnLocation,
+		TargetLocation,
+		FRotator::ZeroRotator.Quaternion(),
+		ECC_Visibility,
+		Capsule,
+		QueryParams
+	);
+
+	// Since we're ignoring ControlledPawn and Target if bHit is true there's something blocking the view
+	return !bHit;
 }
 
 void UBTTask_StartMelee::RotateToTarget(APawn* ControlledPawn, const AActor* Target)
