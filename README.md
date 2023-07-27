@@ -117,7 +117,7 @@ UI responds accordingly to player and camera movement by floating around the scr
 
 ### Recoil
 
-[Showcase video](https://youtu.be/OYuq1V44fMU)
+[Showcase video](https://youtu.be/822yslMkYtc)
 
 For guns like pistols and rifles every shot add a bits of recoil which causes a small deviation for the shot from the middle of the screen.
 For shotguns recoil widens the angle which pellets will be spread.
