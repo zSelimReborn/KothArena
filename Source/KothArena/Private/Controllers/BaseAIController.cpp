@@ -22,8 +22,29 @@ void ABaseAIController::BeginPlay()
 void ABaseAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
-
+	
 	RunBehaviorTree(BTAsset);
+	SetupCharacter(InPawn);
+}
+
+void ABaseAIController::SetupCharacter(APawn* NewPawn)
+{
+	if (NewPawn == nullptr)
+	{
+		return;
+	}
+
+	BaseCharacterRef = Cast<ABaseCharacter>(NewPawn);
+	if (BaseCharacterRef == nullptr)
+	{
+		return;
+	}
+
+	OnCharacterReady(BaseCharacterRef);
+	if (!BaseCharacterRef->OnCharacterReady().IsAlreadyBound(this, &ABaseAIController::OnCharacterReady))
+	{
+		BaseCharacterRef->OnCharacterReady().AddDynamic(this, &ABaseAIController::OnCharacterReady);
+	}
 }
 
 void ABaseAIController::OnPerceptionSomething(AActor* Actor, FAIStimulus Stimulus)
@@ -36,4 +57,14 @@ void ABaseAIController::OnPerceptionSomething(AActor* Actor, FAIStimulus Stimulu
 			GetBlackboardComponent()->SetValueAsVector(TargetLocationKeyName, CharacterDetected->GetActorLocation());
 		}
 	}
+}
+
+void ABaseAIController::OnCharacterReady(ACharacter* NewCharacter)
+{
+	if (BaseCharacterRef == nullptr)
+	{
+		return;
+	}
+
+	BaseCharacterRef->PrepareForBattle();
 }

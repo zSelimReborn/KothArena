@@ -11,6 +11,7 @@ class UAIPerceptionComponent;
 class UBehaviorTree;
 class UFindPlayerComponent;
 class UAITargetComponent;
+class ABaseCharacter;
 
 /**
  * 
@@ -25,11 +26,15 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* InPawn) override;
+	void SetupCharacter(APawn* NewPawn);
 
 // Callbacks
 protected:
 	UFUNCTION()
 	void OnPerceptionSomething(AActor* Actor, FAIStimulus Stimulus);
+
+	UFUNCTION()
+	void OnCharacterReady(ACharacter* NewCharacter);
 	
 // Components
 protected:
@@ -49,4 +54,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="AI|Search Target")
 	FName TargetLocationKeyName = NAME_None;
+
+	UPROPERTY(Transient)
+	TObjectPtr<ABaseCharacter> BaseCharacterRef;
 };
