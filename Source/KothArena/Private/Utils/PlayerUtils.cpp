@@ -26,3 +26,16 @@ bool UPlayerUtils::ComputeScreenCenterAndDirection(const APlayerController* Play
 	return true;
 
 }
+
+void UPlayerUtils::RotateToTarget(AActor* ActorToRotate, const AActor* Target)
+{
+	if (ActorToRotate == nullptr || Target == nullptr)
+	{
+		return;
+	}
+
+	const FVector DirectionToTarget = Target->GetActorLocation() - ActorToRotate->GetActorLocation();
+	const FRotator RotationToTarget = DirectionToTarget.Rotation();
+
+	ActorToRotate->SetActorRotation(RotationToTarget);
+}

@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utils/PlayerUtils.h"
 
 static TAutoConsoleVariable<bool> CVarDebugMeleeAttack(
 	TEXT("KothArena.AI.DebugMeleeAttack"),
@@ -33,7 +34,7 @@ EBTNodeResult::Type UBTTask_StartMelee::ExecuteTask(UBehaviorTreeComponent& Owne
 	}
 
 	const AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKeyTargetActor));
-	RotateToTarget(ControlledPawn, Target);
+	UPlayerUtils::RotateToTarget(ControlledPawn, Target);
 
 	if (!TargetIsVisible(ControlledPawn, Target))
 	{
@@ -130,19 +131,6 @@ bool UBTTask_StartMelee::TargetIsVisible(const APawn* ControlledPawn, const AAct
 
 	// Since we're ignoring ControlledPawn and Target if bHit is true there's something blocking the view
 	return !bHit;
-}
-
-void UBTTask_StartMelee::RotateToTarget(APawn* ControlledPawn, const AActor* Target)
-{
-	if (ControlledPawn == nullptr || Target == nullptr)
-	{
-		return;
-	}
-
-	const FVector DirectionToTarget = Target->GetActorLocation() - ControlledPawn->GetActorLocation();
-	const FRotator RotationToTarget = DirectionToTarget.Rotation();
-
-	ControlledPawn->SetActorRotation(RotationToTarget);
 }
 
 void UBTTask_StartMelee::ApplyDamage(AActor* HitActor, AController* Instigator, AActor* Causer) const

@@ -162,6 +162,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool HasAmmoInventory() const;
+
+	UFUNCTION(BlueprintPure)
+	bool ShouldReload() const;
 	
 	UFUNCTION(BlueprintPure)
 	int32 GetCurrentWeaponAmmo() const;

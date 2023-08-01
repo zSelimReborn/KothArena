@@ -47,7 +47,20 @@ AActor* UWeaponFireComponent::GetOwnerToIgnore() const
 
 bool UWeaponFireComponent::ComputeScreenCenterAndDirection(FVector& CenterLocation, FVector& CenterDirection) const
 {
-	return UPlayerUtils::ComputeScreenCenterAndDirection(PlayerControllerRef, CenterLocation, CenterDirection);
+	if (PlayerControllerRef != nullptr)
+	{
+		return UPlayerUtils::ComputeScreenCenterAndDirection(PlayerControllerRef, CenterLocation, CenterDirection);
+	}
+	
+	if (AIControllerRef != nullptr)
+	{
+		FRotator CenterRotation;
+		AIControllerRef->GetActorEyesViewPoint(CenterLocation, CenterRotation);
+		CenterDirection = CenterRotation.Vector();
+		return true;
+	}
+
+	return false;
 }
 
 bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVector& TraceEndLocation, bool bShouldUseRecoil) const

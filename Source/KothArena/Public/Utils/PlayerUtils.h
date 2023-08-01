@@ -17,4 +17,7 @@ class KOTHARENA_API UPlayerUtils : public UBlueprintFunctionLibrary
 public:
 	UFUNCTION(BlueprintCallable)
 	static bool ComputeScreenCenterAndDirection(const APlayerController* Player, FVector& CenterLocation, FVector& CenterDirection);
+
+	UFUNCTION(BlueprintCallable)
+	static void RotateToTarget(AActor* ActorToRotate, const AActor* Target);
 };

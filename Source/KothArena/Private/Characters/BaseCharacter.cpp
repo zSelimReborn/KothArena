@@ -602,6 +602,11 @@ bool ABaseCharacter::HasAmmoInventory() const
 	return (AmmoInventoryComponent != nullptr);
 }
 
+bool ABaseCharacter::ShouldReload() const
+{
+	return GetCurrentWeaponAmmo() <= 0;
+}
+
 int32 ABaseCharacter::GetCurrentWeaponAmmo() const
 {
 	if (!WeaponInventoryComponent)

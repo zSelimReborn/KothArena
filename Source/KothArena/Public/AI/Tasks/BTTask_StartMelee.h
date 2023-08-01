@@ -22,7 +22,6 @@ public:
 protected:
 	FHitResult PerformAttack(const AController* OwnerController, const APawn* ControlledPawn) const;
 	bool TargetIsVisible(const APawn* ControlledPawn, const AActor* Target) const;
-	static void RotateToTarget(APawn* ControlledPawn, const AActor* Target);
 
 	void ApplyDamage(AActor* HitActor, AController* Instigator, AActor* Causer) const;
 	void PushActorAway(AActor* HitActor, const APawn* ControlledPawn) const;
