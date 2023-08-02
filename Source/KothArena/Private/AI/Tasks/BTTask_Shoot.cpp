@@ -33,7 +33,8 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	{
 		Character->RequestReloadCurrentWeapon();
 	}
-	
+
+	// TODO branch based on current weapon
 	Character->RequestWeaponPullTrigger();
 	Character->RequestWeaponReleaseTrigger();
 	
