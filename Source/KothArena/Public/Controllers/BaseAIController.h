@@ -20,8 +20,6 @@ UCLASS()
 class KOTHARENA_API ABaseAIController : public AAIController
 {
 	GENERATED_BODY()
-
-public:
 	
 protected:
 	virtual void BeginPlay() override;
@@ -35,6 +33,11 @@ protected:
 
 	UFUNCTION()
 	void OnCharacterReady(ACharacter* NewCharacter);
+
+// Public interface
+public:
+	UFUNCTION(BlueprintPure)
+	AActor* GetCurrentTarget() const;
 	
 // Components
 protected:

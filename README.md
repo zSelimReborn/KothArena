@@ -155,14 +155,15 @@ Here's some of the properties which can be tuned.
 * Random spawner which can generate stuff by configuring objects and probabilities
 * Traps to deal damage to players
 * Everything working on multiplayer and split-screen
+* AI for Zombies (melee)
+* AI for Agents (shooting)
 
 ## Currently WiP
-
-* AI for Zombies (melee)
+* Improve agents movement. Should not overlap with other agents.
 
 ## Upcoming
 
-* AI for Agents (shooting)
+* Ticket system avoiding everyone shoot the player.
 * New kind of traps
 * Stands for directional sprints/jump
 * Dash movement

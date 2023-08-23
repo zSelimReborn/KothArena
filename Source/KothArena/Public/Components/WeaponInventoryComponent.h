@@ -54,6 +54,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE bool ShouldSpawnDefaultWeaponOnBeginPlay() const { return bEquipDefaultWeaponOnBegin; }
 
+	void EmptyInventory();
+
 // Events
 public:
 	FOnEquipWeaponDelegate& OnEquipWeapon() { return EquipWeaponDelegate; }

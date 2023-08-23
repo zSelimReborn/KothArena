@@ -121,3 +121,8 @@ void UAITargetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	PublishTargetInformation();
 }
 
+AActor* UAITargetComponent::GetCurrentTarget() const
+{
+	return SelectedTarget.Get();
+}
+

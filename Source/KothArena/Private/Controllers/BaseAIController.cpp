@@ -68,3 +68,13 @@ void ABaseAIController::OnCharacterReady(ACharacter* NewCharacter)
 
 	BaseCharacterRef->PrepareForBattle();
 }
+
+AActor* ABaseAIController::GetCurrentTarget() const
+{
+	if (AITargetComponent == nullptr)
+	{
+		return nullptr;
+	}
+
+	return AITargetComponent->GetCurrentTarget();
+}

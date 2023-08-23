@@ -31,6 +31,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION(BlueprintPure)
+	AActor* GetCurrentTarget() const;
+
 // Properties
 protected:
 	UPROPERTY(Transient)

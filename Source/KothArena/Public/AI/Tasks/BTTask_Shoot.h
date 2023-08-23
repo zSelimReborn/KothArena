@@ -18,6 +18,12 @@ public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 protected:
+	void IncrementBulletShot(UBehaviorTreeComponent& OwnerComp) const;
+
+protected:
 	UPROPERTY(EditAnywhere, Category="Attack")
 	FName BlackboardKeyTargetActor = NAME_None;
+
+	UPROPERTY(EditAnywhere, Category="Attack")
+	FName BlackboardKeyNumOfBulletShot = NAME_None;
 };
