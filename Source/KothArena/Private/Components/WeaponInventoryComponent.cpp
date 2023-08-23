@@ -134,6 +134,16 @@ void UWeaponInventoryComponent::ReleaseTrigger()
 	}
 }
 
+void UWeaponInventoryComponent::EmptyInventory()
+{
+	for (ABaseWeapon* Weapon : WeaponInventory)
+	{
+		Weapon->Destroy();
+	}
+	
+	WeaponInventory.Empty();
+}
+
 void UWeaponInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

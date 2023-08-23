@@ -165,6 +165,12 @@ void ABaseCharacter::OnDeath()
 {
 	// If player restart level, destroy otherwise
 	CharacterDeathDelegate.Broadcast(this, LastDamageCauserController);
+
+	if (WeaponInventoryComponent)
+	{
+		WeaponInventoryComponent->EmptyInventory();
+	}
+	
 	if (PC)
 	{
 		PC->RestartLevel();
