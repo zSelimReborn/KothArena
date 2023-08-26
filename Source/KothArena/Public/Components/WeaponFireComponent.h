@@ -43,6 +43,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	AActor* GetOwnerToIgnore() const;
+	TArray<AActor*> GetOwnerTeamMembers() const;
 	
 	bool ComputeScreenCenterAndDirection(OUT FVector& CenterLocation, OUT FVector& CenterDirection) const;
 	bool TraceUnderScreenCenter(OUT FHitResult& ShotResult, OUT FVector& TraceEndLocation, bool bShouldUseRecoil) const;

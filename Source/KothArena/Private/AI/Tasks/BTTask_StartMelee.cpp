@@ -5,6 +5,7 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Characters/BaseCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -63,6 +64,8 @@ EBTNodeResult::Type UBTTask_StartMelee::ExecuteTask(UBehaviorTreeComponent& Owne
 
 FHitResult UBTTask_StartMelee::PerformAttack(const AController* OwnerController, const APawn* ControlledPawn) const
 {
+	ABaseCharacter* ControlledCharacter = Cast<ABaseCharacter>(OwnerController->GetCharacter());
+	
 	const FVector PawnLocation = ControlledPawn->GetActorLocation();
 	const FVector PawnDirection = ControlledPawn->GetActorForwardVector();
 	const FVector PawnRight = ControlledPawn->GetActorRightVector();
@@ -81,6 +84,11 @@ FHitResult UBTTask_StartMelee::PerformAttack(const AController* OwnerController,
 	FCollisionShape SphereTrace = FCollisionShape::MakeSphere(SphereRadius);
 	FCollisionQueryParams MeleeParams{TEXT("MeleeAttack")};
 	MeleeParams.AddIgnoredActor(ControlledPawn);
+	if (ControlledCharacter != nullptr)
+	{
+		MeleeParams.AddIgnoredActors(ControlledCharacter->GetTeamMembers());
+	}
+	
 	FHitResult MeleeHit;
 
 	GetWorld()->SweepSingleByChannel(

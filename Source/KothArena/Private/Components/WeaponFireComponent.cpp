@@ -37,12 +37,22 @@ void UWeaponFireComponent::BeginPlay()
 
 AActor* UWeaponFireComponent::GetOwnerToIgnore() const
 {
-	if (WeaponRef)
+	if (WeaponRef != nullptr)
 	{
 		return WeaponRef->GetCharacterOwner();
 	}
 
 	return nullptr;
+}
+
+TArray<AActor*> UWeaponFireComponent::GetOwnerTeamMembers() const
+{
+	if (WeaponRef != nullptr && WeaponRef->GetCharacterOwner() != nullptr)
+	{
+		return WeaponRef->GetCharacterOwner()->GetTeamMembers();
+	}
+
+	return TArray<AActor*>{};
 }
 
 bool UWeaponFireComponent::ComputeScreenCenterAndDirection(FVector& CenterLocation, FVector& CenterDirection) const
@@ -78,6 +88,8 @@ bool UWeaponFireComponent::TraceUnderScreenCenter(FHitResult& ShotResult, FVecto
 		const FVector EndShotTrace = CenterLocation + CenterDirection * GetWeaponRangeInMeters();
 
 		ShotQueryParams.AddIgnoredActor(GetOwnerToIgnore());
+		ShotQueryParams.AddIgnoredActors(GetOwnerTeamMembers());
+		
 		const bool bHit = GetWorld()->LineTraceSingleByChannel(
 			ShotResult,
 			StartShotTrace,
@@ -101,7 +113,10 @@ bool UWeaponFireComponent::TraceFromWeaponMuzzle(const FVector ShotEndLocation, 
 		const FVector WeaponToCenter = (ShotEndLocation - StartWeaponTrace);
 		const FVector EndWeaponTrace = StartWeaponTrace + WeaponToCenter * GetWeaponRangeInMeters();
 		FCollisionQueryParams WeaponQueryParams{TEXT("StartSingleShot|Weapon")};
+		
 		WeaponQueryParams.AddIgnoredActor(GetOwnerToIgnore());
+		WeaponQueryParams.AddIgnoredActors(GetOwnerTeamMembers());
+		
 		const bool bWeaponHit = GetWorld()->LineTraceSingleByChannel(
 			ShotResult,
 			StartWeaponTrace,
@@ -229,6 +244,7 @@ void UWeaponFireComponent::StartConeSpreadShot()
 
 		FCollisionQueryParams ShotgunQueryParams{TEXT("StartConeSpreadShot")};
 		ShotgunQueryParams.AddIgnoredActor(GetOwnerToIgnore());
+		ShotgunQueryParams.AddIgnoredActors(GetOwnerTeamMembers());
 		FHitResult PelletHitResult;
 		const bool bHitSomething = GetWorld()->LineTraceSingleByChannel(
 			PelletHitResult,

@@ -19,6 +19,7 @@
 #include "Gameplay/Throwable/BaseThrowable.h"
 #include "Gameplay/Items/ThrowableItem.h"
 #include "Net/UnrealNetwork.h"
+#include "Utils/PlayerUtils.h"
 
 // Sets default values
 ABaseCharacter::ABaseCharacter()
@@ -748,6 +749,28 @@ void ABaseCharacter::NotifyHealthRegen(const float Amount, const float NewHealth
 	RegenHealthDelegate.Broadcast(this, Amount, NewHealth);
 }
 
+void ABaseCharacter::SetTeamId(const int32 NewTeamId)
+{
+	if (HasAuthority())
+	{
+		TeamId = NewTeamId;
+	}
+}
+
+TArray<AActor*> ABaseCharacter::GetTeamMembers()
+{
+	FillTeamMembers();
+	return TeamMembers;
+}
+
+void ABaseCharacter::FillTeamMembers()
+{
+	if (TeamMembers.IsEmpty())
+	{
+		TeamMembers = UPlayerUtils::FindMembersOfTeam(GetWorld(), TeamId);
+	}
+}
+
 void ABaseCharacter::OnNewItemFound(const FHitResult& HitResult, AActor* ItemFound)
 {
 	// If there's a new item
@@ -827,6 +850,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 	DOREPLIFETIME(ABaseCharacter, bDefaultWeaponSpawned);
 	DOREPLIFETIME(ABaseCharacter, CombatState);
+	DOREPLIFETIME(ABaseCharacter, TeamId);
 }
 
 void ABaseCharacter::ServerRequestAddThrowableQuantity_Implementation(const int32 Quantity)

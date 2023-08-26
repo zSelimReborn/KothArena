@@ -221,6 +221,16 @@ public:
 	UFUNCTION(BlueprintPure)
 	AActor* GetLastDamageCauser() const;
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetTeamId() const { return TeamId; }
+
+	void SetTeamId(const int32);
+
+	UFUNCTION(BlueprintCallable)
+	TArray<AActor*> GetTeamMembers();
+	
+	void FillTeamMembers();
+
 // Callbacks
 protected:
 	UFUNCTION()
@@ -355,6 +365,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Throwable")
 	FName ThrowableSocketName = NAME_None;
 
+	UPROPERTY(EditAnywhere, Category="Team", Replicated)
+	int32 TeamId;
+
 	UPROPERTY(Transient)
 	float IdleFov = 90.f;
 	
@@ -381,6 +394,9 @@ protected:
 
 	UPROPERTY(Transient, Replicated)
 	ECharacterCombatState CombatState = ECharacterCombatState::Idle;
+
+	UPROPERTY()
+	TArray<AActor*> TeamMembers;
 
 // Events
 protected:

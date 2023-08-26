@@ -20,4 +20,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void RotateToTarget(AActor* ActorToRotate, const AActor* Target);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<AActor*> FindMembersOfTeam(const UObject* WorldContextObject, const int32 TeamId);
 };
