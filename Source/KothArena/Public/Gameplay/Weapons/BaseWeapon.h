@@ -113,6 +113,9 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
 
 	UFUNCTION(BlueprintPure)
+	EWeaponFireType GetWeaponFireType() const;
+
+	UFUNCTION(BlueprintPure)
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
 
 	UFUNCTION(BlueprintPure)

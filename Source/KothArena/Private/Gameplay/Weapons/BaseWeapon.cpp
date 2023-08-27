@@ -245,6 +245,16 @@ bool ABaseWeapon::CanShoot() const
 	return HasAmmo();
 }
 
+EWeaponFireType ABaseWeapon::GetWeaponFireType() const
+{
+	if (WeaponFireComponent != nullptr)
+	{
+		return WeaponFireComponent->GetWeaponFireType();
+	}
+
+	return EWeaponFireType::Single;
+}
+
 FVector ABaseWeapon::GetMuzzleLocation() const
 {
 	return WeaponSkeletalMeshComponent->GetSocketLocation(MuzzleSocketName);
