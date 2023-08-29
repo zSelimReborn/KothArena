@@ -14,6 +14,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/ShieldComponent.h"
 #include "Components/ThrowComponent.h"
+#include "Components/TicketComponent.h"
 #include "Components/WeaponInventoryComponent.h"
 #include "Controllers/ShooterPlayerController.h"
 #include "Gameplay/Throwable/BaseThrowable.h"
@@ -76,6 +77,7 @@ void ABaseCharacter::InitializeCharacter()
 	SearchItemComponent = FindComponentByClass<USearchItemComponent>();
 	ThrowComponent = FindComponentByClass<UThrowComponent>();
 	AimComponent = FindComponentByClass<UAimComponent>();
+	TicketComponent = FindComponentByClass<UTicketComponent>();
 
 	if (SearchItemComponent != nullptr)
 	{
@@ -768,6 +770,35 @@ void ABaseCharacter::FillTeamMembers()
 	if (TeamMembers.IsEmpty())
 	{
 		TeamMembers = UPlayerUtils::FindMembersOfTeam(GetWorld(), TeamId);
+	}
+}
+
+bool ABaseCharacter::ClaimTicket(const AController* Claimer)
+{
+	if (!HasAuthority())
+	{
+		return false;
+	}
+	
+	if (TicketComponent != nullptr)
+	{
+		return TicketComponent->ClaimTicket(Claimer);
+	}
+
+	return false;
+}
+
+void ABaseCharacter::ReleaseTicket(const AController* Claimer)
+{
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	//UE_LOG(LogTemp, Error, TEXT("ABaseCharacter::ReleaseTargetTicket"));
+	if (TicketComponent != nullptr)
+	{
+		TicketComponent->ReleaseTicket(Claimer);
 	}
 }
 

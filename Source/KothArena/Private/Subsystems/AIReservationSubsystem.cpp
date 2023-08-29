@@ -34,12 +34,10 @@ bool UAIReservationSubsystem::ReserveSpot(const AActor* ActorQuerier, const FVec
 		Reservations.Add(ActorQuerier, SpotLocation);
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("Actor %s - Reserved: %s"), *ActorQuerier->GetActorLabel(), *SpotLocation.ToString());
 	return true;
 }
 
 void UAIReservationSubsystem::ReleaseSpot(const AActor* ActorQuerier)
 {
-	UE_LOG(LogTemp, Error, TEXT("Actor %s - Released."), *ActorQuerier->GetActorLabel());
 	Reservations.Remove(ActorQuerier);
 }

@@ -9,6 +9,8 @@
 class UBlackboardComponent;
 class ABaseCharacter;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChangeTargetDelegate, AActor*, OldTarget, AActor*, NewTarget);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class KOTHARENA_API UAITargetComponent : public UActorComponent
 {
@@ -33,6 +35,14 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	AActor* GetCurrentTarget() const;
+
+// Events
+public:
+	FOnChangeTargetDelegate& OnChangeTarget() { return OnChangeTargetDelegate; }
+	
+// Delegates
+protected:
+	FOnChangeTargetDelegate OnChangeTargetDelegate;
 
 // Properties
 protected:

@@ -13,9 +13,14 @@ void ABaseAIController::BeginPlay()
 	Super::BeginPlay();
 	AiPerceptionComponent = FindComponentByClass<UAIPerceptionComponent>();
 	AITargetComponent = FindComponentByClass<UAITargetComponent>();
-	if (AiPerceptionComponent)
+	if (AiPerceptionComponent != nullptr)
 	{
 		AiPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ABaseAIController::OnPerceptionSomething);
+	}
+
+	if (AITargetComponent != nullptr)
+	{
+		AITargetComponent->OnChangeTarget().AddDynamic(this, &ABaseAIController::OnChangeTarget);
 	}
 }
 
@@ -45,6 +50,24 @@ void ABaseAIController::SetupCharacter(APawn* NewPawn)
 	{
 		BaseCharacterRef->OnCharacterReady().AddDynamic(this, &ABaseAIController::OnCharacterReady);
 	}
+
+	BaseCharacterRef->OnCharacterDeath().AddDynamic(this, &ABaseAIController::OnCharacterDeath);
+}
+
+void ABaseAIController::ReleaseTargetTicket(AActor* Target)
+{
+	if (Target == nullptr)
+	{
+		return;
+	}
+
+	//UE_LOG(LogTemp, Error, TEXT("ABaseAIController::ReleaseTargetTicket: %s"), *Target->GetActorLabel());
+	ABaseCharacter* CharacterTarget = Cast<ABaseCharacter>(Target);
+	if (CharacterTarget != nullptr)
+	{
+		CharacterTarget->ReleaseTicket(this);
+		GetBlackboardComponent()->SetValueAsBool(HasTicketKeyName, false);
+	}
 }
 
 void ABaseAIController::OnPerceptionSomething(AActor* Actor, FAIStimulus Stimulus)
@@ -67,6 +90,16 @@ void ABaseAIController::OnCharacterReady(ACharacter* NewCharacter)
 	}
 
 	BaseCharacterRef->PrepareForBattle();
+}
+
+void ABaseAIController::OnCharacterDeath(ACharacter* DeadCharacter, AController* KillerController)
+{
+	ReleaseTargetTicket(GetCurrentTarget());
+}
+
+void ABaseAIController::OnChangeTarget(AActor* OldTarget, AActor* NewTarget)
+{
+	ReleaseTargetTicket(OldTarget);
 }
 
 AActor* ABaseAIController::GetCurrentTarget() const

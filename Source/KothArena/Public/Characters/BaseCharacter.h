@@ -23,6 +23,7 @@ class ABaseThrowable;
 class UAimComponent;
 class UChildActorComponent;
 class ACameraActor;
+class UTicketComponent;
 
 UENUM(BlueprintType)
 enum class ECharacterCombatState : uint8
@@ -231,6 +232,12 @@ public:
 	
 	void FillTeamMembers();
 
+	UFUNCTION(BlueprintCallable)
+	bool ClaimTicket(const AController* Claimer);
+
+	UFUNCTION(BlueprintCallable)
+	void ReleaseTicket(const AController* Claimer);
+
 // Callbacks
 protected:
 	UFUNCTION()
@@ -335,6 +342,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAimComponent> AimComponent;
+
+	UPROPERTY()
+	TObjectPtr<UTicketComponent> TicketComponent;
 	
 // Properties
 protected:

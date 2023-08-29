@@ -157,14 +157,18 @@ Here's some of the properties which can be tuned.
 * Everything working on multiplayer and split-screen
 * AI for Zombies (melee)
 * AI for Agents (shooting)
+* Improve AI for Agents. Now agents can shoot using different kind of guns.
+* Improve agents movement. Should not overlap with other agents.
+* Friendly-fire turned off.
+* Ticket system to avoid player overwhelming by everyone shooting at the same time.
 
 ## Currently WiP
-* Improve agents movement. Should not overlap with other agents.
+
+* New kind of traps
+
 
 ## Upcoming
 
-* Ticket system avoiding everyone shoot the player.
-* New kind of traps
 * Stands for directional sprints/jump
 * Dash movement
 * Damage direction indicator UI

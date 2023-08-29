@@ -26,6 +26,8 @@ protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	void SetupCharacter(APawn* NewPawn);
 
+	void ReleaseTargetTicket(AActor* Target);
+
 // Callbacks
 protected:
 	UFUNCTION()
@@ -33,6 +35,12 @@ protected:
 
 	UFUNCTION()
 	void OnCharacterReady(ACharacter* NewCharacter);
+
+	UFUNCTION()
+	void OnCharacterDeath(ACharacter* DeadCharacter, AController* KillerController);
+
+	UFUNCTION()
+	void OnChangeTarget(AActor* OldTarget, AActor* NewTarget);
 
 // Public interface
 public:
@@ -57,6 +65,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category="AI|Search Target")
 	FName TargetLocationKeyName = NAME_None;
+
+	UPROPERTY(EditAnywhere, Category="AI|Target Ticket")
+	FName HasTicketKeyName = NAME_None;
 
 	UPROPERTY(Transient)
 	TObjectPtr<ABaseCharacter> BaseCharacterRef;

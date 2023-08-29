@@ -59,8 +59,17 @@ void UAITargetComponent::SelectTarget(const float DeltaTime)
 				}
 			}
 		}
-		
-		SelectedTarget = CandidateTarget;
+
+		if (CandidateTarget != SelectedTarget)
+		{
+			OnChangeTargetDelegate.Broadcast(SelectedTarget.Get(), CandidateTarget);
+			
+			const FString OldTargetName = (SelectedTarget.IsValid())? SelectedTarget->GetActorLabel() : TEXT("None");
+			const FString NewTargetName = (CandidateTarget != nullptr)? CandidateTarget->GetActorLabel() : TEXT("None");
+			//UE_LOG(LogTemp, Error, TEXT("Change Target: %s | %s"), *OldTargetName, *NewTargetName);
+			
+			SelectedTarget = CandidateTarget;
+		}
 	}
 }
 
