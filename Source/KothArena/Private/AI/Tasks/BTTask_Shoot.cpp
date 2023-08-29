@@ -28,8 +28,6 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	{
 		return EBTNodeResult::Failed;
 	}
-
-	CharacterRef = Character;
 	
 	const AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKeyTargetActor));
 	if (Target == nullptr)
@@ -89,9 +87,14 @@ void UBTTask_Shoot::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemor
 
 	// Reached when hold time finished
 	// Release trigger and set how many bullets have been shot
-	if (CharacterRef != nullptr)
+	const AAIController* OwnerController = OwnerComp.GetAIOwner();
+	if (OwnerController != nullptr)
 	{
-		CharacterRef->RequestWeaponReleaseTrigger();
+		ABaseCharacter* Character = Cast<ABaseCharacter>(OwnerController->GetCharacter());
+		if (Character != nullptr)
+		{
+			Character->RequestWeaponReleaseTrigger();
+		}
 	}
 
 	SetBulletShot(OwnerComp, AutomaticBulletShot);

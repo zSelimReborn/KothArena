@@ -46,10 +46,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Attack|Automatic Fire")
 	float AutomaticFireRandomDeviation = 0.2f;
-
-	UPROPERTY(Transient)
-	TObjectPtr<ABaseCharacter> CharacterRef;
-
+	
 	UPROPERTY(Transient)
 	int32 AutomaticBulletShot = 0;
 };
