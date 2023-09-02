@@ -11,9 +11,26 @@
 #### Zombies
 ![Zombie Design.png](Concept/Zombie_Design.png)
 
+#### Guns
+![Guns_Design.png](Concept/Gun_Design.png)
+
 ### Overview
 Koth Arena is a single and multiplayer shooter that takes inspiration from various
 games like Unreal Tournament, Ratchet And Clank and Call of Duty. Players can compete in various modes, both single player and multiplayer.
+
+### Gameplay in action
+
+Goal of the video: showing main features of the game such as: 
+* Shooting
+* Aiming
+* Recoil
+* Traps
+* AI implementation. 
+  * Agents prefer spots in front of the player slightly left or right. Reservation system active
+  * Agents avoid traps. Zombies don't care
+  * Player can release max 2 tickets to agents
+
+[Showcase video](https://youtu.be/zjoj5J6dSpw)
 
 
 ### Game Modes
@@ -132,6 +149,30 @@ Here's some of the properties which can be tuned.
 
 ![RecoilConfiguration.png](Screenshots/RecoilConfiguration.png)
 
+### AI Spot Reservation
+
+For my agents I chose to use EQS provided by Unreal Engine. 
+Using this system I'm picking spots around the target which pass some conditions.
+
+The problem with this approach is that every agent was choosing the same spot. To avoid this problem I created a custom reservation system.
+Basically I created a custom EnvQueryTest for the EQS where I'm checking if a spot is already reserved for another agent. 
+If it's reserved I cannot use that spot. If it's not reserved, that spot could be a potential spot. 
+When all the tests end and the current agent choose the spot with the best score, I reserve it so no other agents can choose it.
+
+I have a Reservation Subsystem tracking all reservations, a custom EnvQueryTest to check reserved spots and a custom BTTask to reserve a spot.
+
+### AI Ticketing System
+
+AI agents are different from AI Zombies. Agents can shoot the target (players) and during a single round we can have a lot of agents placed around the map.
+This ticketing system has been implemented to avoid agents shooting the target at the same time. 
+Basically with this approach only a few agents can shoot the same target at the same time. 
+Every player has a number of tickets which can be claimed (or released) by agents. When an agent wants to shoot he must claim a ticket before shooting.
+If there's no ticket left he cannot shoot. After some conditions (such as: change of the spot or too much bullets shot) the agent will release the ticket. 
+
+
+Some refinements: 
+* Agents will release a ticket when they die (if they had one)
+* Agents will release a ticket when they change target (if they had one claimed for the previous one)
 
 ## Features improvement
 
@@ -183,7 +224,7 @@ Here's some of the properties which can be tuned.
 ## Credits
 
 * Main Character concept by [Maria](https://www.artstation.com/theajack)
-* Zombie concept by [Thomas](https://www.artstation.com/tall_as_a_king)
+* Zombie and guns concept by [Thomas](https://www.artstation.com/tall_as_a_king)
 * Gun mesh from [Paragon Lt. Belica](https://www.unrealengine.com/marketplace/en-US/product/paragon-lt-belica) 
 * UI icons
   * Bomb icon by [vectorsmarket15](https://www.flaticon.com/free-icons/bomb) - Flaticon
