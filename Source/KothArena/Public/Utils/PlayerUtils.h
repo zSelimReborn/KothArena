@@ -19,7 +19,7 @@ public:
 	static bool ComputeScreenCenterAndDirection(const APlayerController* Player, FVector& CenterLocation, FVector& CenterDirection);
 
 	UFUNCTION(BlueprintCallable)
-	static void RotateToTarget(AActor* ActorToRotate, const AActor* Target);
+	static void RotateToTarget(AActor* ActorToRotate, const AActor* Target, const bool bIgnorePitch);
 
 	UFUNCTION(BlueprintCallable)
 	static TArray<AActor*> FindMembersOfTeam(const UObject* WorldContextObject, const int32 TeamId);

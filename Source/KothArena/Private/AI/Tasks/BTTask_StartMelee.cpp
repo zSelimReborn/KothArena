@@ -35,7 +35,7 @@ EBTNodeResult::Type UBTTask_StartMelee::ExecuteTask(UBehaviorTreeComponent& Owne
 	}
 
 	const AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKeyTargetActor));
-	UPlayerUtils::RotateToTarget(ControlledPawn, Target);
+	UPlayerUtils::RotateToTarget(ControlledPawn, Target, true);
 
 	if (!TargetIsVisible(ControlledPawn, Target))
 	{

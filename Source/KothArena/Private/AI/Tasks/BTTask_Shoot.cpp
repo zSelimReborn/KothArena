@@ -17,7 +17,7 @@ UBTTask_Shoot::UBTTask_Shoot(const FObjectInitializer& ObjectInitializer) : Supe
 
 EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	const AAIController* OwnerController = OwnerComp.GetAIOwner();
+	AAIController* OwnerController = OwnerComp.GetAIOwner();
 	if (OwnerController == nullptr)
 	{
 		return EBTNodeResult::Failed;
@@ -29,7 +29,7 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		return EBTNodeResult::Failed;
 	}
 	
-	const AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKeyTargetActor));
+	AActor* Target = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(BlackboardKeyTargetActor));
 	if (Target == nullptr)
 	{
 		return EBTNodeResult::Failed;
@@ -40,8 +40,9 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	{
 		return EBTNodeResult::Failed;
 	}
-	
-	UPlayerUtils::RotateToTarget(Character, Target);
+
+	OwnerController->SetFocus(Target);
+	UPlayerUtils::RotateToTarget(Character, Target, true);
 
 	if (Character->ShouldReload())
 	{

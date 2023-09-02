@@ -30,7 +30,7 @@ bool UPlayerUtils::ComputeScreenCenterAndDirection(const APlayerController* Play
 
 }
 
-void UPlayerUtils::RotateToTarget(AActor* ActorToRotate, const AActor* Target)
+void UPlayerUtils::RotateToTarget(AActor* ActorToRotate, const AActor* Target, const bool bIgnorePitch)
 {
 	if (ActorToRotate == nullptr || Target == nullptr)
 	{
@@ -38,7 +38,11 @@ void UPlayerUtils::RotateToTarget(AActor* ActorToRotate, const AActor* Target)
 	}
 
 	const FVector DirectionToTarget = Target->GetActorLocation() - ActorToRotate->GetActorLocation();
-	const FRotator RotationToTarget = DirectionToTarget.Rotation();
+	FRotator RotationToTarget = DirectionToTarget.Rotation();
+	if (bIgnorePitch)
+	{
+		RotationToTarget.Pitch = 0.f;
+	}
 
 	ActorToRotate->SetActorRotation(RotationToTarget);
 }
