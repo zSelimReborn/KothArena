@@ -36,6 +36,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	AActor* GetCurrentTarget() const;
 
+	FORCEINLINE void SetBlackboardComponent(UBlackboardComponent* Component) { BlackboardComponent = Component; }
+
 // Events
 public:
 	FOnChangeTargetDelegate& OnChangeTarget() { return OnChangeTargetDelegate; }

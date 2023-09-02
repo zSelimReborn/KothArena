@@ -33,6 +33,9 @@ protected:
 
 public:
 	void RegisterController(AController* NewController);
+
+	UFUNCTION(BlueprintCallable)
+	void StartAI();
 	
 // Properties
 protected:

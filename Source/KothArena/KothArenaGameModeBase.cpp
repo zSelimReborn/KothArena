@@ -4,6 +4,7 @@
 #include "KothArenaGameModeBase.h"
 
 #include "Characters/BaseCharacter.h"
+#include "Controllers/BaseAIController.h"
 #include "Controllers/ShooterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -87,5 +88,20 @@ void AKothArenaGameModeBase::RegisterController(AController* NewController)
 		}
 		
 		KillCounterMapping.Add(NewController, 0);
+	}
+}
+
+void AKothArenaGameModeBase::StartAI()
+{
+	TArray<AActor*> AIControllers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseAIController::StaticClass(), AIControllers);
+
+	for (AActor* Item : AIControllers)
+	{
+		ABaseAIController* AIController = Cast<ABaseAIController>(Item);
+		if (AIController != nullptr)
+		{
+			AIController->StartBehaviour();
+		}
 	}
 }

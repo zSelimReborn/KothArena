@@ -46,6 +46,9 @@ protected:
 public:
 	UFUNCTION(BlueprintPure)
 	AActor* GetCurrentTarget() const;
+
+	UFUNCTION(BlueprintCallable)
+	void StartBehaviour();
 	
 // Components
 protected:

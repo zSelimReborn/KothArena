@@ -28,7 +28,11 @@ void ABaseAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 	
-	RunBehaviorTree(BTAsset);
+	if (bStartAILogicOnPossess)
+	{
+		StartBehaviour();
+	}
+	
 	SetupCharacter(InPawn);
 }
 
@@ -110,4 +114,13 @@ AActor* ABaseAIController::GetCurrentTarget() const
 	}
 
 	return AITargetComponent->GetCurrentTarget();
+}
+
+void ABaseAIController::StartBehaviour()
+{
+	RunBehaviorTree(BTAsset);
+	if (AITargetComponent != nullptr)
+	{
+		AITargetComponent->SetBlackboardComponent(Blackboard);
+	}
 }
