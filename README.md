@@ -2,6 +2,22 @@
 
 ## The project
 
+### Gameplay in action
+
+Goal of the video: show main features of the game.
+
+* Shooting
+* Aiming
+* Recoil
+* Traps
+* AI implementation
+  * Agents prefer spots in front of the player slightly left or right. Reservation system active;
+  * Agents avoid traps. Zombies don't care;
+  * Zombies are using RVOAvoidance from CharacterComponent. Used to avoid zombies stepping into each others while chasing a target;
+  * Player can release max 2 tickets to agents;
+
+[Showcase video](https://youtu.be/7QGWcPaV2oI)
+
 ### Concept Art
 
 #### Main character
@@ -17,21 +33,6 @@
 ### Overview
 Koth Arena is a single and multiplayer shooter that takes inspiration from various
 games like Unreal Tournament, Ratchet And Clank and Call of Duty. Players can compete in various modes, both single player and multiplayer.
-
-### Gameplay in action
-
-Goal of the video: showing main features of the game such as: 
-* Shooting
-* Aiming
-* Recoil
-* Traps
-* AI implementation. 
-  * Agents prefer spots in front of the player slightly left or right. Reservation system active
-  * Agents avoid traps. Zombies don't care
-  * Player can release max 2 tickets to agents
-
-[Showcase video](https://youtu.be/zjoj5J6dSpw)
-
 
 ### Game Modes
 
@@ -177,6 +178,7 @@ Some refinements:
 ## Features improvement
 
 * Aim assist refinement; transitioning between aim assist active or not active using a curve to interpolate between rates of camera movement.
+* AI Agents improvement; they should evade when they take too much damage
 
 ## All features implemented
 
